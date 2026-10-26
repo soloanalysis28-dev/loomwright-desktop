@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="sage" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fbfcfa">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-src 'none'; child-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<title>Loomwright — Your writing desk</title>
+<meta name="description" content="An offline-capable writing desk with project synchronization, manuscript editing, and formatting tools.">
+<meta property="og:title" content="Loomwright — Your writing desk">
+<meta property="og:description" content="An offline-capable writing desk with project synchronization, manuscript editing, and formatting tools.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./app-icon.svg">
+<link rel="stylesheet" href="./fonts.css">
+<style>
+:root{--danger:#c15540;--primary-text:#fff;--ease-out:cubic-bezier(.23,1,.32,1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--effect-ripple:color-mix(in srgb,var(--accent2) 65%,var(--ink));--effect-ripple-glow:color-mix(in srgb,var(--accent) 30%,transparent);--effect-snow:color-mix(in srgb,var(--accent) 45%,var(--ink));--effect-cloud:color-mix(in srgb,var(--accent) 40%,var(--sub));--dragon-body:color-mix(in srgb,var(--accent2) 62%,var(--ink));--dragon-belly:color-mix(in srgb,var(--accent) 45%,transparent);--dragon-highlight:color-mix(in srgb,var(--accent2) 85%,var(--ink));--dragon-gold:color-mix(in srgb,#c89b3c 45%,var(--accent));--dragon-opacity:.48;--ripple-peak-op:0.62;--snow-opacity-mult:1.6;--cloud-opacity:0.18}
+[data-theme="dark"]{--effect-ripple:color-mix(in srgb,var(--accent) 65%,#ffffff);--effect-ripple-glow:color-mix(in srgb,var(--accent) 40%,transparent);--effect-snow:#ffffff;--effect-cloud:color-mix(in srgb,var(--ink) 80%,var(--accent));--dragon-body:color-mix(in srgb,var(--accent) 76%,#ffffff);--dragon-belly:color-mix(in srgb,var(--accent) 35%,transparent);--dragon-highlight:color-mix(in srgb,var(--accent) 90%,#ffffff);--dragon-gold:color-mix(in srgb,#e4bf68 65%,#ffffff);--dragon-opacity:.38;--ripple-peak-op:0.75;--snow-opacity-mult:2.4;--cloud-opacity:0.15}
+[data-palette="sage"][data-theme="light"]{--bg:#fbfcfa;--panel:#fff;--ink:#26362d;--sub:#68776e;--line:#e3eae4;--accent:#91a997;--accent2:#718b78;--card:#f1f5f1;--card-strong:#e7eee8;--primary-text:#1e3527}
+[data-palette="sage"][data-theme="dark"]{--bg:#151a16;--panel:#1c241e;--ink:#e7eee8;--sub:#a5b1a8;--line:#313a33;--accent:#9bb39f;--accent2:#8eaa94;--card:#222a24;--card-strong:#2b352e;--primary-text:#17231a}
+[data-palette="parchment"][data-theme="light"]{--bg:#faf8f4;--panel:#fff;--ink:#1f1c18;--sub:#6b645a;--line:#e8e2d8;--accent:#8a5a44;--accent2:#4a6b5a;--card:#f3efe6;--card-strong:#ece4d7}
+[data-palette="parchment"][data-theme="dark"]{--bg:#181613;--panel:#211e1a;--ink:#efe9e0;--sub:#a79f92;--line:#332e28;--accent:#d3a184;--accent2:#8fbfa4;--card:#26221d;--card-strong:#302a23}
+[data-palette="slate"][data-theme="light"]{--bg:#f4f6f8;--panel:#fff;--ink:#1c2430;--sub:#5b6673;--line:#dde3e8;--accent:#3b6ea5;--accent2:#5b8a72;--card:#eaeef2;--card-strong:#dfe7ee}
+[data-palette="slate"][data-theme="dark"]{--bg:#12161c;--panel:#1a1f27;--ink:#e6ebf0;--sub:#8b97a5;--line:#2a313b;--accent:#7aa8d9;--accent2:#8fc4a3;--card:#1f242c;--card-strong:#272f39}
+[data-palette="forest"][data-theme="light"]{--bg:#f6f7f0;--panel:#fff;--ink:#20281f;--sub:#5f6b57;--line:#dfe4d3;--accent:#5b7a4f;--accent2:#a2703f;--card:#eef1e3;--card-strong:#e3e9d4}
+[data-palette="forest"][data-theme="dark"]{--bg:#141712;--panel:#1b1f17;--ink:#e6ecdd;--sub:#93a086;--line:#2c3325;--accent:#8bb377;--accent2:#d19a63;--card:#20261b;--card-strong:#2a3224}
+[data-palette="ink"][data-theme="light"]{--bg:#fafafa;--panel:#fff;--ink:#161616;--sub:#6e6e6e;--line:#e2e2e2;--accent:#8a6a3f;--accent2:#5e5e5e;--card:#f1f1f1;--card-strong:#e8e8e8}
+[data-palette="ink"][data-theme="dark"]{--bg:#121212;--panel:#191919;--ink:#ededed;--sub:#9a9a9a;--line:#2c2c2c;--accent:#c9a06b;--accent2:#a8a8a8;--card:#1f1f1f;--card-strong:#292929}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--ink) 24%,transparent) transparent}
+[data-theme="dark"]{scrollbar-color:color-mix(in srgb,var(--ink) 30%,transparent) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 20%,transparent);border-radius:9999px;border:1.5px solid transparent;background-clip:padding-box;transition:background-color .18s ease}
+::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--accent) 75%,var(--ink))}
+::-webkit-scrollbar-thumb:active{background:var(--accent)}
+[data-theme="dark"] ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 25%,transparent)}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+::-webkit-scrollbar-corner,::-webkit-scrollbar-button{display:none!important;width:0!important;height:0!important;background:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,'Iowan Old Style',serif;min-height:100vh;transition:background .2s,color .2s}
+#bg-effect{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;contain:strict;isolation:isolate;transform:translateZ(0)}
+.bg-layer{position:absolute;inset:0;display:none}
+html[data-bg-effect="rain"] .bg-rain{display:block}
+html[data-bg-effect="clouds"] .bg-clouds{display:block}
+html[data-bg-effect="snow"] .bg-snow{display:block}
+html[data-bg-effect="dragon"] .bg-dragons{display:block}
+html[data-zen-active="true"][data-bg-effect="none"] .bg-clouds{display:block}
+.bg-rain{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.ripple{position:absolute;width:104px;height:78px;margin-left:-52px;margin-top:-39px}
+.ripple::before,.ripple::after{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--effect-ripple);background:radial-gradient(ellipse at center,var(--effect-ripple-glow) 0%,transparent 65%);box-shadow:0 0 5px var(--effect-ripple-glow);opacity:0;will-change:transform,opacity;animation:bgRippleExpand 4.6s cubic-bezier(.12,.5,.22,1) infinite}
+.ripple::after{animation-delay:.42s;border-width:1px}
+@keyframes bgRippleExpand{0%{transform:scale(.06);opacity:0}14%{opacity:var(--ripple-peak-op)}100%{transform:scale(1.22);opacity:0}}
+.rip1{top:17%;left:22%;animation-delay:-.5s}
+.rip2{top:64%;left:15%;animation-delay:-2.1s;transform:scale(.85)}
+.rip3{top:32%;left:80%;animation-delay:-3.6s;transform:scale(1.1)}
+.rip4{top:78%;left:64%;animation-delay:-1.2s;transform:scale(.92)}
+.rip5{top:14%;left:72%;animation-delay:-2.8s;transform:scale(1.05)}
+.rip6{top:48%;left:36%;animation-delay:-.1s;transform:scale(.96)}
+.rip7{top:86%;left:26%;animation-delay:-3.2s;transform:scale(.8)}
+.rip8{top:24%;left:46%;animation-delay:-1.8s;transform:scale(1.16)}
+.rip9{top:60%;left:86%;animation-delay:-.7s;transform:scale(.88)}
+.rip10{top:44%;left:8%;animation-delay:-3.5s;transform:scale(1)}
+.rip11{top:72%;left:44%;animation-delay:-2.5s;transform:scale(1.08)}
+.rip12{top:12%;left:90%;animation-delay:-1.5s;transform:scale(.84)}
+.bg-clouds .cloud{position:absolute;border-radius:50%;background:var(--effect-cloud);filter:blur(32px);opacity:var(--cloud-opacity)}
+.bg-clouds .c1{width:38vw;height:14vw;top:6%;left:-25%;animation:bgCloudDrift 46s linear infinite}
+.bg-clouds .c2{width:26vw;height:10vw;top:16%;left:-30%;animation:bgCloudDrift 62s linear infinite;animation-delay:-14s;opacity:.07}
+.bg-clouds .c3{width:44vw;height:16vw;top:2%;left:-20%;animation:bgCloudDrift 80s linear infinite;animation-delay:-30s;opacity:.06}
+@keyframes bgCloudDrift{from{transform:translateX(0)}to{transform:translateX(160vw)}}
+.bg-snow{position:absolute;inset:0;color:var(--effect-snow);pointer-events:none;overflow:hidden}
+.bg-snow .flake{position:absolute;top:-20px;border-radius:50%;background:currentColor;box-shadow:0 0 3px color-mix(in srgb,currentColor 50%,transparent);will-change:transform}
+.bg-snow .f1{left:4%;width:3.5px;height:3.5px;opacity:calc(.22*var(--snow-opacity-mult));animation:bgSnowFall1 22s linear infinite -4s}
+.bg-snow .f2{left:9%;width:4.5px;height:4.5px;opacity:calc(.26*var(--snow-opacity-mult));animation:bgSnowFall2 18s linear infinite -11s}
+.bg-snow .f3{left:15%;width:2.5px;height:2.5px;opacity:calc(.18*var(--snow-opacity-mult));animation:bgSnowFall3 27s linear infinite -7s}
+.bg-snow .f4{left:21%;width:3.5px;height:3.5px;opacity:calc(.24*var(--snow-opacity-mult));animation:bgSnowFall1 20s linear infinite -16s}
+.bg-snow .f5{left:27%;width:5.5px;height:5.5px;opacity:calc(.19*var(--snow-opacity-mult));filter:blur(.5px);animation:bgSnowFall2 24s linear infinite -3s}
+.bg-snow .f6{left:33%;width:2.5px;height:2.5px;opacity:calc(.16*var(--snow-opacity-mult));animation:bgSnowFall3 31s linear infinite -19s}
+.bg-snow .f7{left:38%;width:4.5px;height:4.5px;opacity:calc(.28*var(--snow-opacity-mult));animation:bgSnowFall1 19s linear infinite -13s}
+.bg-snow .f8{left:44%;width:3.5px;height:3.5px;opacity:calc(.22*var(--snow-opacity-mult));animation:bgSnowFall2 25s linear infinite -9s}
+.bg-snow .f9{left:50%;width:2.5px;height:2.5px;opacity:calc(.18*var(--snow-opacity-mult));animation:bgSnowFall3 28s linear infinite -22s}
+.bg-snow .f10{left:56%;width:5px;height:5px;opacity:calc(.24*var(--snow-opacity-mult));animation:bgSnowFall1 21s linear infinite -2s}
+.bg-snow .f11{left:62%;width:3.5px;height:3.5px;opacity:calc(.2*var(--snow-opacity-mult));animation:bgSnowFall2 26s linear infinite -15s}
+.bg-snow .f12{left:67%;width:2.5px;height:2.5px;opacity:calc(.17*var(--snow-opacity-mult));animation:bgSnowFall3 33s linear infinite -8s}
+.bg-snow .f13{left:73%;width:4.5px;height:4.5px;opacity:calc(.26*var(--snow-opacity-mult));animation:bgSnowFall1 17s linear infinite -12s}
+.bg-snow .f14{left:78%;width:3.5px;height:3.5px;opacity:calc(.22*var(--snow-opacity-mult));animation:bgSnowFall2 23s linear infinite -5s}
+.bg-snow .f15{left:84%;width:5.5px;height:5.5px;opacity:calc(.18*var(--snow-opacity-mult));filter:blur(.5px);animation:bgSnowFall3 29s linear infinite -18s}
+.bg-snow .f16{left:89%;width:3px;height:3px;opacity:calc(.19*var(--snow-opacity-mult));animation:bgSnowFall1 25s linear infinite -10s}
+.bg-snow .f17{left:94%;width:4px;height:4px;opacity:calc(.25*var(--snow-opacity-mult));animation:bgSnowFall2 20s linear infinite -1s}
+.bg-snow .f18{left:98%;width:2.5px;height:2.5px;opacity:calc(.16*var(--snow-opacity-mult));animation:bgSnowFall3 30s linear infinite -14s}
+.bg-snow .f19{left:12%;width:3.5px;height:3.5px;opacity:calc(.22*var(--snow-opacity-mult));animation:bgSnowFall2 23s linear infinite -17s}
+.bg-snow .f20{left:81%;width:3.5px;height:3.5px;opacity:calc(.23*var(--snow-opacity-mult));animation:bgSnowFall1 22s linear infinite -6s}
+@keyframes bgSnowFall1{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(14px,56vh,0)}100%{transform:translate3d(-4px,112vh,0)}}
+@keyframes bgSnowFall2{0%{transform:translate3d(0,0,0)}45%{transform:translate3d(-16px,50vh,0)}100%{transform:translate3d(10px,112vh,0)}}
+@keyframes bgSnowFall3{0%{transform:translate3d(0,0,0)}55%{transform:translate3d(18px,62vh,0)}100%{transform:translate3d(6px,112vh,0)}}
+.bg-dragons{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.dragon-flight-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
+@media(prefers-reduced-motion: reduce){#bg-effect{display:none}}
+button,input,select,textarea{font:inherit}
+button{color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[contenteditable]:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 58%,transparent);outline-offset:2px}
+.app-shell{position:relative;z-index:1;min-height:100vh;max-width:1180px;margin:0 auto;opacity:0;transform:translateY(5px);transition:opacity .28s var(--ease-out),transform .28s var(--ease-out);visibility:hidden}
+.app-shell.is-ready{opacity:1;transform:none;visibility:visible}
+body.zen-mode-active .app-shell,
+body.zen-mode-active .writer-statusbar,
+body.zen-mode-active .toast,
+body.zen-mode-active .confirm-backdrop,
+body.zen-mode-active .splash,
+body.zen-mode-active .palette-picker,
+body.zen-mode-active .node-map-tooltip{opacity:0!important;pointer-events:none!important;visibility:hidden!important;transform:scale(.992)!important;transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1),visibility .8s!important}
+body.zen-mode-active{cursor:none!important;overflow:hidden!important}
+body.zen-mode-active #bg-effect{z-index:1000!important;opacity:1!important;display:block!important}
+.app-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 28px 14px;border-bottom:1px solid var(--line)}
+.brand-button{display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:0;cursor:pointer;color:var(--ink);font-size:1.38rem;letter-spacing:.015em}
+.brand-mark{width:30px;height:30px;color:var(--accent);flex:none}
+.brand-button span span{color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.stats{font-size:.76rem;color:var(--sub);white-space:nowrap}
+.status-pill{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:var(--panel)}
+.home-shortcut{border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:7px 11px;font:500 .78rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;transition:background .16s,transform .16s}
+.home-shortcut:hover{background:var(--card)}
+.app-nav{position:sticky;top:0;z-index:30;display:flex;gap:5px;padding:10px 22px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 75%,transparent);background:color-mix(in srgb,var(--panel) 75%,transparent);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);box-shadow:0 4px 16px -4px color-mix(in srgb,var(--ink) 6%,transparent);overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.app-nav::-webkit-scrollbar{display:none}
+.tab{display:inline-flex;align-items:center;gap:7px;flex:none;font:500 .83rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:transparent;border:0;border-bottom:2px solid transparent;padding:10px 12px 11px;cursor:pointer;color:var(--sub);white-space:nowrap;transition:color .16s,border-color .16s,background .16s}
+.nav-meta{display:flex;align-items:center;gap:10px;flex:none;margin-left:auto;padding:0 2px 10px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.nav-meta .status-pill{display:inline-flex;padding:4px 8px;background:color-mix(in srgb,var(--panel) 60%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-color:color-mix(in srgb,var(--line) 80%,transparent)}
+.nav-meta .stats{font-size:.7rem}
+.tab:hover{color:var(--ink);background:color-mix(in srgb,var(--card) 60%,transparent);border-radius:8px 8px 0 0}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:650}
+.tab svg{width:16px;height:16px}
+body.nav-side-mounted .app-nav{position:fixed;left:18px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:3px;width:215px;max-height:calc(100vh - 36px);padding:12px 10px;border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:20px;background:color-mix(in srgb,var(--panel) 80%,transparent);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);box-shadow:0 16px 40px -8px #00000045,0 2px 10px color-mix(in srgb,var(--ink) 8%,transparent);overflow-y:auto;overflow-x:hidden;box-sizing:border-box}
+body.nav-side-mounted .app-nav .tab{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:9px 12px;border-bottom:0;border-left:3px solid transparent;border-radius:9px;font-size:.82rem;justify-content:flex-start;text-align:left;transition:all .14s ease-out}
+body.nav-side-mounted .app-nav .tab:hover{background:color-mix(in srgb,var(--card) 65%,transparent);border-radius:9px}
+body.nav-side-mounted .app-nav .tab.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border-left-color:var(--accent);border-radius:9px}
+body.nav-side-mounted .app-nav .nav-meta{margin-left:0;margin-top:6px;padding:10px 4px 2px;border-top:1px solid color-mix(in srgb,var(--line) 65%,transparent);flex-direction:column;align-items:stretch;gap:6px}
+body.nav-side-mounted .app-nav .nav-meta .status-pill{justify-content:center;text-align:center;font-size:.68rem}
+body.nav-side-mounted .app-nav .nav-meta .stats{text-align:center;font-size:.68rem}
+@media(min-width:900px){body.nav-side-mounted .app-shell{padding-left:240px;box-sizing:border-box}}
+@media(max-width:899px){body.nav-side-mounted .app-nav{left:8px;width:52px;padding:10px 5px;border-radius:16px}body.nav-side-mounted .app-nav .tab{padding:10px 6px;justify-content:center;border-left-width:0;font-size:0}body.nav-side-mounted .app-nav .tab svg{margin:0}body.nav-side-mounted .app-nav .tab.active{border-left-width:0;background:color-mix(in srgb,var(--accent) 22%,transparent)}body.nav-side-mounted .app-nav .nav-meta{display:none}body.nav-side-mounted .app-shell{padding-left:64px;box-sizing:border-box}}
+body.writer-focus.nav-side-mounted .app-shell{padding-left:0}
+main{padding:24px 28px 44px}
+.view{display:none;animation:view-in .22s var(--ease-out) both}
+.view.active{display:block}
+@keyframes view-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* Opening animation */
+.splash{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:var(--bg);transition:opacity .32s var(--ease-out),visibility .32s;overflow:hidden}
+.splash[hidden]{display:none}
+.splash.leaving{opacity:0;visibility:hidden;pointer-events:none}
+.splash-content{text-align:center;padding:24px;animation:splash-rise .65s var(--ease-out) both}
+@keyframes splash-rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.thread-mark{width:78px;height:78px;margin:0 auto 18px;color:var(--accent)}
+.thread-mark path{stroke-dasharray:210;stroke-dashoffset:210;animation:thread-draw 1s var(--ease-out) .1s forwards}
+.thread-mark circle{opacity:0;animation:dot-appear .2s ease-out .82s forwards}
+@keyframes thread-draw{to{stroke-dashoffset:0}}
+@keyframes dot-appear{to{opacity:1}}
+.splash-name{font-size:2rem;letter-spacing:.02em;margin:0}
+.splash-name span{color:var(--accent)}
+.splash-caption{font: .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:9px 0 0}
+.skip-intro{position:absolute;right:22px;bottom:18px;border:1px solid var(--line);border-radius:999px;background:var(--panel);padding:7px 12px;font: .75rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);cursor:pointer}
+/* Home dashboard */
+.welcome-panel{position:relative;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(220px,.7fr);gap:24px;align-items:center;overflow:hidden;border:1px solid var(--line);border-radius:18px;padding:28px 34px;background:linear-gradient(112deg,var(--panel) 4%,var(--card) 100%);}
+.welcome-panel:after{content:"";position:absolute;width:330px;height:330px;border:1px solid color-mix(in srgb,var(--accent2) 18%,transparent);border-radius:50%;right:8%;top:-210px;pointer-events:none}
+.eyebrow{font:700 .68rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.welcome-panel h2{font-size:clamp(1.9rem,4vw,2.8rem);font-weight:400;line-height:1.08;letter-spacing:-.025em;margin:9px 0 9px;max-width:600px}
+.welcome-panel p{color:var(--sub);font: .96rem/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;max-width:590px}
+.resume-project{margin-top:11px;color:var(--ink);font:600 .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.resume-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:13px;color:var(--sub);font:.72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.resume-meta span+span:before{content:'·';margin-right:10px;color:var(--line)}.resume-panel .welcome-actions{margin-top:20px}
+.welcome-actions{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.primary-button,.secondary-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border-radius:9px;padding:10px 15px;font:600 .83rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;transition:transform .15s var(--ease-out),filter .15s,background .15s}
+.primary-button{background:var(--accent);border:1px solid var(--accent);color:var(--primary-text)}
+.primary-button:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.secondary-button{background:var(--panel);border:1px solid var(--line);color:var(--ink)}
+.secondary-button:hover{background:var(--card)}
+.primary-button:active,.secondary-button:active,.home-tile:active{transform:scale(.985)}
+.welcome-art{height:170px;display:grid;place-items:center;position:relative}
+.orbit{position:absolute;width:152px;height:152px;border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:50%;animation:orbit-drift 14s linear infinite}
+.orbit:before,.orbit:after{content:"";position:absolute;border-radius:50%;width:7px;height:7px;background:var(--accent2)}
+.orbit:before{top:20px;left:20px}.orbit:after{right:8px;bottom:32px;background:var(--accent)}
+@keyframes orbit-drift{to{transform:rotate(360deg)}}
+.art-book{position:relative;z-index:1;width:88px;height:111px;border-radius:5px 10px 10px 5px;background:var(--panel);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:8px 9px 0 color-mix(in srgb,var(--accent2) 14%,transparent),0 15px 35px #00000012;display:grid;place-items:center;color:var(--accent)}
+.art-book svg{width:43px;height:43px}.art-book:after{content:"";position:absolute;left:9px;top:0;bottom:0;border-left:1px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+.dashboard-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:17px 0 23px}
+.stat-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:12px}
+.stat-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:var(--accent2);background:var(--card);flex:none}
+.stat-icon svg{width:18px;height:18px}.stat-value{font:650 1rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.stat-label{font:.72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin-top:2px}
+.section-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:25px 0 12px}
+.section-heading h3{font-size:1.22rem;font-weight:400;margin:0}.section-heading p{font:.78rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:4px 0 0}
+.tile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.home-bento-grid{display:grid;grid-template-columns:1.05fr 1.05fr .9fr;gap:12px}.home-bento-card{position:relative;min-height:238px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);text-align:left;transition:transform .2s var(--ease-out),box-shadow .2s,border-color .2s,background .2s}.home-bento-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px #241a1010;border-color:color-mix(in srgb,var(--accent) 42%,var(--line));background:color-mix(in srgb,var(--panel) 82%,var(--card))}.home-bento-head{display:flex;align-items:flex-start;justify-content:space-between}.home-bento-head .tile-icon{margin:0}.home-bento-card .tile-title{display:block;margin-top:18px}.home-bento-card .tile-desc{display:block;max-width:100%}.home-bento-foot{position:absolute;right:18px;bottom:17px;left:18px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--sub);font:.68rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.home-bento-foot strong{color:var(--ink);font-size:.76rem}.character-stack{display:flex;align-items:center;min-height:46px;margin-top:17px}.character-avatar{display:grid;place-items:center;width:38px;height:38px;margin-right:-8px;border:2px solid var(--panel);border-radius:50%;background:color-mix(in srgb,var(--accent) 62%,var(--card));color:var(--primary-text);font:700 .7rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;box-shadow:0 2px 8px #18201918}.character-avatar:nth-child(2){background:color-mix(in srgb,var(--accent2) 65%,var(--card))}.character-avatar:nth-child(3){background:color-mix(in srgb,var(--accent) 42%,var(--accent2))}.character-avatar:nth-child(4){background:color-mix(in srgb,var(--accent2) 48%,var(--ink))}.character-stack-empty,.web-mini-empty{color:var(--sub);font:.7rem/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.web-mini-map{position:relative;height:68px;margin-top:16px;background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 64%);overflow:hidden}.web-mini-map:before,.web-mini-map:after{content:"";position:absolute;left:26%;top:50%;width:48%;height:1px;background:color-mix(in srgb,var(--accent2) 55%,transparent);transform:rotate(21deg);transform-origin:left center}.web-mini-map:after{left:42%;top:32%;width:38%;transform:rotate(105deg)}.web-mini-node{position:absolute;z-index:1;display:grid;place-items:center;width:28px;height:28px;border:1px solid color-mix(in srgb,var(--accent) 65%,var(--line));border-radius:50%;background:var(--card);color:var(--accent);font:650 .68rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.web-mini-node-1{left:16%;top:38%}.web-mini-node-2{left:43%;top:11%}.web-mini-node-3{left:62%;top:51%}.web-mini-node-4{left:80%;top:25%}.web-mini-node-5{left:33%;top:60%}.web-mini-node-6{left:70%;top:68%}.home-finalise-bento{background:color-mix(in srgb,var(--card) 72%,var(--panel));border-color:color-mix(in srgb,var(--accent2) 32%,var(--line))}.home-finalise-bento .progress-label{position:absolute;right:18px;top:22px}.bento-progress-ring{display:grid;place-items:center;width:72px;height:72px;margin:17px 0 14px;border-radius:50%;background:conic-gradient(var(--accent2) var(--finalise-progress,0%),color-mix(in srgb,var(--line) 60%,transparent) 0);position:relative}.bento-progress-ring:after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--panel)}.bento-progress-ring span{position:relative;z-index:1;font:700 .75rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.home-finalise-bento .progress-track{margin-top:0}.home-finalise-bento>.secondary-button{position:absolute;right:18px;bottom:14px;padding:7px 10px;font-size:.7rem}.home-secondary-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:12px;margin-top:13px}.home-recent-card{min-width:0;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.home-secondary-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.home-secondary-heading h3{margin:0;font-size:1.05rem;font-weight:400}.home-secondary-heading p{margin:4px 0 0;color:var(--sub);font:.72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.home-secondary-heading .secondary-button{padding:6px 9px;font-size:.68rem}.home-recent-list{display:grid;gap:2px;margin-top:12px}.home-recent-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 2px;border:0;border-top:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;cursor:pointer}.home-recent-item:hover{color:var(--accent)}.home-recent-index{display:grid;place-items:center;width:28px;height:28px;flex:none;border-radius:8px;background:var(--card);color:var(--accent);font:700 .72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.home-recent-item strong,.home-recent-item small{display:block}.home-recent-item strong{font:650 .73rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.home-recent-item small{margin-top:2px;color:var(--sub);font:.65rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.home-recent-arrow{margin-left:auto;color:var(--sub)}.home-ai-row{display:flex;align-items:center;gap:13px;width:100%;min-height:100%;padding:18px;border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--card) 55%,var(--panel));color:var(--ink);text-align:left;cursor:pointer;transition:transform .2s var(--ease-out),box-shadow .2s,border-color .2s}.home-ai-row:hover{transform:translateY(-3px);box-shadow:0 10px 28px #241a1010;border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}.home-ai-row .tile-icon{margin:0;flex:none}.home-ai-row .tile-title,.home-ai-row .tile-desc{display:block}.home-ai-row .tile-desc{max-width:100%}.home-ai-row .tile-arrow{position:static;margin-left:auto;flex:none}
+@media(max-width:800px){.home-bento-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-finalise-bento{grid-column:1/-1}.home-secondary-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.home-bento-grid{grid-template-columns:1fr}.home-finalise-bento{grid-column:auto}.home-bento-card{min-height:210px}.home-secondary-grid{grid-template-columns:1fr}.home-secondary-heading{align-items:flex-start;flex-direction:column}.home-secondary-heading .secondary-button{align-self:flex-start}}
+.home-tile{min-height:151px;text-align:left;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px 17px 15px;cursor:pointer;transition:transform .2s var(--ease-out),box-shadow .2s,border-color .2s,background .2s;display:flex;flex-direction:column;align-items:flex-start}
+.home-tile:hover{transform:translateY(-3px);box-shadow:0 8px 22px #241a1010;border-color:color-mix(in srgb,var(--accent) 40%,var(--line));background:color-mix(in srgb,var(--panel) 80%,var(--card))}
+.tile-icon{width:39px;height:39px;border-radius:11px;background:var(--card);color:var(--accent);display:grid;place-items:center;margin-bottom:15px}
+.tile-icon svg{width:21px;height:21px}
+.tile-title{font:650 .95rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.tile-desc{font:.74rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin-top:5px;max-width:92%}
+.tile-arrow{position:absolute;right:15px;top:19px;color:var(--sub);font-size:1.1rem;transition:transform .18s}
+.home-tile:hover .tile-arrow{transform:translateX(3px);color:var(--accent)}
+.finalise-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;margin-top:13px;border:1px solid color-mix(in srgb,var(--accent2) 32%,var(--line));border-radius:14px;padding:17px 19px;background:color-mix(in srgb,var(--card) 72%,var(--panel));}
+.finalise-card-main{display:flex;align-items:center;gap:14px}.finalise-card .tile-icon{margin:0;background:var(--panel)}
+.finalise-card h4{font:650 .93rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0}.finalise-card p{font:.74rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:4px 0 0}
+.finalise-progress-wrap{display:flex;align-items:center;gap:10px;margin-top:8px;max-width:280px}
+.progress-track{height:6px;border-radius:999px;background:var(--line);overflow:hidden;flex:1}
+.progress-fill{height:100%;width:0;background:var(--accent2);border-radius:inherit;transition:width .24s var(--ease-out)}
+.progress-label{font:600 .7rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);white-space:nowrap}
+/* Shared panels / writing views */
+.page-intro{margin:2px 0 18px}.page-intro h2{font-size:1.65rem;font-weight:400;margin:0}.page-intro p{font:.84rem/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:6px 0 0;max-width:720px}
+.write-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.write-top select{flex:1;min-width:160px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.9rem;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.addbtn,.importbtn{padding:8px 13px;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.8rem;cursor:pointer;white-space:nowrap;transition:background .16s,transform .16s}
+.addbtn{border:1px dashed var(--line);background:transparent;color:var(--sub)}.addbtn:hover{background:var(--card)}
+.importbtn{border:1px solid var(--line);background:var(--card);color:var(--ink)}.importbtn:hover{filter:brightness(.98)}
+.editor{width:100%}
+.editor input[type=text]{width:100%;font-size:1.15rem;font-family:inherit;border:0;background:transparent;color:var(--ink);padding:4px 0;border-bottom:1px solid var(--line);margin-bottom:10px}
+.toolbar{display:flex;gap:0;margin-bottom:8px;flex-wrap:wrap;align-items:stretch;padding:5px 7px 0;border:1px solid var(--line);border-radius:5px;background:var(--panel)}
+.tb-group{position:relative;display:flex;gap:2px;align-items:center;min-height:50px;padding:0 6px 16px 2px;margin-right:1px}
+.tb-group:not(:last-child):after{content:"";position:absolute;right:0;top:3px;bottom:19px;border-right:1px solid var(--line)}
+.tb-group-label{position:absolute;left:0;right:8px;bottom:1px;color:var(--sub);text-align:center;font: .62rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;white-space:nowrap}
+.toolbar button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:29px;height:30px;padding:4px 6px;border:1px solid transparent;background:transparent;border-radius:3px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.8rem;color:var(--ink);transition:background .12s,border-color .12s}
+.toolbar button:hover,.toolbar button:focus-visible{background:var(--card);border-color:var(--line)}
+.toolbar button:active{background:var(--card-strong)}
+.ribbon-icon{display:block;width:18px;height:18px;flex:none}
+#writer-save,#writer-copy,#writer-paste{min-width:30px;padding:4px}
+.clear-format-icon{font:700 .88rem Georgia,serif}.clear-format-icon span{color:var(--danger);font-style:italic}
+.highlight-swatch{color:#8b6d16;background:color-mix(in srgb,#fff59d 30%,var(--panel))}
+.toolbar select{height:30px;padding:4px 7px;border:1px solid var(--line);background:var(--panel);border-radius:3px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.76rem;color:var(--ink);cursor:pointer}
+.tb-font-select{width:150px}
+.tb-color-wrap{position:relative;width:30px;height:30px}
+.tb-color-wrap input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.tb-color-swatch{width:30px;height:30px;border:1px solid var(--line);border-radius:6px;background:var(--panel);display:flex;align-items:center;justify-content:center;font-size:.75rem;pointer-events:none}
+.tb-color-picker{position:relative;width:30px;height:30px;flex:none}
+.tb-color-trigger{width:30px;min-width:30px;height:30px;padding:0!important;border:1px solid var(--line)!important;border-radius:4px!important;background:var(--panel)!important}
+.tb-color-trigger .tb-color-swatch{position:relative;width:100%;height:100%;border:0;border-radius:3px;font-size:.77rem}
+.tb-color-trigger .tb-color-swatch:after{position:absolute;content:"";height:3px;left:4px;right:4px;bottom:2px;background:var(--picked-color,#202020)}
+#tb-highlight-picker .tb-color-trigger .tb-color-swatch:after{background:var(--picked-color,#fff59d)}
+.tb-color-trigger .highlight-swatch{color:#8b6d16}
+.tb-color-menu{position:absolute;z-index:50;top:calc(100% + 6px);left:-4px;width:min(286px,calc(100vw - 24px));padding:9px;background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:0 8px 24px #18201935;color:var(--ink);font: .76rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+#tb-highlight-picker .tb-color-menu{left:auto;right:-5px}
+.tb-color-menu[hidden]{display:none}
+.tb-palette-heading{font-weight:650;padding:2px 2px 6px}
+.tb-theme-colors,.tb-theme-shades,.tb-standard-colors{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px}
+.tb-theme-shades{padding-top:3px}
+.tb-palette-swatch{width:100%;aspect-ratio:1.15;min-width:0;height:auto;padding:0!important;border:1px solid #00000018!important;border-radius:0!important;background:var(--swatch)!important}
+.tb-palette-swatch:hover,.tb-palette-swatch:focus-visible{outline:2px solid var(--ink);outline-offset:1px;z-index:1}
+.tb-standard-heading{border-top:1px solid var(--line);margin-top:9px;padding-top:8px}
+.tb-no-color{width:100%;height:28px!important;justify-content:flex-start!important;margin-bottom:7px;padding:0 5px!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;text-align:left;font-size:.76rem!important}
+.tb-palette-footer{display:flex;align-items:center;margin-top:7px;padding-top:6px;border-top:1px solid var(--line)}
+.tb-palette-footer button{height:27px!important;padding:2px 5px!important;border:0!important;font-size:.75rem!important}
+.tb-palette-footer input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+[contenteditable]{width:100%;min-height:50vh;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:20px;font-size:1.05rem;line-height:1.7;font-family:inherit;overflow-y:auto}
+[contenteditable] h1{font-size:1.4rem;margin:.4em 0}[contenteditable] h2{font-size:1.2rem;margin:.4em 0}[contenteditable] p{margin:0 0 .8em}
+.writer-statusbar{position:fixed;z-index:40;right:0;bottom:0;left:0;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:44px;padding:6px max(18px,calc((100vw - 1180px)/2 + 28px)) calc(6px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--panel);box-shadow:0 -3px 14px #1820190d;font: .74rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub)}
+.writer-statusbar[hidden]{display:none}
+.writer-status-info,.writer-status-actions{display:flex;align-items:center;gap:15px;min-width:0}
+.writer-status-info span{white-space:nowrap}
+.writer-status-action{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:5px 9px;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--ink);font:600 .74rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;white-space:nowrap;cursor:pointer}
+.writer-status-action:hover{background:var(--card);border-color:var(--line)}
+.writer-status-action[aria-pressed="true"]{background:var(--card-strong);border-color:var(--line)}
+.writer-status-action.del{color:var(--danger)}
+.tb-del-btn{color:var(--danger)!important}
+.tb-del-btn:hover,.tb-del-btn:focus-visible{background:color-mix(in srgb,var(--danger) 14%,var(--panel))!important;border-color:color-mix(in srgb,var(--danger) 35%,var(--line))!important}
+.write-workspace{padding-bottom:56px}
+body.writer-focus .app-header,body.writer-focus .app-nav,body.writer-focus #view-write .writer-command-bar,body.writer-focus #view-write .toolbar{display:none}
+body.writer-focus #view-write{padding-top:0}
+body.writer-focus #view-write .write-workspace{max-width:none}
+.del{color:var(--danger);cursor:pointer;background:transparent;border:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.78rem;padding:6px}
+.char-grid{display:grid;gap:18px}.character-tier{display:grid;gap:9px}.character-tier>header{display:flex;align-items:center;gap:8px}.character-tier>header h3{margin:0;font:650 .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.04em;text-transform:uppercase}.character-tier>header span{display:grid;place-items:center;min-width:20px;height:20px;border-radius:50%;background:var(--card-strong);color:var(--sub);font:600 .68rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.character-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:12px}.char-list-layout .character-card-grid{grid-template-columns:1fr}.char-card{position:relative;display:flex;flex-direction:column;min-height:215px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:visible;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:border-color .16s,transform .16s,background .16s}.char-card:hover{border-color:color-mix(in srgb,var(--accent) 42%,var(--line));transform:translateY(-2px);background:var(--card)}.char-card-main{display:block;width:100%;flex:1;padding:15px 15px 11px;text-align:left;background:transparent;border:0;color:var(--ink);cursor:pointer}.char-card-top{display:flex;align-items:center;gap:9px;min-width:0}.char-monogram{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:50%;font:700 .78rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--primary-text);background:color-mix(in srgb,var(--accent) 76%,var(--char-tone));box-shadow:0 0 0 4px color-mix(in srgb,var(--char-tone) 20%,transparent)}.tone-0{--char-tone:#83b69a}.tone-1{--char-tone:#d5aa68}.tone-2{--char-tone:#9aa8c8}.tone-3{--char-tone:#bf8b9d}.tone-4{--char-tone:#8cb7b0}.tone-5{--char-tone:#b69bce}.char-card-heading{display:grid;gap:5px;min-width:0}.char-card-heading strong{font:650 1rem Georgia,'Iowan Old Style',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.char-role-chip,.char-late-badge,.char-chip{display:inline-flex;align-items:center;width:max-content;max-width:100%;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,var(--accent) 13%,var(--panel));border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));color:var(--sub);font:600 .61rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.char-late-badge{margin-left:auto;color:var(--accent2);white-space:nowrap}.char-count{display:flex;align-items:baseline;gap:6px;margin:15px 0 7px;color:var(--sub);font-size:.7rem}.char-count b{color:var(--ink);font-size:1.35rem;line-height:1;font-variant-numeric:tabular-nums}.appearance-strip{display:grid;grid-template-columns:repeat(11,minmax(8px,1fr));gap:3px;margin-bottom:10px}.appearance-cell{height:13px;padding:0;border:1px solid color-mix(in srgb,var(--accent) 18%,var(--line));border-radius:3px;background:color-mix(in srgb,var(--line) 45%,transparent);cursor:pointer;opacity:.3}.appearance-cell.has-mentions{background:color-mix(in srgb,var(--accent) calc(var(--appearance)*100%),var(--panel));opacity:1}.appearance-cell:hover{outline:2px solid var(--accent);outline-offset:1px}.char-alias-slot{display:flex;gap:4px;min-height:23px;overflow:hidden}.char-chip{font-size:.62rem;white-space:nowrap}.char-muted,.char-note-preview,.char-often-with{color:var(--sub);font: .7rem/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.char-note-preview{display:-webkit-box;min-height:19px;margin:9px 0 3px;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:1}.char-often-with{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.char-card-footer{display:flex;justify-content:flex-end;padding:0 10px 9px}.char-menu-button{width:30px;height:26px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--sub);font:700 1.2rem/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer}.char-menu-button:hover,.char-menu-button[aria-expanded="true"]{background:var(--card-strong);border-color:var(--line);color:var(--ink)}.char-menu{position:absolute;right:10px;bottom:37px;z-index:4;display:grid;min-width:165px;padding:5px;border:1px solid var(--line);border-radius:9px;background:var(--panel);box-shadow:0 12px 30px color-mix(in srgb,var(--ink) 20%,transparent)}.char-menu[hidden]{display:none}.char-menu button{padding:7px 9px;border:0;border-radius:5px;background:transparent;color:var(--ink);text-align:left;font: .72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer}.char-menu button:hover{background:var(--card-strong)}.char-list-layout .char-card{min-height:0}.char-list-layout .char-card-main{display:grid;grid-template-columns:minmax(180px,1.1fr) minmax(180px,1fr) minmax(190px,1fr);align-items:center;gap:16px}.char-list-layout .char-count{margin:0}.char-list-layout .char-card-footer{position:absolute;right:2px;top:10px}.character-review-tray{margin:0 0 18px;padding:14px;border:1px solid color-mix(in srgb,var(--accent2) 36%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--accent2) 5%,var(--panel));font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.character-review-tray[hidden]{display:none}.review-tray-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}.review-tray-heading strong{font-size:.86rem}.review-tray-heading span,.review-tray-heading small,.review-candidate small{color:var(--sub);font-size:.7rem}.review-tray-heading span{margin-left:7px}.review-tray-list{display:grid;gap:7px}.review-candidate{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}.review-candidate>div:first-child{display:grid;gap:3px;min-width:0}.review-candidate strong{font-size:.78rem}.review-candidate-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}.review-candidate-actions button,.review-candidate-actions select{padding:6px 8px;font-size:.68rem}.character-sheet-backdrop{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:18px;background:color-mix(in srgb,var(--bg) 66%,transparent);backdrop-filter:blur(8px)}.character-sheet-backdrop[hidden]{display:none}.character-sheet{width:min(560px,100%);max-height:min(88vh,760px);overflow:auto;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 24px 80px color-mix(in srgb,var(--ink) 24%,transparent);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.character-sheet-header{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 22px 14px;border-bottom:1px solid var(--line)}.character-sheet-header h2{margin:5px 0 0;font:400 1.55rem Georgia,serif}.sheet-close{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);font-size:1.35rem;cursor:pointer}.character-sheet-body{display:grid;gap:12px;padding:18px 22px}.character-sheet-body label{display:grid;gap:6px;color:var(--sub);font-size:.72rem;font-weight:650}.character-sheet-body input,.character-sheet-body select,.character-sheet-body textarea{width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font: .8rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;resize:vertical}.character-sheet-merge{display:flex;align-items:end;gap:8px;padding-top:6px;border-top:1px solid var(--line)}.character-sheet-merge label{flex:1}.character-sheet-merge .secondary-button{padding:9px 12px;white-space:nowrap}.character-sheet-readonly{display:grid;gap:4px;padding:10px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-size:.7rem;color:var(--sub)}.character-sheet-readonly strong{color:var(--ink);font-size:.78rem}.character-sheet-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px 20px;border-top:1px solid var(--line)}
+.empty{color:var(--sub);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.85rem;padding:22px;text-align:center}
+#webcanvas{width:100%;height:min(60vh,560px);min-height:340px;border:1px solid var(--line);border-radius:12px;background:var(--panel);touch-action:none;display:block}
+.web-hint{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.78rem;color:var(--sub);margin-top:8px}
+.btnrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+button.primary{background:var(--accent);color:var(--primary-text);border:0;padding:9px 15px;border-radius:7px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.82rem;cursor:pointer}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);padding:9px 15px;border-radius:7px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.82rem;cursor:pointer}
+.character-toolbar{display:flex;align-items:center;flex-wrap:nowrap;gap:7px;margin:0 0 14px;padding:8px;overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:10px}.character-search{position:relative;flex:1 1 auto;min-width:0}.character-search svg{position:absolute;left:10px;top:50%;z-index:1;width:15px;height:15px;transform:translateY(-50%);color:var(--sub);pointer-events:none}.character-search input{width:100%;box-sizing:border-box;padding:10px 12px 10px 30px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font: .76rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.character-tool-button{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--sub);cursor:pointer}.character-tool-button:hover{border-color:color-mix(in srgb,var(--accent) 48%,var(--line));background:var(--card-strong);color:var(--ink)}.character-tool-button:disabled{cursor:wait;opacity:.65}.character-tool-button svg{width:17px;height:17px}.character-tool-button.ai-action-btn{color:var(--accent2)}.character-toolbar select{flex:0 0 auto;width:auto;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font: .76rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.character-toolbar select.character-sort{min-width:142px}.character-toolbar select.character-layout{min-width:78px}.char-scan-status{flex:0 0 100%;padding:1px 3px 0;font: .7rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub)}.char-scan-progress{flex:0 0 100%;height:3px;border-radius:999px;overflow:hidden;background:var(--line)}.char-scan-progress span{display:block;width:0;height:100%;border-radius:inherit;background:var(--accent);transition:width .24s ease}.scan-spinner{display:inline-block;width:13px;height:13px;border:2px solid color-mix(in srgb,currentColor 28%,transparent);border-top-color:currentColor;border-radius:50%;animation:scanSpin .7s linear infinite;vertical-align:-2px}@keyframes scanSpin{to{transform:rotate(360deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Finalise */
+.finalise-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(250px,.8fr);gap:15px;align-items:start}
+.checklist{display:grid;gap:9px;margin-top:15px}
+.check-item{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:13px;cursor:pointer;transition:border-color .15s,background .15s}
+.check-item:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line));background:var(--card)}
+.check-item input{width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent2);flex:none}
+.check-copy strong{font-size:.82rem;display:block}.check-copy small{font-size:.73rem;line-height:1.45;color:var(--sub);display:block;margin-top:3px}
+.finalise-side{display:grid;gap:12px}
+.summary-card{border:1px solid var(--line);border-radius:11px;padding:15px;background:var(--bg)}.summary-card h3{font:650 .88rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0 0 11px}
+.summary-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.77rem}.summary-row:last-child{border:0;padding-bottom:0}.summary-row span:first-child{color:var(--sub)}.summary-row strong{font-weight:650;text-align:right}
+.export-note{font-size:.73rem;line-height:1.5;color:var(--sub);margin:0 0 10px}.export-buttons{display:grid;gap:8px}
+/* Offline projects and book design */
+.project-home-strip{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 24px;padding:14px 17px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.project-home-copy strong{font:650 .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:block}.project-home-copy span{display:block;color:var(--sub);font:.74rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin-top:3px}
+.project-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.project-create{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 18px;padding:15px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.project-create input,.book-form input,.book-form select,.book-form textarea{font: .83rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+.project-create input{flex:1;min-width:190px}
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:12px}
+.project-card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;display:flex;flex-direction:column;gap:11px;min-width:0}
+.project-card.current{border-color:color-mix(in srgb,var(--accent2) 65%,var(--line));background:color-mix(in srgb,var(--panel) 88%,var(--card))}
+.project-card h3{font-size:1.08rem;font-weight:400;margin:0;overflow-wrap:anywhere}.project-card-meta{font:.73rem/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub)}
+.project-rename-form{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.project-rename-form input{flex:1;min-width:120px;max-width:100%;font:.83rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 9px}.project-rename-form button{padding:7px 10px;font-size:.75rem}
+.project-card .project-actions{margin-top:auto}.project-card .project-actions button{padding:7px 10px;font-size:.75rem}
+.project-empty{border:1px dashed var(--line);border-radius:12px;padding:24px;color:var(--sub);font:.84rem/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-align:center}
+.offline-safety-note{font:.74rem/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:8px 0 14px;padding:10px 12px;background:var(--card);border-radius:8px}
+.offline-safety-note[data-state="warning"]{color:#795b27;background:#f8f1df}.offline-safety-note[data-state="error"]{color:#8c352b;background:#f8e8e5}
+.local-storage-note{font:.75rem/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);padding:12px 14px;border-radius:10px;background:var(--card);margin:12px 0 0}
+.book-design-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.book-design-grid{display:grid;grid-template-columns:minmax(230px,.85fr) minmax(0,1.5fr);gap:18px;align-items:start}
+.book-form{display:grid;gap:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.book-form label{font-size:.75rem;color:var(--sub);font-weight:650;display:grid;gap:5px}
+.book-form input,.book-form select,.book-form textarea{width:100%;font-weight:400}.book-form textarea{min-height:67px;resize:vertical;line-height:1.45}
+.book-options{display:grid;grid-template-columns:1fr 1fr;gap:9px}.book-check{display:flex!important;grid-template-columns:16px 1fr;align-items:center;gap:8px!important;color:var(--ink)!important;font-weight:500!important}.book-check input{width:16px;height:16px;accent-color:var(--accent2)}
+.book-preview-heading{font:650 .78rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:0 0 9px}
+.book-preview-pages{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+.book-page{position:relative;min-height:270px;max-height:360px;overflow:hidden;border:1px solid #dfe5df;border-radius:5px;background:#fff;color:#26362d;padding:22px 17px;box-shadow:0 5px 17px #1e35270c;font: .74rem/1.55 Georgia,'Iowan Old Style',serif}
+.book-page-label{display:block;margin:0 0 16px;font:650 .58rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#718278}
+.book-page h3{font:400 1.13rem/1.2 Georgia,serif;color:#26362d;margin:0 0 10px;overflow-wrap:anywhere}.book-page p{margin:0 0 .65em}
+.book-cover-page{min-height:300px;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:25px 17px}
+.book-cover-page:before{content:"";position:absolute;inset:13px;border:1px solid #90a79450;pointer-events:none}
+.book-cover-page.has-cover-art{isolation:isolate;overflow:hidden;color:#203529}
+.book-cover-page.has-cover-art:before{z-index:1;background:linear-gradient(180deg,#ffffff20 0%,#ffffffc9 42%,#ffffffec 100%)}
+.book-cover-art-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.book-cover-page.has-cover-art>*:not(.book-cover-art-preview){position:relative;z-index:2}
+.book-cover-page.cover-botanical{background:linear-gradient(155deg,#f7faf6,#e7efe8);color:#294433}
+.book-cover-page.cover-minimal{background:#fff;border-top:5px solid #91a997;color:#26362d}
+.book-cover-page.cover-classic{background:#f5f1e8;color:#423d31;border:4px double #aeb8a9}
+.book-cover-page.has-cover-art.cover-minimal:before{border:none;background:linear-gradient(180deg,#ffffff10 0%,#ffffffe0 42%,#fffffff0 100%)}
+.book-cover-page.cover-classic:before{inset:9px;border-color:#b7b59e}
+.book-cover-page h3{font-size:1.4rem;margin:auto 0 9px;letter-spacing:.01em}.book-cover-subtitle{font: .71rem/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#64766a;margin:0 0 30px!important}
+.book-cover-author{font: .7rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#596b5e;margin-top:auto;letter-spacing:.06em;text-transform:uppercase}
+.book-toc-list{display:grid;gap:9px;margin-top:22px}.book-toc-row{display:flex;align-items:baseline;gap:5px;font-size:.68rem}.book-toc-row .leader{flex:1;border-bottom:1px dotted #b7c1b8;min-width:8px;transform:translateY(-3px)}.book-toc-clean .leader{display:none}
+.book-sample-page h4{font:400 1rem Georgia,serif;margin:4px 0 13px}.book-sample-page .sample-copy{font: .68rem/1.7 Georgia,serif;color:#334037}
+.book-preview-note{font:.69rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:9px 0 0}
+#book-preview-pages[data-font="classic"] .book-page{font-family:"Palatino Linotype",Palatino,Georgia,serif}
+#book-preview-pages[data-font="sans"] .book-page{font-family:Arial,sans-serif}
+#book-preview-pages[data-trim="a5"] .book-page{min-height:285px;padding-left:15px;padding-right:15px}
+#book-preview-pages[data-trim="letter"] .book-page{min-height:320px;padding-left:20px;padding-right:20px}
+.book-field-heading{font:650 .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0 0 11px}
+.design-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;flex-wrap:wrap}
+/* Settings */
+.settings-layout{display:grid;grid-template-columns:minmax(230px,.68fr) minmax(0,1.32fr);gap:14px;align-items:start;min-height:570px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.settings-rail,.settings-content{min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.settings-rail{position:sticky;top:12px;padding:18px 10px 10px}
+.settings-rail-label{margin:4px 10px 9px;color:var(--sub);font-size:.67rem;font-weight:700;text-transform:uppercase}
+.settings-nav{display:grid;gap:3px}
+.settings-nav-btn{display:flex;align-items:center;gap:11px;width:100%;min-height:48px;padding:8px 10px;border:0;border-radius:5px;background:transparent;color:var(--ink);text-align:left;font:500 .82rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer}
+.settings-nav-btn:hover{background:var(--card)}
+.settings-nav-btn[aria-selected="true"]{background:var(--card-strong);font-weight:650}
+.settings-nav-icon{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:6px;background:var(--card-strong);color:var(--accent)}
+.settings-nav-icon svg{width:17px;height:17px}
+.settings-nav-btn:nth-child(2) .settings-nav-icon{color:var(--accent2)}
+.settings-nav-btn:nth-child(3) .settings-nav-icon{color:var(--danger)}
+.settings-rail-note{margin:13px 8px 5px;padding:12px 2px 2px;border-top:1px solid var(--line);font-size:.71rem;line-height:1.5;color:var(--sub)}
+.settings-content{display:flex;min-height:570px;padding:22px 24px}
+.settings-pane{display:flex;flex:1;flex-direction:column;min-height:526px}
+.settings-pane[hidden]{display:none}
+.settings-pane-heading{padding:1px 0 17px;margin:0 0 3px;border-bottom:1px solid var(--line)}
+.settings-pane-heading h3{margin:0;font-size:1.08rem;line-height:1.4;font-weight:600;color:var(--ink)}
+.settings-pane-heading p{margin:5px 0 0;color:var(--sub);font-size:.75rem;line-height:1.5}
+.settings-groups{display:grid;align-content:start;gap:14px;flex:1;min-height:0;padding-top:14px}
+.settings-block{padding:0 14px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.settings-block-title{margin:0;padding:13px 0 8px;color:var(--accent);font-size:.68rem;font-weight:700}
+.settings-empty-state{display:grid;flex:1;min-height:220px;place-items:center;color:var(--sub);font-size:.8rem;text-align:center}
+.setting-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;min-height:62px;padding:10px 0;border-bottom:1px solid var(--line)}.setting-row:last-child{border-bottom:0}
+.setting-copy{min-width:0}.setting-copy strong{font-size:.82rem;display:block}.setting-copy small{font-size:.72rem;line-height:1.45;color:var(--sub);display:block;margin-top:4px;max-width:430px}
+.setting-row select{max-width:180px;min-width:125px;font: .8rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:8px}
+.setting-section h3{font:650 .9rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0 0 2px}.settings-footnote{font-size:.72rem;line-height:1.5;color:var(--sub);margin:13px 0 0}
+#editor-wrap{--editor-font:'Lora',Georgia,serif;--editor-size:18px;--editor-line:1.7;--editor-measure:816px;width:100%}
+#editor-wrap #content-editable{font-family:var(--editor-font,'Lora',Georgia,serif);font-size:var(--editor-size,18px);line-height:var(--editor-line,1.7);width:min(100%,var(--editor-measure,816px))}
+#editor-wrap.page-style-paper #content-editable{background:var(--panel);border:1px solid var(--line);box-shadow:0 2px 16px #00000012;border-radius:2px;padding:84px 82px}
+#editor-wrap.page-style-flat #content-editable{background:transparent;border:1px solid transparent;box-shadow:none;border-radius:0;padding:44px 28px}
+#editor-wrap.has-first-line-indent #content-editable p + p{text-indent:1.6em;margin-top:0;margin-bottom:0}
+/* toolbar-pinned / toolbar-auto: title+toolbar block is always sticky via .writer-sticky-header */
+#editor-wrap.toolbar-pinned .toolbar{position:static;box-shadow:none}
+#editor-wrap.toolbar-auto .toolbar{position:static;box-shadow:none}
+body.writer-focus.focus-hide-nav .app-header,body.writer-focus.focus-hide-nav .app-nav{display:none!important}
+body.writer-focus.focus-hide-toolbar .toolbar,body.writer-focus.focus-hide-toolbar .writer-command-bar{display:none!important}
+body.writer-focus.focus-hide-footer .writer-statusbar,body.writer-focus.focus-hide-footer #writer-statusbar{display:none!important}
+.unsaved-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:12px;background:color-mix(in srgb,var(--danger) 18%,var(--card));color:var(--danger);font:600 .72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.daily-goal-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:12px;background:color-mix(in srgb,var(--accent) 15%,var(--card));color:var(--accent);font:600 .72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-variant-numeric:tabular-nums}
+.daily-goal-badge.goal-achieved{background:color-mix(in srgb,#2e7d32 18%,var(--card));color:#2e7d32}
+[data-theme="dark"] .daily-goal-badge.goal-achieved{color:#81c784}
+.settings-preview-wrap{border:1px solid var(--line);border-radius:8px;background:var(--bg);overflow:hidden;margin-bottom:8px}
+.settings-preview-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:color-mix(in srgb,var(--panel) 80%,var(--card));border-bottom:1px solid var(--line)}
+.settings-preview-title{font:700 .68rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.settings-preview-badge{font:600 .72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);font-variant-numeric:tabular-nums}
+.settings-preview-stage{padding:22px 18px;background:var(--card);display:flex;justify-content:center;align-items:flex-start;min-height:160px;overflow:auto}
+.settings-preview-document{transition:all .15s ease-out;box-sizing:border-box;font-family:var(--preview-font,'Lora',Georgia,serif);font-size:var(--preview-size,18px);line-height:var(--preview-line,1.7);width:min(100%,var(--preview-measure,816px))}
+.settings-preview-document p{margin:0 0 .85em}
+.settings-preview-document.page-style-paper{background:var(--panel);border:1px solid var(--line);box-shadow:0 2px 14px #00000010;border-radius:3px;padding:26px 30px}
+.settings-preview-document.page-style-flat{background:transparent;border:1px dashed color-mix(in srgb,var(--line) 75%,transparent);box-shadow:none;border-radius:0;padding:18px 14px}
+.settings-preview-document.has-first-line-indent p + p{text-indent:1.6em;margin-top:0;margin-bottom:0}
+.segmented-control{display:inline-flex;padding:3px;background:var(--panel);border:1px solid var(--line);border-radius:8px;gap:3px}
+.segmented-item{padding:5px 12px;border:1px solid transparent;background:transparent;color:var(--sub);font:600 .76rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;border-radius:6px;cursor:pointer;transition:all .12s}
+.segmented-item:hover{color:var(--ink);background:color-mix(in srgb,var(--card) 60%,transparent)}
+.segmented-item[aria-checked="true"]{background:var(--card-strong);color:var(--ink);border-color:var(--line);box-shadow:0 1px 3px #00000012}
+.settings-switch{position:relative;display:inline-block;width:44px;height:24px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;padding:0;transition:background .2s,border-color .2s;flex-shrink:0}
+.settings-switch:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.settings-switch[aria-checked="true"]{background:var(--accent);border-color:color-mix(in srgb,var(--accent) 80%,var(--line))}
+.settings-switch .switch-slider{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--bg);box-shadow:0 1px 3px #00000028;transition:transform .2s cubic-bezier(0.2,0,0,1)}
+.settings-switch[aria-checked="true"] .switch-slider{transform:translateX(20px);background:#fff}
+.slider-control-group{display:flex;align-items:center;gap:12px;min-width:190px}
+.settings-range{flex:1;accent-color:var(--accent);cursor:pointer;height:6px;border-radius:3px;background:var(--panel);border:1px solid var(--line)}
+.range-readout{font:650 .76rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--ink);min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
+.danger-button{padding:7px 13px;border:1px solid color-mix(in srgb,var(--danger) 40%,var(--line));border-radius:7px;background:color-mix(in srgb,var(--danger) 10%,var(--card));color:var(--danger);font:600 .76rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;transition:all .15s}
+.danger-button:hover{background:var(--danger);color:#fff}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:20px;font: .8rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;opacity:0;transition:opacity .25s;pointer-events:none;z-index:1100;max-width:calc(100vw - 24px);text-align:center}
+.toast.show{opacity:1}
+.confirm-backdrop{position:fixed;inset:0;z-index:1300;display:grid;place-items:center;padding:20px;background:#1017139c;backdrop-filter:blur(7px);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.confirm-backdrop[hidden]{display:none}
+.confirm-dialog{width:min(440px,calc(100vw - 32px));padding:25px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:18px;background:var(--panel);box-shadow:0 24px 70px #00000038;color:var(--ink);animation:confirm-dialog-in .2s var(--ease-out) both}
+@keyframes confirm-dialog-in{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.confirm-dialog-top{display:flex;align-items:flex-start;gap:14px}.confirm-dialog-icon{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:12px;background:color-mix(in srgb,var(--danger) 14%,var(--card));color:var(--danger);font-weight:750;font-size:1.1rem}.confirm-dialog h2{margin:0;font:650 1.15rem/1.25 Georgia,'Iowan Old Style',serif}.confirm-dialog-kicker{margin:0 0 5px;color:var(--danger);font-size:.66rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.confirm-dialog-message{margin:15px 0 0;color:var(--sub);font-size:.82rem;line-height:1.55;overflow-wrap:anywhere}.confirm-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:23px}.confirm-dialog-actions button{padding:9px 14px;border-radius:9px;font-size:.76rem;font-weight:650;cursor:pointer}.confirm-dialog-cancel{border:1px solid var(--line);background:var(--panel);color:var(--ink)}.confirm-dialog-cancel:hover{background:var(--card)}.confirm-dialog-confirm{border:1px solid color-mix(in srgb,var(--danger) 75%,var(--line));background:var(--danger);color:#fff}.confirm-dialog-confirm:hover{filter:brightness(1.08)}
+.about-card{padding:20px;border:1px solid var(--line);border-radius:18px;background:color-mix(in srgb,var(--panel) 88%,var(--card));box-shadow:0 8px 24px #1820190d}.about-card-heading{display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}.about-brand-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:color-mix(in srgb,var(--accent) 18%,var(--card));color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 28%,transparent)}.about-brand-mark svg{width:34px;height:34px}.about-card-heading h4{margin:0;font-size:1rem}.about-card-heading p{margin:4px 0 0;color:var(--sub);font:.75rem/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.about-version-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:17px}.about-version-row strong{display:block;font-size:.79rem}.about-version-row small{display:block;margin-top:4px;color:var(--sub);font-size:.71rem}.about-version-value{font-variant-numeric:tabular-nums;font-size:.78rem;color:var(--sub)}.about-status{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 9px;border-radius:999px;background:color-mix(in srgb,var(--accent2) 13%,var(--card));color:var(--accent2);font:650 .64rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.about-status:before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}.about-status.is-update{background:color-mix(in srgb,var(--accent) 15%,var(--card));color:var(--accent)}.about-copy{margin:18px 2px 0;color:var(--sub);font:.74rem/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.about-links{display:flex;gap:14px;flex-wrap:wrap;margin:16px 2px 0;font:.72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.about-links a{color:var(--accent2)}.about-update-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}.about-update-status{color:var(--sub);font:.7rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.about-git-card{margin-top:18px;padding:15px;border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--card) 48%,var(--panel))}.about-git-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.about-git-heading strong{font-size:.8rem}.about-git-heading small{display:block;margin-top:4px;color:var(--sub);font:.69rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.about-git-badge{padding:4px 8px;border-radius:999px;background:color-mix(in srgb,var(--accent2) 13%,var(--card));color:var(--accent2);font:650 .61rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;white-space:nowrap}.about-git-status{margin-top:12px;color:var(--sub);font:.7rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.about-git-status.is-error{color:var(--accent)}.about-git-status.is-running{color:var(--accent2)}.about-git-progress{height:5px;margin-top:10px;overflow:hidden;border-radius:999px;background:color-mix(in srgb,var(--line) 70%,transparent)}.about-git-progress-fill{display:block;width:0;height:100%;border-radius:inherit;background:var(--accent2);transition:width .35s ease}.about-git-progress.is-complete .about-git-progress-fill{background:var(--accent)}.about-git-progress.is-error .about-git-progress-fill{background:var(--danger)}.about-git-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}.about-git-actions button{font-size:.68rem}.about-git-note{margin:10px 0 0;color:var(--sub);font:.65rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+/* Loomwright writing flow */
+.write-shell{display:block;min-height:70vh}
+.write-library{max-width:1120px;margin:0 auto}
+.write-library-hero{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:38px 4px 30px;border-bottom:1px solid var(--line)}
+.write-library-copy{max-width:620px}
+.write-library-copy h2{margin:8px 0;font-size:2.15rem;font-weight:400;line-height:1.12}
+.write-library-copy p{margin:0;color:var(--sub);font: .9rem/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.write-library-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.upload-button{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.write-library-documents{padding:26px 4px 20px}
+.write-library-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:13px}
+.write-library-heading h3{margin:0;font-size:1.1rem;font-weight:400}
+.write-library-heading span{color:var(--sub);font: .72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.document-list{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-inline:contain;padding:2px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.document-item{display:flex;min-width:0;align-items:center;gap:11px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);cursor:pointer;text-align:left;transition:border-color .15s,transform .15s,background .15s}
+.document-item{flex:0 0 min(260px,84vw);scroll-snap-align:start}
+.document-item:hover{border-color:color-mix(in srgb,var(--accent) 48%,var(--line));transform:translateY(-1px)}
+.document-item.active{background:var(--card);border-color:color-mix(in srgb,var(--accent) 62%,var(--line));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 30%,transparent)}
+.doc-thumb{width:34px;height:34px;border-radius:7px;background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--accent) 20%,var(--card)));display:grid;place-items:center;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));font-weight:700;flex:none}
+.doc-meta{min-width:0;display:flex;flex-direction:column;gap:3px}
+.doc-title{font:600 .95rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-subtle{font-size:.7rem;color:var(--sub)}
+.template-library{padding:22px 4px 28px}
+.template-library-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.template-library-heading h3{margin:0;font-size:1.1rem;font-weight:400}
+.template-library-heading p{margin:4px 0 0;color:var(--sub);font:.73rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.template-library-actions{display:flex;align-items:center;gap:10px;flex:none}
+.template-count{color:var(--sub);font:.72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px}
+.template-card{position:relative;min-width:0;min-height:150px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);transition:border-color .16s,background .16s,transform .16s}
+.template-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 54%,var(--line));background:var(--card)}
+.template-use{display:flex;width:100%;height:100%;min-height:148px;flex-direction:column;align-items:stretch;gap:10px;padding:15px 44px 15px 15px;border:0;border-radius:inherit;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.template-card-top{display:flex;align-items:center;gap:9px;min-width:0}
+.template-mark{display:grid;place-items:center;width:32px;height:32px;flex:none;border:1px solid var(--line);border-radius:6px;background:var(--card-strong);color:var(--accent);font-size:.83rem;font-weight:700}
+.template-name{min-width:0;overflow:hidden;font:650 .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-overflow:ellipsis;white-space:nowrap}
+.template-preview{display:-webkit-box;min-height:38px;overflow:hidden;color:var(--sub);font:.73rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.template-card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;color:var(--sub);font:.68rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.template-delete{position:absolute;top:10px;right:10px;display:grid;place-items:center;width:28px;height:28px;border:1px solid transparent;border-radius:5px;background:var(--panel);color:var(--sub);cursor:pointer}
+.template-delete:hover{border-color:var(--line);color:var(--danger)}
+.template-empty{display:flex;align-items:center;gap:14px;min-height:112px;padding:18px;border:1px dashed var(--line);border-radius:8px;background:color-mix(in srgb,var(--panel) 75%,transparent)}
+.template-empty-mark{display:grid;place-items:center;width:40px;height:40px;flex:none;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--accent);font-size:1.15rem}
+.template-empty strong{display:block;font:600 .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.template-empty span{display:block;margin-top:4px;color:var(--sub);font:.73rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.write-workspace[hidden],.write-library[hidden]{display:none}
+.write-workspace{max-width:1200px;margin:0 auto}
+/* Writer command bar – default (top nav) layout */
+.writer-command-bar{display:flex;align-items:center;gap:10px;margin-bottom:13px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+/* Inline logo: hidden by default, shown only when nav is docked */
+.writer-brand-inline{display:none;align-items:center;gap:9px;flex:none;border:0;background:transparent;padding:0 6px 0 0;cursor:pointer;color:var(--ink);font-size:1.18rem;letter-spacing:.015em;white-space:nowrap}
+.writer-brand-inline .brand-mark{width:24px;height:24px;color:var(--accent);flex:none}
+.writer-brand-inline span span{color:var(--accent)}
+/* Left group: Sort + Add chapter */
+.writer-command-left{display:flex;align-items:center;gap:6px;flex:none}
+/* Center group: chapter select – grows to fill space */
+.writer-command-center{display:flex;align-items:center;flex:1 1 auto;min-width:0}
+.writer-command-center select{width:100%;min-width:140px;max-width:min(42vw,360px);padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font: .82rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+/* Back button: always at the far right */
+.writer-back{flex:none;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font:600 .78rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;margin-left:auto}
+/* Keep old selector working for any legacy refs */
+.writer-command-bar select{min-width:160px;max-width:min(38vw,340px);padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font: .82rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+/* Sticky title + toolbar header inside the editor */
+.writer-sticky-header{position:sticky;top:0;z-index:12;background:var(--panel);padding-bottom:4px;margin-bottom:0}
+.write-workspace .toolbar{position:static;z-index:5;background:var(--panel)}
+.write-workspace [contenteditable]{display:block;box-sizing:border-box;width:min(100%,816px);min-height:1056px;margin:8px auto 0;border:1px solid var(--line);border-radius:2px;padding:84px 82px;background:var(--panel);box-shadow:0 2px 16px #00000012;overflow:visible;contain:layout style;text-rendering:optimizeSpeed;outline:none;caret-color:var(--accent);transition:none}
+.write-drag-over{outline:2px dashed var(--accent)!important;outline-offset:-6px;background:color-mix(in srgb,var(--card) 88%,var(--accent))!important}
+.write-workspace .editor input[type=text]{margin:8px 0 12px;font-size:1.3rem}
+#view-write{width:100%;max-width:100%;margin:0;padding:20px 0 44px}
+#view-write:has(.write-workspace:not([hidden])){padding-top:0;background:var(--card)}
+/* ---- When nav is SIDE-MOUNTED (docked) ---- */
+/* Show inline logo in command bar */
+body.nav-side-mounted .writer-brand-inline{display:inline-flex}
+/* Sticky command bar (stays at top of viewport while scrolling) */
+body.nav-side-mounted .write-workspace .writer-command-bar{position:sticky;top:0;z-index:20;box-shadow:0 2px 10px #00000018;border-radius:0}
+/* Sticky title+toolbar: sits just below the sticky command bar */
+body.nav-side-mounted .write-workspace .writer-sticky-header{top:var(--writer-bar-h, 54px);box-shadow:0 2px 8px #00000010}
+/* When nav is TOP (default), command bar is not sticky – title+toolbar still stick */
+body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
+.writer-context-popover{position:fixed;z-index:1200;width:min(310px,calc(100vw - 16px));max-height:calc(100vh - 16px);overflow:auto;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:5px;box-shadow:0 8px 25px #18201935;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.8rem}
+.writer-context-popover[hidden]{display:none}
+.writer-context-mini{display:flex;align-items:center;gap:3px;flex-wrap:wrap;padding:2px 2px 6px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+.writer-context-mini[hidden]{display:none}
+.writer-context-mini button,.writer-context-align button{display:grid;place-items:center;width:30px;height:29px;border:1px solid transparent;border-radius:3px;background:transparent;color:var(--ink);cursor:pointer;font: .8rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.writer-context-mini button:hover,.writer-context-align button:hover,.writer-context-menu button:hover{background:var(--card)}
+.writer-context-mini select{min-width:0;max-width:105px;height:29px;padding:3px 5px;border:1px solid var(--line);border-radius:3px;background:var(--panel);color:var(--ink);font: .72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.writer-context-mini input[type=color]{width:28px;height:28px;padding:2px;border:1px solid var(--line);border-radius:3px;background:var(--panel);cursor:pointer}
+.writer-context-menu{display:grid;gap:1px}
+.writer-context-menu button{display:flex;align-items:center;gap:9px;min-height:31px;padding:5px 8px;border:0;border-radius:3px;background:transparent;color:var(--ink);text-align:left;cursor:pointer;font: .78rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.writer-context-menu button:disabled{opacity:.45;cursor:default}
+.writer-context-menu button:disabled:hover{background:transparent}
+.writer-context-menu .ribbon-icon{width:16px;height:16px;color:var(--sub)}
+.writer-context-menu button>span:nth-child(2){flex:1}
+.writer-context-menu kbd{color:var(--sub);font: .67rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.context-menu-symbol{width:16px;text-align:center;color:var(--sub);font-family:Georgia,serif}
+.writer-context-separator{height:1px;margin:3px 5px;background:var(--line)}
+.writer-context-align{display:flex;gap:2px;padding:2px 5px}
+.writer-context-align button{width:32px;height:29px}
+.metrics-shell{display:grid;gap:13px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.metrics-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.metric-pill{position:relative;min-width:0;min-height:104px;overflow:hidden;padding:13px 15px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.metric-pill:before{position:absolute;top:0;bottom:0;left:0;width:3px;background:var(--metric-accent,var(--accent));content:""}
+.metric-pill .label{display:block;color:var(--sub);font-size:.66rem;font-weight:700;text-transform:uppercase}
+.metric-pill .value{display:block;overflow:hidden;margin-top:8px;color:var(--ink);font-family:Georgia,'Iowan Old Style',serif;font-size:1.52rem;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
+.metric-pill .detail{display:block;overflow:hidden;margin-top:4px;color:var(--sub);font-size:.7rem;text-overflow:ellipsis;white-space:nowrap}
+.metric-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.8fr);gap:13px;align-items:stretch}
+.metric-card{min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:16px}
+.metric-card h3{margin:0;font-size:.93rem;font-weight:650;color:var(--ink)}
+.metric-card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.metric-card-header p{margin:4px 0 0;color:var(--sub);font-size:.7rem}
+.metric-mode{display:inline-flex;flex:none;gap:2px;padding:3px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.metric-mode button{min-height:29px;padding:5px 9px;border:0;border-radius:4px;background:transparent;color:var(--sub);font:600 .7rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer}
+.metric-mode button[aria-pressed="true"]{background:var(--card-strong);color:var(--ink)}
+.metric-chart{display:grid;gap:5px}
+.metric-chart-row{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr) 54px;align-items:center;gap:12px;width:100%;min-height:43px;padding:5px 8px;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--ink);text-align:left;font:inherit;cursor:pointer}
+.metric-chart-row:hover{background:var(--card)}
+.metric-chart-row[aria-pressed="true"]{border-color:color-mix(in srgb,var(--metric-color) 45%,var(--line));background:color-mix(in srgb,var(--metric-color) 10%,var(--panel))}
+.metric-chart-label{min-width:0;overflow:hidden;color:var(--sub);font-size:.72rem;text-overflow:ellipsis;white-space:nowrap}
+.metric-track{position:relative;height:11px;overflow:hidden;border:1px solid var(--line);border-radius:999px;background:var(--bg)}
+.metric-bar{height:100%;min-width:2px;border-radius:inherit;background:var(--metric-color);transition:width .35s cubic-bezier(.23,1,.32,1)}
+.metric-chart-value{justify-self:end;color:var(--ink);font-size:.72rem;font-weight:700;font-variant-numeric:tabular-nums}
+.metric-chapter-detail{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:12px 13px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.metric-chapter-detail strong{display:block;overflow:hidden;color:var(--ink);font-size:.78rem;text-overflow:ellipsis;white-space:nowrap}
+.metric-chapter-detail span{display:block;margin-top:4px;color:var(--sub);font-size:.69rem}
+.metric-chapter-open{flex:none;padding:7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink);font:600 .7rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer}
+.metric-chapter-open:hover{background:var(--card)}
+.metric-milestones{display:grid;gap:10px;margin-top:15px}
+.metric-milestone{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px solid var(--line);font-size:.72rem}
+.metric-milestone:last-child{padding-bottom:0;border-bottom:0}
+.metric-milestone span{color:var(--sub)}.metric-milestone strong{color:var(--ink);text-align:right}
+.metric-character-card{grid-column:1/-1}
+.metric-character-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
+.metric-character-tools input{width:min(220px,40vw);padding:7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);font: .72rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:.7rem;color:var(--sub)}
+.legend-swatch{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+.metric-table-wrap{overflow:auto;max-height:380px}.metric-table{border-collapse:collapse;width:100%;font:.71rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;white-space:nowrap}.metric-table th,.metric-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:center}.metric-table thead th{position:sticky;top:0;z-index:1;background:var(--panel);color:var(--sub);font-weight:600}.metric-table th:first-child{text-align:left}.metric-table tbody th{font-weight:650}.metric-table td{color:var(--sub);font-variant-numeric:tabular-nums}.metric-table tbody tr:hover{background:var(--card)}
+.node-graph-wrap{position:relative;height:min(72vh,720px);min-height:520px;border:1px solid #39413e;border-radius:6px;background:#191d1c;overflow:hidden;isolation:isolate}
+#webcanvas{width:100%;height:100%;min-height:0;border:0;background:transparent;touch-action:none;display:block;cursor:grab}
+#webcanvas.is-panning{cursor:grabbing}
+.web-map-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px;padding:7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--panel);font: .74rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.web-map-tools{display:flex;align-items:center;gap:5px}
+.web-map-tools button{display:grid;place-items:center;width:30px;height:28px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);font:600 .9rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer}
+.web-map-tools button:hover{background:var(--card)}
+.web-map-scale{min-width:42px;text-align:center;color:var(--sub);font-variant-numeric:tabular-nums}
+.web-legend{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 8px;font: .74rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub)}
+.web-legend span{display:inline-flex;align-items:center;gap:6px}.web-legend i{width:11px;height:11px;border-radius:2px;background:#397c57;border:1px solid #58ac78}.web-legend .legend-story{background:#397c57;border-color:#58ac78}.web-legend .legend-chapter{background:#345d7a;border-color:#5f9ac2}.web-legend .legend-character{background:#414946;border-color:#808c86}
+.web-selection{min-height:34px;padding:8px 0;color:var(--sub);font: .75rem/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.web-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:.78rem;color:var(--sub)}
+.web-controls select,.web-controls input{font: .8rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:8px}
+.web-controls select{min-width:145px}.web-controls input{flex:1;min-width:150px}
+.char-status-label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:9px 0;font-size:.75rem;color:var(--sub)}
+.char-status-select{max-width:145px;padding:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font-family:-apple-system,Segoe UI,sans-serif;font-size:.72rem;cursor:pointer}
+
+@media(max-width:800px){.app-header{padding:14px 17px}.app-nav{padding-left:10px;padding-right:10px}main{padding:19px 17px 36px}.tile-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.welcome-panel{padding:24px;grid-template-columns:minmax(0,1fr) 190px}.welcome-art{height:145px}.finalise-layout{grid-template-columns:1fr}.finalise-side{grid-template-columns:repeat(2,minmax(0,1fr))}.book-design-grid{grid-template-columns:1fr}.metrics-summary,.metric-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.app-header{align-items:flex-start;gap:8px}.brand-button{font-size:1.18rem}.header-right{gap:6px;flex-wrap:wrap;justify-content:flex-end}.status-pill{display:none}.stats{font-size:.7rem}.home-shortcut{padding:6px 8px}.tab{padding:10px 9px;font-size:.77rem}.tab svg{display:none}.welcome-panel{display:block;padding:22px 20px}.welcome-panel h2{font-size:2rem}.welcome-art{height:112px;margin-top:10px}.orbit{width:100px;height:100px}.art-book{width:66px;height:83px}.art-book svg{width:32px;height:32px}.dashboard-stats{gap:6px}.stat-card{padding:10px 8px;display:block;text-align:center}.stat-icon{margin:0 auto 7px;width:29px;height:29px}.stat-value{font-size:.9rem}.stat-label{font-size:.65rem}.tile-grid{gap:8px}.home-tile{min-height:136px;padding:13px}.tile-icon{width:34px;height:34px;margin-bottom:12px}.tile-desc{font-size:.7rem}.finalise-card{grid-template-columns:1fr;padding:14px}.finalise-card>.primary-button{justify-self:start;margin-left:52px}.settings-layout{grid-template-columns:1fr;min-height:0;gap:8px}.settings-rail{position:relative;top:auto;padding:5px;overflow-x:auto}.settings-rail-label,.settings-rail-note{display:none}.settings-nav{display:flex;min-width:max-content;gap:2px}.settings-nav-btn{width:auto;min-height:42px;padding:7px 9px;font-size:.72rem}.settings-nav-icon{width:26px;height:26px}.settings-nav-btn[aria-selected="true"]{box-shadow:inset 0 -2px var(--accent)}.settings-content{min-height:0;padding:17px 13px}.settings-block{margin-top:13px;padding:0 10px}.setting-row{align-items:flex-start;flex-direction:column;gap:9px;padding:12px 0}.setting-row select{max-width:none;width:100%}.setting-row .project-actions{width:100%}.finalise-side{grid-template-columns:1fr}.project-home-strip{align-items:flex-start;flex-direction:column}.project-create input{width:100%}.book-options{grid-template-columns:1fr}.book-preview-pages{grid-template-columns:repeat(2,minmax(0,1fr))}.book-page{min-height:230px;padding:17px 12px}.metrics-summary,.metric-grid{grid-template-columns:1fr}.bar-row{grid-template-columns:80px minmax(0,1fr) 32px}.node-graph-wrap{height:62vh;min-height:420px}.web-map-toolbar{align-items:flex-start;flex-direction:column}.web-map-toolbar>span{padding-left:2px}#view-write{padding:16px 13px 32px}.write-library-hero{display:block;padding:24px 0}.write-library-actions{margin-top:16px}.writer-command-bar{align-items:flex-start;flex-direction:column}.writer-command-actions{width:100%}.writer-command-bar select{flex:1;min-width:0;max-width:none}.write-workspace [contenteditable]{min-height:72vh;padding:26px 20px}main{padding-left:13px;padding-right:13px}}
+@media(max-width:560px){.writer-statusbar{flex-wrap:wrap;justify-content:center;gap:2px;padding:3px 8px calc(3px + env(safe-area-inset-bottom,0px))}.writer-status-info,.writer-status-actions{justify-content:center;gap:5px}.writer-status-info{flex:1 1 100%}.writer-status-actions{flex:1 1 100%}.writer-status-info span,.writer-status-action{font-size:.68rem}.write-workspace{padding-bottom:78px}}
+@media(max-width:560px){.settings-content{min-height:0;padding:17px 13px}.settings-pane{min-height:0}.settings-groups{align-content:start;flex:initial;width:100%}.settings-block{margin-top:0}.setting-row{grid-template-columns:1fr;align-items:start;min-height:0;gap:9px;padding:12px 0}.settings-empty-state{min-height:180px}.template-library-heading{align-items:flex-start;flex-direction:column}.template-library-actions{width:100%;justify-content:space-between}.template-grid{grid-template-columns:1fr}}
+@media(max-width:800px){.metrics-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.metric-grid{grid-template-columns:minmax(0,1fr)}.metric-card-header{align-items:flex-start;flex-wrap:wrap}.metric-mode{max-width:100%}.metric-mode button{padding:5px 7px}.metric-chart-row{grid-template-columns:minmax(75px,34%) minmax(0,1fr) 42px;gap:7px;padding-right:5px;padding-left:5px}.metric-character-tools{width:100%;margin-left:0}.metric-character-tools input{width:100%;min-width:0}}
+@media(max-width:560px){.character-toolbar{gap:5px;padding:6px}.character-tool-button{flex-basis:32px;width:32px;height:34px}.character-toolbar select{padding:8px 5px;font-size:.68rem}.character-toolbar select.character-sort{min-width:108px}.character-toolbar select.character-layout{min-width:62px}.character-search input{padding-left:28px}.review-tray-heading{align-items:flex-start;flex-direction:column;gap:4px}.review-candidate{align-items:flex-start;flex-direction:column}.review-candidate-actions{justify-content:flex-start}.char-list-layout .char-card-main{display:block}.char-list-layout .char-count{margin:13px 0 7px}.character-sheet-backdrop{padding:8px}.character-sheet-header,.character-sheet-body,.character-sheet-actions{padding-left:16px;padding-right:16px}.character-sheet-merge{align-items:flex-start;flex-direction:column}.character-sheet-merge .secondary-button{width:100%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.thread-mark path{stroke-dashoffset:0}}
+</style>
+<script src="./theme-bootstrap.js"></script>
+</head>
+<body>
+<div id="bg-effect" aria-hidden="true">
+  <div class="bg-layer bg-rain">
+    <div class="ripple rip1"></div><div class="ripple rip2"></div><div class="ripple rip3"></div><div class="ripple rip4"></div>
+    <div class="ripple rip5"></div><div class="ripple rip6"></div><div class="ripple rip7"></div><div class="ripple rip8"></div>
+    <div class="ripple rip9"></div><div class="ripple rip10"></div><div class="ripple rip11"></div><div class="ripple rip12"></div>
+  </div>
+  <div class="bg-layer bg-clouds"><span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span></div>
+  <div class="bg-layer bg-snow">
+    <span class="flake f1"></span><span class="flake f2"></span><span class="flake f3"></span><span class="flake f4"></span>
+    <span class="flake f5"></span><span class="flake f6"></span><span class="flake f7"></span><span class="flake f8"></span>
+    <span class="flake f9"></span><span class="flake f10"></span><span class="flake f11"></span><span class="flake f12"></span>
+    <span class="flake f13"></span><span class="flake f14"></span><span class="flake f15"></span><span class="flake f16"></span>
+    <span class="flake f17"></span><span class="flake f18"></span><span class="flake f19"></span><span class="flake f20"></span>
+  </div>
+  <div class="bg-layer bg-dragons">
+    <canvas id="dragon-flight-canvas" class="dragon-flight-canvas" aria-hidden="true"></canvas>
+  </div>
+</div>
+<div class="splash" id="splash" aria-label="Opening Loomwright">
+  <div class="splash-content">
+    <svg class="thread-mark" viewBox="0 0 80 80" aria-hidden="true"><path d="M15 39c9-23 31-29 45-18 10 8 5 19-8 22L28 49c-13 4-14 17-2 21 12 5 28-3 39-16M20 18c14 23 31 28 43 22M17 58c12-17 31-23 46-22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="61" cy="56" r="3.2" fill="currentColor"/></svg>
+    <h1 class="splash-name">Loom<span>wright</span></h1>
+    <p class="splash-caption">Your story, in progress.</p>
+  </div>
+  <button class="skip-intro" id="skip-intro" type="button">Skip intro</button>
+</div>
+
+<div class="app-shell" id="app-shell">
+  <header class="app-header">
+    <button class="brand-button" type="button" data-open-view="home" aria-label="Loomwright home">
+      <svg class="brand-mark" viewBox="0 0 80 80" aria-hidden="true"><path d="M15 39c9-23 31-29 45-18 10 8 5 19-8 22L28 49c-13 4-14 17-2 21 12 5 28-3 39-16M20 18c14 23 31 28 43 22M17 58c12-17 31-23 46-22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      <span>Loom<span>wright</span></span>
+    </button>
+  </header>
+  <nav class="app-nav" aria-label="Main navigation">
+    <button class="tab active" data-view="home" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+    <button class="tab" data-view="projects" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7.5h7l2 2h9v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7V5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v2"/></svg>Projects</button>
+    <button class="tab" data-view="write" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m15 5 4 4M4 20l4-.8L19 8a2.8 2.8 0 0 0-4-4L4 15z"/></svg>Write</button>
+    <button class="tab" data-view="metrics" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5m0 14h16M7 15l3-4 3 2 5-7"/></svg>Metrics</button>
+    <button class="tab" data-view="characters" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5.5a3 3 0 0 1 0 5.8M18 14c2 .8 3 2.5 3 5"/></svg>Characters</button>
+    <button class="tab" data-view="web" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="19" r="2"/><path d="m7 6 10-1M6 7l5 10m7-9-5 10"/></svg>Story Web</button>
+    <button class="tab" data-view="finalise" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m5 12 4 4L19 6"/><path d="M20 12a8 8 0 1 1-4-6.9"/></svg>Finalise</button>
+    <button class="tab" data-view="settings" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 3.1-.2-.1a1.7 1.7 0 0 0-1.8-.2 1.7 1.7 0 0 0-1 1.5v.2h-3.6v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.2l-.2.1-1.8-3.1.1-.1A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.5-1H5.3v-3.6h.2A1.7 1.7 0 0 0 7 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-3.1.2.1a1.7 1.7 0 0 0 1.8.2 1.7 1.7 0 0 0 1-1.5v-.2H15v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.2l.2-.1 1.8 3.1-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2v3.6h-.2a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</button>
+    <div class="nav-meta" aria-label="App status"><div class="stats status-pill" id="sync-status" title="Where your work is saved">○ Offline · this device</div><div class="stats" id="totalstats">0 words</div></div>
+  </nav>
+  <main>
+    <section class="view active" id="view-home" aria-labelledby="home-title">
+      <div class="welcome-panel resume-panel">
+        <div class="resume-copy">
+          <div class="eyebrow">Resume writing</div>
+          <div class="resume-project" id="home-project-context">My First Project</div>
+          <h2 id="home-title">Where your story takes shape.</h2>
+          <p id="home-resume-excerpt">Pick up where you left off and continue shaping the thread that connects it all.</p>
+          <div class="resume-meta"><span id="home-resume-section">Chapter 1</span><span id="home-resume-words">0 words</span><span id="home-resume-edited">Ready when you are</span></div>
+          <div class="welcome-actions"><button class="primary-button" id="home-continue-writing" type="button">Continue writing <span aria-hidden="true">→</span></button><button class="secondary-button" type="button" data-open-view="finalise">Open Finalise</button></div>
+        </div>
+        <div class="welcome-art" aria-hidden="true"><div class="orbit"></div><div class="art-book"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 10c7-2 12 0 16 4 4-4 9-6 16-4v26c-7-2-12 0-16 4-4-4-9-6-16-4z"/><path d="M24 14v26M13 16c3-.5 6 0 8 1m-8 5c3-.5 6 0 8 1m14-7c-3-.5-6 0-8 1m8 5c-3-.5-6 0-8 1"/></svg></div></div>
+      </div>
+      <div class="dashboard-stats" aria-label="Manuscript overview">
+        <div class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span><div><div class="stat-value" id="home-word-count">0</div><div class="stat-label">Words drafted</div></div></div>
+        <div class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v15H4zM8 3v4m8-4v4M7 11h3m4 0h3M7 15h3"/></svg></span><div><div class="stat-value" id="home-section-count">1</div><div class="stat-label">Sections</div></div></div>
+        <div class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 8a2.5 2.5 0 1 1 0 5m1 2c2 .6 3 2 3 4"/></svg></span><div><div class="stat-value" id="home-character-count">0</div><div class="stat-label">Recurring characters</div></div></div>
+      </div>
+      <div class="section-heading"><div><h3>Jump back in</h3><p>Live views of the people and connections shaping your manuscript.</p></div><button class="secondary-button" type="button" data-open-view="projects">All projects →</button></div>
+      <div class="home-bento-grid">
+        <button class="home-bento-card home-characters-card" type="button" data-open-view="characters">
+          <div class="home-bento-head"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5.5a3 3 0 0 1 0 5.8M18 14c2 .8 3 2.5 3 5"/></svg></span><span class="tile-arrow" aria-hidden="true">↗</span></div>
+          <span class="tile-title">Characters</span><span class="tile-desc">Recurring names and the people who carry your story.</span><div class="character-stack" id="home-character-stack" aria-hidden="true"></div><div class="home-bento-foot"><strong id="home-character-live-count">0 recurring</strong><span>Open Characters</span></div>
+        </button>
+        <button class="home-bento-card home-web-card" type="button" data-open-view="web">
+          <div class="home-bento-head"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="19" r="2"/><path d="m7 6 10-1M6 7l5 10m7-9-5 10"/></svg></span><span class="tile-arrow" aria-hidden="true">↗</span></div>
+          <span class="tile-title">Story Web</span><span class="tile-desc">See the threads and connections that cross your sections.</span><div class="web-mini-map" id="home-web-preview" aria-hidden="true"></div><div class="home-bento-foot"><strong id="home-web-live-count">0 story nodes</strong><span>Open Story Web</span></div>
+        </button>
+        <div class="home-bento-card home-finalise-bento">
+          <div class="home-bento-head"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m5 12 4 4L19 6"/><path d="M20 12a8 8 0 1 1-4-6.9"/></svg></span><span class="progress-label" id="home-finalise-label">0 of 5 ready</span></div>
+          <span class="tile-title">Finalise</span><span class="tile-desc">A calm last pass before you share your manuscript.</span><div class="bento-progress-ring"><span id="home-finalise-ring-value">0%</span></div><div class="progress-track"><div class="progress-fill" id="home-finalise-progress"></div></div><button class="secondary-button" type="button" data-open-view="finalise">Open Finalise →</button>
+        </div>
+      </div>
+      <div class="home-secondary-grid"><section class="home-recent-card"><div class="home-secondary-heading"><div><h3>Recent sections</h3><p>Return to the latest pages in this project.</p></div><button class="secondary-button" type="button" data-open-view="write">All writing →</button></div><div class="home-recent-list" id="home-recent-sections"></div></section></div>
+    </section>
+
+    <section class="view" id="view-projects" aria-labelledby="projects-title">
+      <div class="page-intro"><h2 id="projects-title">Projects</h2></div>
+      <form class="project-create" id="project-create-form"><label class="sr-only" for="new-project-name">New project name</label><input id="new-project-name" maxlength="80" placeholder="Name your next book or writing project" required><button class="primary-button" type="submit">＋ New project</button></form>
+      <div id="project-grid" class="project-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="view" id="view-write" aria-labelledby="write-title">
+      <div class="write-shell">
+        <section class="write-library" id="write-library" aria-label="Writing desk">
+          <div class="write-library-hero">
+            <div class="write-library-copy"><div class="eyebrow">Loomwright writing desk</div><h2 id="write-title">Where would you like to begin?</h2><p>Open a recent chapter or start a new one. Your writing stays saved on this device.</p></div>
+            <div class="write-library-actions"><button class="primary-button" id="create-blank-doc" type="button" aria-label="Add chapter">＋ Add chapter</button><label class="secondary-button upload-button" for="file-input">⇪ Import chapters</label><input type="file" id="file-input" accept=".txt,.docx,.pdf" multiple hidden></div>
+          </div>
+          <section class="write-library-documents" aria-labelledby="document-list-title"><div class="write-library-heading"><h3 id="document-list-title">Recent chapters</h3><div style="display:flex;align-items:center;gap:8px"><span id="write-document-count"></span><button class="secondary-button" id="sort-chapters-btn" type="button" style="padding:3px 9px;font-size:.72rem" title="Order chapters in natural sequence by title">↕ Sort by title</button></div></div><div class="document-list" id="document-list" aria-live="polite"></div></section>
+          <section class="template-library" aria-labelledby="template-library-title">
+            <div class="template-library-heading"><div><h3 id="template-library-title">Templates</h3><p>Start a new chapter from one of your writing templates.</p></div><div class="template-library-actions"><span class="template-count" id="template-count"></span><label class="secondary-button upload-button" for="template-file-input">＋ Add template</label><input id="template-file-input" type="file" accept=".txt,.docx" multiple hidden></div></div>
+            <div class="template-grid" id="template-grid" aria-live="polite"></div>
+          </section>
+        </section>
+        <section class="write-workspace" id="write-workspace" aria-label="Writing workspace" hidden>
+          <div class="writer-command-bar">
+            <button class="writer-brand-inline" type="button" data-open-view="home" aria-label="Loomwright home">
+              <svg class="brand-mark" viewBox="0 0 80 80" aria-hidden="true"><path d="M15 39c9-23 31-29 45-18 10 8 5 19-8 22L28 49c-13 4-14 17-2 21 12 5 28-3 39-16M20 18c14 23 31 28 43 22M17 58c12-17 31-23 46-22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+              <span>Loom<span>wright</span></span>
+            </button>
+            <div class="writer-command-left">
+              <button class="secondary-button" id="writer-sort-chapters-btn" type="button" style="padding:6px 10px;font-size:.75rem" title="Order chapters in natural sequence by title">↕ Sort</button>
+              <button class="addbtn" id="add-section" type="button">＋ Chapter</button>
+            </div>
+            <div class="writer-command-center">
+              <select id="section-select" aria-label="Choose a chapter"></select>
+            </div>
+            <button class="writer-back" id="write-back" type="button">← Chapters</button>
+          </div>
+          <div class="editor" id="editor-wrap"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view" id="view-metrics" aria-labelledby="metrics-title">
+      <div class="page-intro"><h2 id="metrics-title">Metrics</h2><p>Track your momentum, chapter pacing, and character presence as the draft evolves.</p></div>
+      <div class="metrics-shell" id="metrics-shell"></div>
+    </section>
+
+    <section class="view" id="view-characters" aria-labelledby="characters-title">
+      <div class="page-intro"><h2 id="characters-title">Characters</h2><p>Review recurring people, chapter appearances, and the relationships shaping your manuscript.</p></div>
+      <div class="character-toolbar"><label class="character-search"><span class="sr-only">Search characters</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5" stroke-linecap="round"/></svg><input id="character-search" type="search" placeholder="Search characters or aliases…" autocomplete="off"></label><button class="character-tool-button" type="button" id="btn-scan-characters" title="Scan manuscript offline" aria-label="Scan manuscript offline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 11a8 8 0 1 0 1 4"/><path d="M20 4v7h-7"/></svg></button><label class="sr-only" for="character-sort">Sort characters</label><select class="character-sort" id="character-sort"><option value="mentions">Most mentioned</option><option value="az">A to Z</option><option value="first">First appearance</option></select><label class="sr-only" for="character-layout">Character layout</label><select class="character-layout" id="character-layout" aria-label="Character layout"><option value="grid">Grid</option><option value="list">List</option></select><span class="char-scan-status" id="character-scan-status" role="status" aria-live="polite">Not scanned this session.</span><div class="char-scan-progress" id="character-scan-progress" hidden><span id="character-scan-progress-fill"></span></div></div>
+      <section id="character-review-tray" class="character-review-tray" hidden></section>
+      <div id="char-grid" class="char-grid"></div>
+    </section>
+
+    <div class="character-sheet-backdrop" id="character-sheet" hidden>
+      <section class="character-sheet" role="dialog" aria-modal="true" aria-labelledby="character-sheet-title">
+        <header class="character-sheet-header"><div><span class="eyebrow">Character sheet</span><h2 id="character-sheet-title">Character</h2></div><button type="button" class="sheet-close" id="character-sheet-close" aria-label="Close character sheet">×</button></header>
+        <div class="character-sheet-body"><label>Name<input id="char-sheet-name" type="text" maxlength="120"></label><label>Role<select id="char-sheet-role"><option>Unassigned</option><option>Protagonist</option><option>Supporting</option><option>Antagonist</option></select></label><label>Description<textarea id="char-sheet-description" rows="3" placeholder="Who are they in the story?"></textarea></label><label>Aliases<input id="char-sheet-aliases" type="text" placeholder="Elias, Mr Thorne"></label><div class="character-sheet-readonly"><span>First appearance</span><strong id="char-sheet-first">Not found</strong></div><label>Relationships<textarea id="char-sheet-relationships" rows="2" placeholder="Often with…"></textarea></label><label>Free notes<textarea id="char-sheet-notes" rows="4" placeholder="Continuity notes, motives, details…"></textarea></label><div class="character-sheet-merge"><label>Merge this character into<select id="char-sheet-merge"><option value="">Choose a character…</option></select></label><button type="button" class="secondary-button" id="char-sheet-merge-button">Merge</button></div></div>
+        <footer class="character-sheet-actions"><button type="button" class="secondary-button" id="character-sheet-cancel">Cancel</button><button type="button" class="primary-button" id="character-sheet-save">Save character</button></footer>
+      </section>
+    </div>
+
+    <section class="view" id="view-web" aria-labelledby="web-title">
+      <div class="page-intro"><h2 id="web-title">Story Web</h2><p>Map your manuscript from left to right. Arrange the nodes and connect story details as they develop.</p></div>
+      <div class="web-controls" aria-label="Filter story nodes"><label for="web-category">Show</label><select id="web-category" aria-label="Filter by node type"><option value="all">All nodes</option><option value="story">Story and chapters</option><option value="character">Characters</option><option value="place">Places</option><option value="event">Events</option><option value="object">Objects</option><option value="thread">Story threads</option></select><label for="web-status">Character status</label><select id="web-status" aria-label="Filter characters by status"><option value="all">All statuses</option><option value="alive">Alive</option><option value="dead">Dead</option><option value="injured">Injured</option><option value="missing">Missing</option><option value="presumed-dead">Presumed dead</option><option value="captured">Captured</option><option value="recovering">Recovering</option><option value="unknown">Unknown</option></select></div>
+      <form id="web-add-form" class="web-controls" aria-label="Add a story node"><label for="web-add-type">Add</label><select id="web-add-type" aria-label="New node type"><option value="place">Place</option><option value="event">Event</option><option value="object">Object</option><option value="thread">Story thread</option></select><input id="web-add-label" type="text" maxlength="80" placeholder="Name a node" aria-label="Node name" required><button class="primary" type="submit">Add node</button><button class="ghost" id="web-remove-node" type="button" disabled>Remove selected</button></form>
+      <div class="web-map-toolbar">
+        <div class="web-map-tools"><button id="web-zoom-out" type="button" aria-label="Zoom out" title="Zoom out">−</button><span class="web-map-scale" id="web-zoom-level">100%</span><button id="web-zoom-in" type="button" aria-label="Zoom in" title="Zoom in">+</button><button id="web-fit" type="button" aria-label="Fit map" title="Fit map to view">Fit</button></div>
+        <span id="web-map-count">0 nodes · 0 links</span>
+      </div>
+      <div class="node-graph-wrap"><svg id="webcanvas" role="img" aria-label="Scrollable story map with draggable nodes and connection ports"></svg></div>
+      <div class="web-legend" aria-label="Node types"><span><i class="legend-story"></i>Story</span><span><i class="legend-chapter"></i>Chapter</span><span><i class="legend-character"></i>Character</span><span><i></i>Story detail</span></div>
+      <div id="web-selection" class="web-selection" role="status" aria-live="polite"></div>
+      <div id="web-empty" class="empty" hidden>Add recurring characters to your sections to see the story web.</div>
+      <div class="web-hint">Select an output port, then an input port, to connect story details.</div>
+    </section>
+
+    <section class="view" id="view-finalise" aria-labelledby="finalise-title">
+      <div class="page-intro"><h2 id="finalise-title">Finalise</h2><p>Design the front of your book, review your manuscript, and export a formatted copy when you’re ready. Your book settings and checklist are saved with this project.</p></div>
+      <section class="book-design-panel" aria-labelledby="book-design-title">
+        <div class="section-heading" style="margin:0 0 14px"><div><h3 id="book-design-title">Book design &amp; pages</h3><p>Set up a cover, front matter, table of contents, and a preview of your book’s opening pages.</p></div></div>
+        <div class="book-design-grid">
+          <div class="book-form" id="book-form">
+            <label>Book title<input id="book-title" maxlength="120" placeholder="Use your project name"></label>
+            <label>Subtitle<input id="book-subtitle" maxlength="180" placeholder="Optional subtitle"></label>
+            <label>Author name<input id="book-author" maxlength="100" placeholder="Your name or pen name"></label>
+            <label>Cover artwork<input id="cover-art-input" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="cover-art-note"></label>
+            <div class="project-actions"><button class="secondary-button" type="button" id="remove-cover-art" disabled>Remove cover art</button><span class="book-preview-note" id="cover-art-note">JPG, PNG, or WebP · resized and stored with this offline project.</span></div>
+            <label>Cover style<select id="book-cover-style"><option value="botanical">Quiet botanical</option><option value="minimal">Minimal sage</option><option value="classic">Classic paper</option></select></label>
+            <label>Book page size<select id="book-trim"><option value="trade">Trade paperback · 5 × 8 in</option><option value="a5">A5 · 5.8 × 8.3 in</option><option value="letter">US Letter · 8.5 × 11 in</option></select></label>
+            <label>Interior type style<select id="book-font"><option value="serif">Literary serif</option><option value="classic">Classic book serif</option><option value="sans">Clean sans serif</option></select></label>
+            <label>Dedication<textarea id="book-dedication" maxlength="500" placeholder="Optional dedication page"></textarea></label>
+            <div class="book-options"><label class="book-check"><input id="book-include-toc" type="checkbox"> Include contents page</label><label class="book-check"><input id="book-include-copyright" type="checkbox"> Include copyright page</label></div>
+            <div class="design-actions"><button class="secondary-button" type="button" id="book-reset">Reset book design</button></div>
+          </div>
+          <div><h4 class="book-preview-heading">Live preview · opening pages</h4><div class="book-preview-pages" id="book-preview-pages" aria-live="polite"></div><p class="book-preview-note">The contents list updates from your section titles. Exact page numbers and print-ready cover dimensions are added during final typesetting.</p></div>
+        </div>
+      </section>
+      <div class="finalise-layout">
+        <div class="finalise-panel">
+          <div class="section-heading" style="margin:0"><div><h3>Before you share</h3><p>Check off each step when it feels complete—there’s no required order.</p></div><span class="progress-label" id="finalise-count">0 of 5 complete</span></div>
+          <div class="progress-track" style="margin-top:13px"><div class="progress-fill" id="finalise-progress"></div></div>
+          <div id="finalise-checklist" class="checklist"></div>
+        </div>
+        <aside class="finalise-side">
+          <div class="summary-card"><h3>Manuscript at a glance</h3><div class="summary-row"><span>Words</span><strong id="final-word-count">0</strong></div><div class="summary-row"><span>Sections</span><strong id="final-section-count">1</strong></div><div class="summary-row"><span>Recurring characters</span><strong id="final-character-count">0</strong></div></div>
+          <div class="summary-card"><h3>Take a copy with you</h3><p class="export-note">Export a plain-text draft for easy editing or a formatted HTML copy to keep section headings and rich text.</p><div class="export-buttons"><button class="secondary-button" type="button" id="export-txt">Download plain text (.txt)</button><button class="secondary-button" type="button" id="export-html">Download formatted copy (.html)</button></div></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view" id="view-settings" aria-labelledby="settings-title">
+      <div class="page-intro"><h2 id="settings-title">Settings</h2><p>Make your writing space feel like yours. Appearance choices apply across the app and are saved for this browser, not to individual projects.</p></div>
+      <div class="settings-layout">
+        <aside class="settings-rail">
+          <p class="settings-rail-label">Preferences</p>
+          <nav class="settings-nav" role="tablist" aria-label="Settings categories" aria-orientation="vertical">
+            <button class="settings-nav-btn" id="settings-tab-display" type="button" role="tab" aria-selected="true" aria-controls="settings-panel-display" data-settings-panel="settings-panel-display"><span class="settings-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9 7 7m10 10 2.1 2.1m0-14.2L17 7M7 17l-2.1 2.1"/></svg></span>Display &amp; appearance</button>
+            <button class="settings-nav-btn" id="settings-tab-writing" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-writing" data-settings-panel="settings-panel-writing" tabindex="-1"><span class="settings-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span>Writing experience</button>
+            <button class="settings-nav-btn" id="settings-tab-storage" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-storage" data-settings-panel="settings-panel-storage" tabindex="-1"><span class="settings-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span>Offline &amp; storage</button>
+            <button class="settings-nav-btn" id="settings-tab-about" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-about" data-settings-panel="settings-panel-about" tabindex="-1"><span class="settings-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg></span>About Loomwright</button>
+          </nav>
+          <p class="settings-rail-note">Your writing stays in your browser and the private workspace store used by this app.</p>
+        </aside>
+        <div class="settings-content">
+          <section class="settings-pane" id="settings-panel-display" role="tabpanel" aria-labelledby="settings-tab-display">
+            <header class="settings-pane-heading"><h3>Choose the look and atmosphere for your writing desk.</h3></header>
+            <div class="settings-groups">
+              <div class="settings-block">
+                <div class="setting-row"><div class="setting-copy"><strong>Color palette</strong><small>Choose the color family for panels, accents, and backgrounds.</small></div><select id="palette-select" aria-label="Color palette"><option value="sage">Sage</option><option value="parchment">Parchment</option><option value="slate">Slate</option><option value="forest">Forest</option><option value="ink">Ink</option></select></div>
+                <div class="setting-row"><div class="setting-copy"><strong>Theme</strong><small>Use a light or dark surface, or follow your device setting.</small></div><select id="theme-select" aria-label="Theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
+              </div>
+              <div class="settings-block"><h4 class="settings-block-title">Navigation</h4>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Side-mount navigation pill</strong>
+                    <small>Switch between a classic top navigation bar and a side-mounted vertical pill.</small>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div class="segmented-control" id="nav-position-segmented" role="radiogroup" aria-label="Navigation position">
+                      <button type="button" class="segmented-item" data-nav-pos="top" role="radio" aria-checked="true">Top</button>
+                      <button type="button" class="segmented-item" data-nav-pos="side" role="radio" aria-checked="false">Side mounted</button>
+                    </div>
+                    <button class="settings-switch" id="nav-position-toggle" type="button" role="switch" aria-checked="false" aria-label="Toggle side-mounted navigation pill" title="Toggle side-mounted navigation pill">
+                      <span class="switch-slider"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="settings-block"><h4 class="settings-block-title">Atmosphere &amp; Zen Mode</h4>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Zen Mode background effect</strong>
+                    <small>The calming animated backdrop displayed behind the app and in Zen Mode.</small>
+                  </div>
+                  <select id="bg-effect-select" aria-label="Zen Mode background effect">
+                    <option value="none">None</option>
+                    <option value="rain">Water ripples</option>
+                    <option value="clouds">Drifting clouds</option>
+                    <option value="snow">Snow</option>
+                    <option value="dragon">Flying dragons</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Zen Mode inactivity timer</strong>
+                    <small>When idle, everything in the foreground disappears and only the Zen background shows.</small>
+                  </div>
+                  <select id="zen-timer-select" aria-label="Zen Mode inactivity timer">
+                    <option value="0">Off (manual only)</option>
+                    <option value="0.5">After 30 seconds</option>
+                    <option value="1">After 1 minute</option>
+                    <option value="2">After 2 minutes</option>
+                    <option value="5">After 5 minutes</option>
+                    <option value="10">After 10 minutes</option>
+                    <option value="15">After 15 minutes</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Enter Zen Mode</strong>
+                    <small>Fade away the foreground now until mouse moves or keys are pressed.</small>
+                  </div>
+                  <button class="secondary-button" type="button" id="btn-enter-zen">Enter Zen Mode</button>
+                </div>
+                <div class="setting-row"><div class="setting-copy"><strong>Opening animation</strong><small>Replay the short Loomwright welcome.</small></div><button class="secondary-button" type="button" id="replay-intro">Replay intro</button></div>
+              </div>
+            </div>
+          </section>
+          <section class="settings-pane" id="settings-panel-writing" role="tabpanel" aria-labelledby="settings-tab-writing" hidden>
+            <header class="settings-pane-heading">
+              <h3>Writing experience</h3>
+              <p>Configure typography, page flow, distraction-free writing, and editor behaviours.</p>
+            </header>
+
+            <div class="settings-groups">
+              <!-- Live Preview Paragraph -->
+              <div class="settings-preview-wrap" aria-label="Writing experience preview">
+                <div class="settings-preview-header">
+                  <span class="settings-preview-title">Live Preview</span>
+                  <span class="settings-preview-badge" id="preview-style-badge">Paper · Lora 18px</span>
+                </div>
+                <div class="settings-preview-stage" id="writing-preview-stage">
+                  <div class="settings-preview-document page-style-paper" id="writing-preview-doc">
+                    <p>The morning light fell across the weathered wooden desk, catching the edges of notebooks and unfinished manuscripts. Every sentence shaped its own quiet architecture, holding the rhythm of thought before it dissolved.</p>
+                    <p>Words settled into place with deliberate clarity. A story begins not with certainty, but with the curiosity to turn the next page and discover what was waiting all along.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Page Block -->
+              <div class="settings-block">
+                <h4 class="settings-block-title">Page</h4>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Page style</strong>
+                    <small>Choose between a tactile sheet of paper or a borderless, seamless canvas.</small>
+                  </div>
+                  <div class="segmented-control" role="radiogroup" aria-label="Page style" id="writing-page-style">
+                    <button type="button" class="segmented-item" role="radio" aria-checked="true" data-value="paper">Paper</button>
+                    <button type="button" class="segmented-item" role="radio" aria-checked="false" data-value="flat">Flat</button>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Column width</strong>
+                    <small>Adjust manuscript measure for comfortable line length and reading cadence.</small>
+                  </div>
+                  <div class="segmented-control" role="radiogroup" aria-label="Column width" id="writing-column-width">
+                    <button type="button" class="segmented-item" role="radio" aria-checked="false" data-value="narrow">Narrow</button>
+                    <button type="button" class="segmented-item" role="radio" aria-checked="true" data-value="medium">Medium</button>
+                    <button type="button" class="segmented-item" role="radio" aria-checked="false" data-value="wide">Wide</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Editing Block -->
+              <div class="settings-block">
+                <h4 class="settings-block-title">Editing</h4>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Font family</strong>
+                    <small>Bundled typographic serif faces loaded entirely offline from local files.</small>
+                  </div>
+                  <select id="writing-font-family" aria-label="Font family">
+                    <option value="Bitter">Bitter</option>
+                    <option value="Crimson Text">Crimson Text</option>
+                    <option value="EB Garamond">EB Garamond</option>
+                    <option value="Libre Baskerville">Libre Baskerville</option>
+                    <option value="Lora" selected>Lora</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="PT Serif">PT Serif</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Font size</strong>
+                    <small>Base body size across editor drafts.</small>
+                  </div>
+                  <div class="slider-control-group">
+                    <input type="range" class="settings-range" id="writing-font-size" min="14" max="28" step="1" value="18" aria-label="Font size">
+                    <span class="range-readout" id="writing-font-size-val">18 px</span>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Line spacing</strong>
+                    <small>Vertical line rhythm and breathing room between sentences.</small>
+                  </div>
+                  <div class="slider-control-group">
+                    <input type="range" class="settings-range" id="writing-line-height" min="1.3" max="2.2" step="0.1" value="1.7" aria-label="Line spacing">
+                    <span class="range-readout" id="writing-line-height-val">1.7</span>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>First-line indent</strong>
+                    <small>Indent paragraphs in book fashion instead of empty vertical paragraph gaps.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="false" id="writing-first-line-indent" aria-label="First-line indent">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Formatting toolbar</strong>
+                    <small>Keep ribbon pinned at the top or allow it to scroll naturally with the draft.</small>
+                  </div>
+                  <div class="segmented-control" role="radiogroup" aria-label="Toolbar mode" id="writing-toolbar-mode">
+                    <button type="button" class="segmented-item" role="radio" aria-checked="true" data-value="auto">Auto</button>
+                    <button type="button" class="segmented-item" role="radio" aria-checked="false" data-value="pinned">Pinned</button>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Spellcheck</strong>
+                    <small>Underline spelling errors using the browser’s built-in dictionary.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="true" id="writing-spellcheck" aria-label="Spellcheck">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Smart typography</strong>
+                    <small>Transform quotes to curly quotes, apostrophes, “--” into em dashes, and “...” into ellipses.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="true" id="writing-smart-quotes" aria-label="Smart typography">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Typewriter scroll</strong>
+                    <small>Keep the active line of text vertically centred on screen while typing.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="false" id="writing-typewriter-scroll" aria-label="Typewriter scroll">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Focus mode Block -->
+              <div class="settings-block">
+                <h4 class="settings-block-title">Focus mode</h4>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Hide navigation</strong>
+                    <small>Hide header bar and top navigation tabs in distraction-free mode.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="true" id="writing-focus-hide-nav" aria-label="Hide navigation in focus mode">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Hide toolbar</strong>
+                    <small>Hide the ribbon formatting controls when entering focus mode.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="true" id="writing-focus-hide-toolbar" aria-label="Hide toolbar in focus mode">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Hide footer</strong>
+                    <small>Hide bottom word count status bar and shortcuts during focus mode.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="false" id="writing-focus-hide-footer" aria-label="Hide footer in focus mode">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Saving Block -->
+              <div class="settings-block">
+                <h4 class="settings-block-title">Saving</h4>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Autosave drafts</strong>
+                    <small>Automatically save edits into local browser storage while you type.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="true" id="writing-autosave" aria-label="Autosave drafts">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Autosave delay</strong>
+                    <small>Idle pause after typing before writing changes to offline storage.</small>
+                  </div>
+                  <div class="slider-control-group">
+                    <input type="range" class="settings-range" id="writing-autosave-delay" min="500" max="10000" step="250" value="1500" aria-label="Autosave delay">
+                    <span class="range-readout" id="writing-autosave-delay-val">1.5s</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Goals and counting Block -->
+              <div class="settings-block">
+                <h4 class="settings-block-title">Goals and counting</h4>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Daily writing goal</strong>
+                    <small>Target words to write per day. Set to 0 to disable daily goal tracking.</small>
+                  </div>
+                  <div class="slider-control-group">
+                    <input type="range" class="settings-range" id="writing-daily-goal" min="0" max="20000" step="50" value="500" aria-label="Daily writing goal">
+                    <span class="range-readout" id="writing-daily-goal-val">500 w</span>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Dash separates words</strong>
+                    <small>Treat hyphenated and dashed compounds as distinct words in word counts.</small>
+                  </div>
+                  <button type="button" class="settings-switch" role="switch" aria-checked="true" id="writing-dash-separates" aria-label="Dash separates words">
+                    <span class="switch-slider"></span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Characters Block -->
+              <div class="settings-block">
+                <h4 class="settings-block-title">Characters</h4>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Recogniser sensitivity</strong>
+                    <small>Threshold level for extracting recurring names and character entities.</small>
+                  </div>
+                  <div class="segmented-control" role="radiogroup" aria-label="Recogniser sensitivity" id="writing-recogniser-sensitivity">
+                    <button type="button" class="segmented-item" role="radio" aria-checked="false" data-value="strict">Strict</button>
+                    <button type="button" class="segmented-item" role="radio" aria-checked="true" data-value="balanced">Balanced</button>
+                    <button type="button" class="segmented-item" role="radio" aria-checked="false" data-value="loose">Loose</button>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Restore hidden suggestions</strong>
+                    <small>Un-ignore character names that were previously dismissed from the roster.</small>
+                  </div>
+                  <button class="secondary-button" type="button" id="writing-restore-chars">Restore characters</button>
+                </div>
+              </div>
+
+              <!-- Reset writing settings -->
+              <div class="settings-block">
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>Reset writing settings</strong>
+                    <small>Restore all writing experience preferences to factory defaults.</small>
+                  </div>
+                  <button class="danger-button" type="button" id="writing-reset-settings">Reset writing settings</button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+          <section class="settings-pane" id="settings-panel-storage" role="tabpanel" aria-labelledby="settings-tab-storage" hidden>
+            <header class="settings-pane-heading"><h3>Offline &amp; storage</h3><p>Prepare this app for offline use and check how project data is saved.</p></header>
+            <div class="settings-block"><h4 class="settings-block-title">This device</h4>
+              <div class="setting-row"><div class="setting-copy"><strong>Prepare this app for offline use</strong><small>Save Loomwright’s app files and tools so it can open without a connection. Your books remain in project storage.</small><div class="settings-footnote" id="offline-app-status" role="status" aria-live="polite">Checking whether offline installation is available…</div></div><div class="project-actions"><button class="secondary-button" type="button" id="prepare-offline">Prepare offline</button><button class="secondary-button" type="button" id="install-app" hidden>Install app</button></div></div>
+            </div>
+            <div class="settings-block"><h4 class="settings-block-title">Project data</h4>
+              <p class="settings-footnote" id="storage-note">Projects are saved in this browser and synced to this Codespace when its shared app server is available. Both supported app ports use the same private workspace store.</p>
+              <div class="setting-row"><div class="setting-copy"><strong>Shared browser data</strong><small>Browser sessions using either app port share projects through this Codespace. Keep the forwarded port private.</small></div><button class="secondary-button" type="button" disabled aria-disabled="true">Workspace store</button></div>
+            </div>
+          </section>
+          <section class="settings-pane" id="settings-panel-about" role="tabpanel" aria-labelledby="settings-tab-about" hidden>
+            <header class="settings-pane-heading"><h3>About</h3><p>Information about Loomwright and the version running in this browser.</p></header>
+            <div class="about-card">
+              <div class="about-card-heading"><div class="about-brand-mark" aria-hidden="true"><svg viewBox="0 0 80 80"><path d="M15 39c9-23 31-29 45-18 10 8 5 19-8 22L28 49c-13 4-14 17-2 21 12 5 28-3 39-16M20 18c14 23 31 28 43 22M17 58c12-17 31-23 46-22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div><div><h4>Loomwright</h4><p>Your story, in progress.</p></div></div>
+              <div class="about-version-row"><div><strong>Application version</strong><small>This is the version currently running in this browser.</small><span class="about-status" id="about-version-status">Current build</span></div><strong id="app-version-settings" class="about-version-value">v—</strong></div>
+              <div class="about-git-card">
+                <div class="about-git-heading"><div><strong>Development Git sync</strong><small>Run safe background operations against the connected <code>main</code> branch.</small></div><span class="about-git-badge">Development only</span></div>
+                <div class="about-git-status" id="about-git-status" role="status" aria-live="polite" hidden></div>
+                <div class="about-git-progress" id="about-git-progress" hidden aria-hidden="true"><span class="about-git-progress-fill" id="about-git-progress-fill"></span></div>
+                <div class="about-git-actions"><button class="secondary-button" type="button" id="git-update-button">Update</button></div>
+                <p class="about-git-note">Updates run in the background. Local changes must be committed or stashed before an update can continue.</p>
+              </div>
+            </div>
+            <p class="about-copy">Loomwright is an offline-first writing workspace. Your projects stay available on this device and can sync with the private workspace store when connected.</p>
+            <div class="about-links"><a href="https://github.com/soloanalysis28-dev/loomwright" target="_blank" rel="noreferrer">Source code</a><span>Built for focused writing</span></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="writer-statusbar" id="writer-statusbar" aria-label="Writing status and shortcuts" hidden>
+  <div class="writer-status-info" aria-live="polite"><span id="writer-status-section">Chapter 1 of 1</span><span id="writer-status-words">0 words</span><span id="writer-status-total">0 words total</span><span id="writer-unsaved-indicator" class="unsaved-badge" hidden>● Unsaved changes</span><span id="writer-daily-goal-indicator" class="daily-goal-badge" hidden>Goal: 0 / 500w</span></div>
+  <div class="writer-status-actions"><button class="writer-status-action" id="writer-focus-toggle" type="button" aria-pressed="false" title="Toggle focus mode">Focus</button><button class="writer-status-action" id="writer-status-save" type="button" title="Save (Ctrl/Cmd+S)">Save</button></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="confirm-backdrop" id="confirm-dialog" hidden>
+  <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-message">
+    <div class="confirm-dialog-top"><div class="confirm-dialog-icon" aria-hidden="true">!</div><div><p class="confirm-dialog-kicker">Confirm deletion</p><h2 id="confirm-dialog-title">Delete this project?</h2></div></div>
+    <p class="confirm-dialog-message" id="confirm-dialog-message"></p>
+    <div class="confirm-dialog-actions"><button type="button" class="confirm-dialog-cancel" id="confirm-dialog-cancel">Keep project</button><button type="button" class="confirm-dialog-confirm" id="confirm-dialog-confirm">Delete project</button></div>
+  </section>
+</div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

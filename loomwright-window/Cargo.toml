@@ -1,0 +1,26 @@
+[package]
+name = "loomwright"
+version = "3.0.0"
+edition = "2021"
+description = "Loomwright — native Windows shell around the original Loomwright interface"
+build = "build.rs"
+
+[dependencies]
+tao = "0.37"
+wry = "0.57"
+include_dir = "0.7"
+serde_json = "1"
+image = { version = "0.25", default-features = false, features = ["png"] }
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Graphics_Dwm", "Win32_UI_WindowsAndMessaging", "Win32_System_LibraryLoader"] }
+
+[build-dependencies]
+winres = "0.1"
+
+[profile.dev]
+debug = 0
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
