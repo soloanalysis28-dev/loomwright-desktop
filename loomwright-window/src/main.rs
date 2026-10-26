@@ -60,7 +60,7 @@ fn main() {
         titlebar::paint(hwnd, "#fbfcfa");
     }
 
-    let webview = wry::WebViewBuilder::new_with_web_context(&mut context)
+    let webview = match wry::WebViewBuilder::new_with_web_context(&mut context)
         .with_url(url)
         .with_initialization_script(TITLEBAR_SCRIPT)
         .with_ipc_handler(move |request: wry::http::Request<String>| {
@@ -72,7 +72,21 @@ fn main() {
         })
         .with_devtools(cfg!(debug_assertions))
         .build(&window)
-        .expect("could not start the WebView2 engine");
+    {
+        Ok(webview) => webview,
+        Err(error) => {
+            // The WebView2 runtime is what renders the interface; without it
+            // the window would stay blank. Explain and offer the download.
+            fatal(
+                "Loomwright needs the Microsoft WebView2 runtime.\n\n\
+                 It is installed with Microsoft Edge on Windows 10 and 11, but it \
+                 is missing on this machine.\n\n\
+                 Open the download page now?",
+                &format!("{error}"),
+            );
+            return;
+        }
+    };
 
 
     event_loop.run(move |event, _, control_flow| {
@@ -213,4 +227,39 @@ fn window_icon() -> Option<Icon> {
     let image = image::load_from_memory(bytes).ok()?.to_rgba8();
     let resized = image::imageops::resize(&image, 64, 64, image::imageops::FilterType::Lanczos3);
     Icon::from_rgba(resized.into_raw(), 64, 64).ok()
+}
+
+/// Show a blocking error with an optional trip to the WebView2 download page.
+#[cfg(windows)]
+fn fatal(message: &str, detail: &str) {
+    use windows_sys::Win32::UI::WindowsAndMessaging::{MessageBoxW, IDYES, MB_ICONERROR, MB_YESNO};
+
+    let wide = |value: &str| -> Vec<u16> {
+        value.encode_utf16().chain(std::iter::once(0)).collect()
+    };
+    let body = wide(&format!("{message}\n\nDetails: {detail}"));
+    let title = wide("Loomwright");
+    let answer = unsafe {
+        MessageBoxW(
+            std::ptr::null_mut(),
+            body.as_ptr(),
+            title.as_ptr(),
+            MB_ICONERROR | MB_YESNO,
+        )
+    };
+    if answer == IDYES {
+        let _ = std::process::Command::new("cmd")
+            .args([
+                "/C",
+                "start",
+                "",
+                "https://developer.microsoft.com/microsoft-edge/webview2/",
+            ])
+            .spawn();
+    }
+}
+
+#[cfg(not(windows))]
+fn fatal(message: &str, detail: &str) {
+    eprintln!("{message}\n{detail}");
 }

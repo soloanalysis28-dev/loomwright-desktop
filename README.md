@@ -137,14 +137,23 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
 
 ## Known limitations
 
-- WebView2 must be present (it is part of Windows 10/11 by default).
-- The installer is unsigned, so SmartScreen warns on first run.
-- Settings → *Offline & storage* shows the page's "local preview" wording, because
-  the interface detects `127.0.0.1`. The service worker is therefore not used —
-  the app is already offline, since its files live inside the executable.
-- *About → Update Loomwright* reports that updates are delivered through the
-  installer.
-- One window, no tabs or address bar.
+- **The WebView2 runtime is required.** It ships with Windows 10/11, and if it is
+  missing the app now explains the problem and offers Microsoft's download page
+  instead of opening a blank window. A fully offline installer can bundle
+  Microsoft's 1.8 MB bootstrapper and run it during setup (needs elevation) — a
+  small addition to `installer/loomwright.nsi` if you want it.
+- **The binaries are unsigned**, so SmartScreen warns on first run. Fixing this
+  needs a real code-signing certificate (EV for immediate reputation, OV builds
+  reputation over downloads); `tools/sign.ps1` signs the executable and the
+  installer with `signtool` and a timestamp.
+- **One window.** A single document window per process, by design. Multiple
+  windows would mean one WebView2 per window sharing a single environment, plus a
+  "New window" command; project sharing is already solved by the loopback service,
+  which is why two separate launches share data today.
+- Settings → *Offline & storage* and *About* are rewritten for the desktop by
+  `loomwright-window/web/desktop.js` (bundled files instead of "prepare offline",
+  release link instead of the development Git sync card). The page's own wording
+  is untouched; the desktop script adjusts it at runtime.
 
 ## Licence
 
