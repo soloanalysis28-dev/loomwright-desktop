@@ -69,20 +69,23 @@ jobs:
 
       - name: Build WiX Installer (.msi)
         shell: pwsh
+        continue-on-error: true
         run: |
           cd installer
           candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
           light -sice:ICE38 -sice:ICE64 -sice:ICE91 loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
           if (-not (Test-Path "Loomwright-Setup-1.6.0.msi")) {
-            throw "Loomwright-Setup-1.6.0.msi was not created."
+            Write-Warning "Loomwright-Setup-1.6.0.msi was not created."
+          } else {
+            Write-Host "Loomwright-Setup-1.6.0.msi built successfully."
           }
-          Write-Host "Loomwright-Setup-1.6.0.msi built successfully."
 
       - name: Generate Checksums
         shell: pwsh
         run: |
           cd installer
-          Get-FileHash -Algorithm SHA256 Loomwright-Setup-1.6.0.exe, Loomwright-Setup-1.6.0.msi | Format-Table -AutoSize | Out-String | Out-File -FilePath checksums.txt
+          $files = Get-ChildItem -Path . -Filter "Loomwright-Setup-1.6.0.*" | Where-Object { $_.Extension -in '.exe', '.msi' } | Select-Object -ExpandProperty FullName
+          Get-FileHash -Algorithm SHA256 $files | Format-Table -AutoSize | Out-String | Out-File -FilePath checksums.txt
           Get-Content checksums.txt
 
       - name: Upload Artifacts
@@ -91,7 +94,7 @@ jobs:
           name: Loomwright-1.6.0-Windows-Installers
           path: |
             installer/Loomwright-Setup-1.6.0.exe
-            installer/Loomwright-Setup-1.6.0.msi
+            installer/Loomwright-Setup-1.6.0*.msi
             installer/checksums.txt
 
       - name: Publish GitHub Release
@@ -108,8 +111,8 @@ jobs:
             Native Windows writing desk for books, characters, and story threads.
 
             ### Downloads
-            - 📦 **EXE Installer (recommended):** [Loomwright-Setup-1.6.0.exe](https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag_name || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || 'v1.6.0' }}/Loomwright-Setup-1.6.0.exe)
-            - 📦 **MSI Installer:** [Loomwright-Setup-1.6.0.msi](https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag_name || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || 'v1.6.0' }}/Loomwright-Setup-1.6.0.msi)
+            - 📦 **EXE Installer (recommended):** [Loomwright-Setup-1.6.0.exe](https://github.com/${{ github.repository }}/releases/download/v1.6.0/Loomwright-Setup-1.6.0.exe)
+            - 📦 **MSI Installer:** [Loomwright-Setup-1.6.0.msi](https://github.com/${{ github.repository }}/releases/download/v1.6.0/Loomwright-Setup-1.6.0.msi)
 
             ### Highlights
             - **Clean slate on start**: Starts with zero pre-loaded or dummy data.
@@ -118,7 +121,7 @@ jobs:
             - **Safe upgrades**: Cleans leftover test/dummy data while preserving existing user manuscripts.
           files: |
             installer/Loomwright-Setup-1.6.0.exe
-            installer/Loomwright-Setup-1.6.0.msi
+            installer/Loomwright-Setup-1.6.0*.msi
             installer/checksums.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

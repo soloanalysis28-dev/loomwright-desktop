@@ -20,8 +20,8 @@
 
     <MediaTemplate EmbedCab="yes" />
 
-    <Icon Id="AppIcon" SourceFile="app.ico" />
-    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Icon Id="AppIcon.ico" SourceFile="app.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="LocalAppDataFolder">
@@ -40,7 +40,7 @@
         <File Id="LoomwrightExe"
               Source="..\loomwright-window\target\release\loomwright.exe"
               KeyPath="yes" />
-        <RemoveFolder Id="RemoveInstallFolder" On="uninstall" />
+        <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
       </Component>
       <Component Id="AppIconFile" Guid="59E2711C-A109-4A73-A3FE-E24D28AE9768">
         <File Id="LoomwrightIco" Source="app.ico" KeyPath="yes" />
@@ -57,8 +57,8 @@
                   Description="Loomwright writing desk"
                   Target="[#LoomwrightExe]"
                   WorkingDirectory="INSTALLFOLDER"
-                  Icon="AppIcon" />
-        <RemoveFolder Id="RemoveAppProgramsFolder" On="uninstall" />
+                  Icon="AppIcon.ico" />
+        <RemoveFolder Id="RemoveAppProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
         <RegistryValue Root="HKCU"
                        Key="Software\Loomwright"
                        Name="StartMenuShortcut"
@@ -75,7 +75,7 @@
                   Description="Loomwright writing desk"
                   Target="[#LoomwrightExe]"
                   WorkingDirectory="INSTALLFOLDER"
-                  Icon="AppIcon" />
+                  Icon="AppIcon.ico" />
         <RegistryValue Root="HKCU"
                        Key="Software\Loomwright"
                        Name="DesktopShortcut"
