@@ -82,8 +82,7 @@ jobs:
         shell: pwsh
         run: |
           cd installer
-          $files = Get-ChildItem -Path . -Filter "Loomwright-Setup-1.6.0.*" | Where-Object { $_.Extension -in '.exe', '.msi' } | Select-Object -ExpandProperty FullName
-          Get-FileHash -Algorithm SHA256 $files | Format-Table -AutoSize | Out-String | Out-File -FilePath checksums.txt
+          Get-FileHash -Algorithm SHA256 Loomwright-Setup-1.6.0.exe, Loomwright-Setup-1.6.0.msi | Format-Table -AutoSize | Out-String | Out-File -FilePath checksums.txt
           Get-Content checksums.txt
 
       - name: Upload Artifacts
@@ -92,7 +91,7 @@ jobs:
           name: Loomwright-1.6.0-Windows-Installers
           path: |
             installer/Loomwright-Setup-1.6.0.exe
-            installer/Loomwright-Setup-1.6.0*.msi
+            installer/Loomwright-Setup-1.6.0.msi
             installer/checksums.txt
 
       - name: Publish GitHub Release
@@ -119,7 +118,7 @@ jobs:
             - **Safe upgrades**: Cleans leftover test/dummy data while preserving existing user manuscripts.
           files: |
             installer/Loomwright-Setup-1.6.0.exe
-            installer/Loomwright-Setup-1.6.0*.msi
+            installer/Loomwright-Setup-1.6.0.msi
             installer/checksums.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
