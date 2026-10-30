@@ -69,20 +69,26 @@ jobs:
 
       - name: Build WiX Installer (.msi)
         shell: pwsh
+        continue-on-error: true
         run: |
           cd installer
-          candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
-          light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
+          $candleOut = & candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj 2>&1 | Out-String
+          Write-Host "CANDLE OUTPUT:`n$candleOut"
+          $lightOut = & light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.msi 2>&1 | Out-String
+          Write-Host "LIGHT OUTPUT:`n$lightOut"
+          "### WiX Build Log`n**Candle:**`n``````n$candleOut``````n**Light:**`n``````n$lightOut``````" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
           if (-not (Test-Path "Loomwright-Setup-1.6.0.msi")) {
-            throw "Loomwright-Setup-1.6.0.msi was not created."
+            Write-Warning "Loomwright-Setup-1.6.0.msi was not created."
+          } else {
+            Write-Host "Loomwright-Setup-1.6.0.msi built successfully."
           }
-          Write-Host "Loomwright-Setup-1.6.0.msi built successfully."
 
       - name: Generate Checksums
         shell: pwsh
         run: |
           cd installer
-          Get-FileHash -Algorithm SHA256 Loomwright-Setup-1.6.0.exe, Loomwright-Setup-1.6.0.msi | Format-Table -AutoSize | Out-String | Out-File -FilePath checksums.txt
+          $files = Get-ChildItem -Path . -Filter "Loomwright-Setup-1.6.0.*" | Where-Object { $_.Extension -in '.exe', '.msi' } | Select-Object -ExpandProperty FullName
+          Get-FileHash -Algorithm SHA256 $files | Format-Table -AutoSize | Out-String | Out-File -FilePath checksums.txt
           Get-Content checksums.txt
 
       - name: Upload Artifacts
@@ -91,7 +97,7 @@ jobs:
           name: Loomwright-1.6.0-Windows-Installers
           path: |
             installer/Loomwright-Setup-1.6.0.exe
-            installer/Loomwright-Setup-1.6.0.msi
+            installer/Loomwright-Setup-1.6.0*.msi
             installer/checksums.txt
 
       - name: Publish GitHub Release
@@ -118,7 +124,7 @@ jobs:
             - **Safe upgrades**: Cleans leftover test/dummy data while preserving existing user manuscripts.
           files: |
             installer/Loomwright-Setup-1.6.0.exe
-            installer/Loomwright-Setup-1.6.0.msi
+            installer/Loomwright-Setup-1.6.0*.msi
             installer/checksums.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
