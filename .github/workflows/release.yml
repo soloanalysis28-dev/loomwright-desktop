@@ -30,6 +30,23 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
 
+      - name: Setup NSIS
+        uses: nsis-dev/setup-nsis@v1
+        with:
+          version: 'latest'
+
+      - name: Setup WiX Toolset
+        shell: pwsh
+        run: |
+          if (Test-Path "$env:WIX\bin") {
+            "$env:WIX\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          } elseif (Test-Path "C:\Program Files (x86)\WiX Toolset v3.11\bin") {
+            "C:\Program Files (x86)\WiX Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          } else {
+            choco install wixtoolset -y
+            "C:\Program Files (x86)\WiX Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+
       - name: Build release executable
         shell: pwsh
         run: |
@@ -53,13 +70,9 @@ jobs:
       - name: Build WiX Installer (.msi)
         shell: pwsh
         run: |
-          $wixBin = if ($env:WIX) { Join-Path $env:WIX "bin" } else { "C:\Program Files (x86)\WiX Toolset v3.11\bin" }
-          if (Test-Path $wixBin) {
-            $env:PATH += ";$wixBin"
-          }
           cd installer
           candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
-          light -ext WixUIExtension loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
+          light loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
           if (-not (Test-Path "Loomwright-Setup-1.6.0.msi")) {
             throw "Loomwright-Setup-1.6.0.msi was not created."
           }
@@ -88,6 +101,7 @@ jobs:
           name: Loomwright 1.6.0
           draft: false
           prerelease: false
+          make_latest: true
           body: |
             ## Loomwright Desktop v1.6.0
 
