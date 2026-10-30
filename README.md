@@ -64,12 +64,18 @@ local service and the installer.
 - To build: Rust (tested with 1.99), a linker (MinGW-w64 or MSVC) and,
   optionally, NSIS 3 for the installer.
 
-## Install
+## Download & Install
 
-Run `Loomwright-Setup-1.6.0.exe`. It installs to
-`%LOCALAPPDATA%\Programs\Loomwright` without elevation and starts Loomwright when
-it finishes. Uninstall from Settings → Apps, or from the Start-menu folder; the
-uninstaller removes the application but leaves your manuscripts in place.
+Download the installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
+
+| Format | File | Recommended For |
+|---|---|---|
+| **EXE** | [`Loomwright-Setup-1.6.0.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0/Loomwright-Setup-1.6.0.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0/Loomwright-Setup-1.6.0.msi) | Windows Installer package (enterprise / scripted deployments) |
+
+Run either installer. It installs to `%LOCALAPPDATA%\Programs\Loomwright` without elevation (no administrator rights needed) and starts Loomwright when it finishes.
+
+Uninstall from **Settings → Apps**, or from the Start-menu folder; the uninstaller removes the application but leaves your manuscripts in place.
 
 > **Fresh install — zero pre-loaded data.** Every new installation starts with an
 > empty project library. Click **New project** to create your first manuscript;
@@ -77,12 +83,27 @@ uninstaller removes the application but leaves your manuscripts in place.
 
 ## Build
 
+You can build the application and both installers locally using PowerShell:
+
 ```powershell
+# Build the binary, .exe (NSIS), and .msi (WiX)
+.\tools\build-installers.ps1 -Version 1.6.0
+```
+
+Or step-by-step:
+
+```powershell
+# 1. Build application binary
 cd loomwright-window
 cargo build --release          # → target\release\loomwright.exe
 
+# 2. Build NSIS (.exe) installer
 cd ..\installer
 makensis /DVERSION=1.6.0 loomwright.nsi   # → Loomwright-Setup-1.6.0.exe
+
+# 3. Build WiX (.msi) installer (requires WiX Toolset v3.11)
+candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
+light -ext WixUIExtension loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
 ```
 
 `.cargo/config.toml` selects the MinGW `gcc` linker for the

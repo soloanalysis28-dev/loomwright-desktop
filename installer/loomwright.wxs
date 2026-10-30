@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?ifndef Version?>
+    <?define Version = "1.6.0"?>
+  <?endif?>
+
+  <Product Id="*"
+           Name="Loomwright"
+           Language="1033"
+           Version="$(var.Version).0"
+           Manufacturer="Loomwright"
+           UpgradeCode="4E78D712-421F-4B82-9694-8C2C90DE35F1">
+    <Package InstallerVersion="300"
+             Compressed="yes"
+             InstallScope="perUser"
+             Comments="Loomwright Desktop Installer" />
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="A newer version of Loomwright is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon" SourceFile="app.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="LocalAppDataFolder">
+        <Directory Id="ProgramsFolder" Name="Programs">
+          <Directory Id="INSTALLFOLDER" Name="Loomwright" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Loomwright" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="85A20C34-E63A-4D78-9B21-88484B6F77A1">
+        <File Id="LoomwrightExe"
+              Source="..\loomwright-window\target\release\loomwright.exe"
+              KeyPath="yes" />
+        <RemoveFolder Id="RemoveInstallFolder" On="uninstall" />
+      </Component>
+      <Component Id="AppIconFile" Guid="59E2711C-A109-4A73-A3FE-E24D28AE9768">
+        <File Id="LoomwrightIco" Source="app.ico" KeyPath="yes" />
+      </Component>
+      <Component Id="ReadmeFile" Guid="A7503DF1-0E3B-44A7-873E-61B9E7804473">
+        <File Id="LoomwrightReadme" Source="README.txt" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="73650637-BA72-474F-A167-9755F27702EE">
+        <Shortcut Id="AppStartMenuShortcut"
+                  Name="Loomwright"
+                  Description="Loomwright writing desk"
+                  Target="[#LoomwrightExe]"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
+        <RemoveFolder Id="RemoveAppProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\Loomwright"
+                       Name="StartMenuShortcut"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="B4E99034-7B03-4A63-9524-1AE216894FE8">
+        <Shortcut Id="AppDesktopShortcut"
+                  Name="Loomwright"
+                  Description="Loomwright writing desk"
+                  Target="[#LoomwrightExe]"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\Loomwright"
+                       Name="DesktopShortcut"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="ProductFeature" Title="Loomwright" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="AppIconFile" />
+      <ComponentRef Id="ReadmeFile" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+  </Product>
+</Wix>

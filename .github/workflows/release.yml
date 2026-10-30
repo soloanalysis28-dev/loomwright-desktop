@@ -1,0 +1,110 @@
+name: Build & Release Installers
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag (e.g. v1.6.0)'
+        required: false
+        default: 'v1.6.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Windows Installers (.exe & .msi)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build release executable
+        shell: pwsh
+        run: |
+          cd loomwright-window
+          cargo build --release
+          if (-not (Test-Path "target\release\loomwright.exe")) {
+            throw "loomwright.exe was not created."
+          }
+          Write-Host "loomwright.exe built successfully."
+
+      - name: Build NSIS Installer (.exe)
+        shell: pwsh
+        run: |
+          cd installer
+          makensis /DVERSION=1.6.0 loomwright.nsi
+          if (-not (Test-Path "Loomwright-Setup-1.6.0.exe")) {
+            throw "Loomwright-Setup-1.6.0.exe was not created."
+          }
+          Write-Host "Loomwright-Setup-1.6.0.exe built successfully."
+
+      - name: Build WiX Installer (.msi)
+        shell: pwsh
+        run: |
+          $wixBin = if ($env:WIX) { Join-Path $env:WIX "bin" } else { "C:\Program Files (x86)\WiX Toolset v3.11\bin" }
+          if (Test-Path $wixBin) {
+            $env:PATH += ";$wixBin"
+          }
+          cd installer
+          candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
+          light -ext WixUIExtension loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
+          if (-not (Test-Path "Loomwright-Setup-1.6.0.msi")) {
+            throw "Loomwright-Setup-1.6.0.msi was not created."
+          }
+          Write-Host "Loomwright-Setup-1.6.0.msi built successfully."
+
+      - name: Generate Checksums
+        shell: pwsh
+        run: |
+          cd installer
+          Get-FileHash -Algorithm SHA256 Loomwright-Setup-1.6.0.exe, Loomwright-Setup-1.6.0.msi | Format-Table -AutoSize | Out-String | Out-File -FilePath checksums.txt
+          Get-Content checksums.txt
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Loomwright-1.6.0-Windows-Installers
+          path: |
+            installer/Loomwright-Setup-1.6.0.exe
+            installer/Loomwright-Setup-1.6.0.msi
+            installer/checksums.txt
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag_name || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || 'v1.6.0' }}
+          name: Loomwright 1.6.0
+          draft: false
+          prerelease: false
+          body: |
+            ## Loomwright Desktop v1.6.0
+
+            Native Windows writing desk for books, characters, and story threads.
+
+            ### Downloads
+            - 📦 **EXE Installer (recommended):** [Loomwright-Setup-1.6.0.exe](https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag_name || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || 'v1.6.0' }}/Loomwright-Setup-1.6.0.exe)
+            - 📦 **MSI Installer:** [Loomwright-Setup-1.6.0.msi](https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag_name || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || 'v1.6.0' }}/Loomwright-Setup-1.6.0.msi)
+
+            ### Highlights
+            - **Clean slate on start**: Starts with zero pre-loaded or dummy data.
+            - **Per-user installation**: Does not require administrator privileges.
+            - **Both formats**: Standard NSIS `.exe` setup and Windows Installer `.msi` package.
+            - **Safe upgrades**: Cleans leftover test/dummy data while preserving existing user manuscripts.
+          files: |
+            installer/Loomwright-Setup-1.6.0.exe
+            installer/Loomwright-Setup-1.6.0.msi
+            installer/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

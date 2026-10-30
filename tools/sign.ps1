@@ -13,7 +13,7 @@ param(
     [string]$Thumbprint = $env:LOOMWRIGHT_CERT_THUMBPRINT,
     [string]$Timestamp = 'http://timestamp.digicert.com',
     [string]$Exe = '..\loomwright-window\target\release\loomwright.exe',
-    [string]$Installer = '..\installer\Loomwright-Setup-3.0.0.exe',
+    [string]$Installer = '..\installer\Loomwright-Setup-1.6.0.exe',
     [switch]$Machine
 )
 
