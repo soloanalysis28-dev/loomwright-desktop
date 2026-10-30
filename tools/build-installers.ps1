@@ -66,7 +66,7 @@ if ($candle -and $light) {
     try {
         & $candle "-dVersion=$Version" "loomwright.wxs" -out "loomwright.wixobj"
         if ($LASTEXITCODE -ne 0) { throw "candle failed." }
-        & $light -sice:ICE38 -sice:ICE64 -sice:ICE91 "loomwright.wixobj" -out "Loomwright-Setup-$Version.msi"
+        & $light -sval "loomwright.wixobj" -out "Loomwright-Setup-$Version.msi"
         if ($LASTEXITCODE -ne 0) { throw "light failed." }
         Remove-Item "loomwright.wixobj", "Loomwright-Setup-$Version.wixpdb" -ErrorAction SilentlyContinue
         Write-Host "WiX MSI installer created: Loomwright-Setup-$Version.msi" -ForegroundColor Green

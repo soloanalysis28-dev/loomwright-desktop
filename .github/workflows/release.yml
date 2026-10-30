@@ -69,16 +69,14 @@ jobs:
 
       - name: Build WiX Installer (.msi)
         shell: pwsh
-        continue-on-error: true
         run: |
           cd installer
           candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
-          light -sice:ICE38 -sice:ICE64 -sice:ICE91 loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
+          light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
           if (-not (Test-Path "Loomwright-Setup-1.6.0.msi")) {
-            Write-Warning "Loomwright-Setup-1.6.0.msi was not created."
-          } else {
-            Write-Host "Loomwright-Setup-1.6.0.msi built successfully."
+            throw "Loomwright-Setup-1.6.0.msi was not created."
           }
+          Write-Host "Loomwright-Setup-1.6.0.msi built successfully."
 
       - name: Generate Checksums
         shell: pwsh
