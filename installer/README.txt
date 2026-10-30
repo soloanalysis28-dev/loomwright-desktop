@@ -1,4 +1,4 @@
-Loomwright 3.0
+Loomwright 1.6
 ==============
 
 A writing desk for books, characters and story threads. This build ships the
@@ -9,7 +9,8 @@ WebView2 engine that is part of Windows 10 and 11.
 Getting started
 ---------------
 1. Launch Loomwright from the Start menu.
-2. Your first project is created automatically. Start typing.
+2. Your library is empty — ready for your first real project. Click
+   "New project", give it a name, and start writing.
 3. Chapters live in the left rail. Formatting uses the toolbar, or a small
    Markdown subset: **bold**, *italic*, # heading, > quote, - bullet.
 
@@ -36,4 +37,4 @@ Ctrl+N        New chapter
 Ctrl+Shift+Z  Focus mode
 Esc           Leave focus mode / close a dialog
 
-Version 3.0.0 - built for Windows 10 and 11 (x64)
+Version 1.6.0 - built for Windows 10 and 11 (x64)

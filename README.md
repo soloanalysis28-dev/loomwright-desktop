@@ -66,10 +66,14 @@ local service and the installer.
 
 ## Install
 
-Run `Loomwright-Setup-3.0.0.exe`. It installs to
+Run `Loomwright-Setup-1.6.0.exe`. It installs to
 `%LOCALAPPDATA%\Programs\Loomwright` without elevation and starts Loomwright when
 it finishes. Uninstall from Settings → Apps, or from the Start-menu folder; the
 uninstaller removes the application but leaves your manuscripts in place.
+
+> **Fresh install — zero pre-loaded data.** Every new installation starts with an
+> empty project library. Click **New project** to create your first manuscript;
+> no sample or demo content is pre-loaded.
 
 ## Build
 
@@ -78,7 +82,7 @@ cd loomwright-window
 cargo build --release          # → target\release\loomwright.exe
 
 cd ..\installer
-makensis /DVERSION=3.0.0 loomwright.nsi   # → Loomwright-Setup-3.0.0.exe
+makensis /DVERSION=1.6.0 loomwright.nsi   # → Loomwright-Setup-1.6.0.exe
 ```
 
 `.cargo/config.toml` selects the MinGW `gcc` linker for the
@@ -129,6 +133,18 @@ appears; the large icon remains for the taskbar.
 | Shared snapshot (two windows) | `%APPDATA%\Loomwright\shared.json` |
 | Exports and backups | `%USERPROFILE%\Documents\Loomwright` |
 
+### Fresh-install behaviour (v1.6.0+)
+
+A new installation starts with **no pre-loaded data**. The app opens to an empty
+project library and prompts the user to create their first project. No sample
+chapters, characters or story nodes are pre-populated.
+
+On upgrade from an earlier build the installer removes any leftover `shared.json`
+(which may contain demo content) before the new binary runs. The user's own
+projects — stored in the WebView2 profile — are untouched. The runtime also
+filters the sentinel project id `"p-demo"` so that demo data is never shown even
+if an older `shared.json` was somehow preserved.
+
 ## Privacy
 
 The app has no telemetry, no analytics and no remote API. The page's CSP is
@@ -154,6 +170,17 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
   `loomwright-window/web/desktop.js` (bundled files instead of "prepare offline",
   release link instead of the development Git sync card). The page's own wording
   is untouched; the desktop script adjusts it at runtime.
+
+## Changelog
+
+### 1.6.0 (2026-10-30)
+- **Clean-slate install**: every new installation starts with an empty project
+  library. No sample or demo content is pre-loaded.
+- The installer removes any `shared.json` left by earlier builds before the new
+  binary runs, guaranteeing a clean state on upgrade too.
+- The runtime `purge_demo_data` guard strips the `"p-demo"` sentinel project from
+  any surviving `shared.json` so demo chapters never appear to real users.
+- App version reported in Settings updated to `1.6.0.0`.
 
 ## Licence
 

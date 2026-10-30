@@ -24,17 +24,42 @@ impl Server {
     pub fn start() -> std::io::Result<Self> {
         let (listener, port) = bind()?;
         let path = data_dir().join("shared.json");
+
+        // On a fresh install the file does not exist yet. Write an explicit
+        // empty seed so the web layer never inherits demo or stale data from a
+        // previous installation that happened to live in the same APPDATA path.
+        let fresh_install = !path.exists();
+
         let mut store = Store {
             revision: 0,
             record: None,
             path,
         };
-        if let Ok(raw) = fs::read_to_string(&store.path) {
-            if let Ok(value) = serde_json::from_str::<serde_json::Value>(&raw) {
-                store.revision = value.get("revision").and_then(|v| v.as_u64()).unwrap_or(0);
-                store.record = value.get("record").cloned();
+        if !fresh_install {
+            if let Ok(raw) = fs::read_to_string(&store.path) {
+                if let Ok(value) = serde_json::from_str::<serde_json::Value>(&raw) {
+                    store.revision = value.get("revision").and_then(|v| v.as_u64()).unwrap_or(0);
+                    // Strip any record that still carries demo content: the
+                    // sentinel project id "p-demo" is used by the test/dummy
+                    // data set.  If it is the only project (or is the active
+                    // project), discard the whole record so the user begins
+                    // with a clean slate.
+                    let candidate = value.get("record").cloned();
+                    store.record = candidate.and_then(|rec| purge_demo_data(rec));
+                }
             }
         }
+
+        // Persist whatever we landed on (empty or cleaned) immediately so the
+        // revision counter is always on disk from first launch.
+        {
+            let snapshot = serde_json::json!({
+                "revision": store.revision,
+                "record":   store.record,
+            });
+            let _ = fs::write(&store.path, snapshot.to_string());
+        }
+
         let store = Arc::new(Mutex::new(store));
         let shared = store.clone();
         std::thread::spawn(move || {
@@ -207,6 +232,45 @@ fn route(
             ("404 Not Found".into(), "text/plain".into(), b"Not found".to_vec())
         }
     }
+}
+
+/// Remove any demo / test projects from a shared-sync record and return
+/// `None` when the record becomes empty (so the web layer starts fresh).
+///
+/// The bundled demo project was stored under the sentinel id `"p-demo"`.
+/// Any install that ran while that data was present in `shared.json` will
+/// carry it forward on upgrade; this function ensures it is never surfaced
+/// to real users.
+fn purge_demo_data(mut record: serde_json::Value) -> Option<serde_json::Value> {
+    const DEMO_IDS: &[&str] = &["p-demo"];
+
+    if let Some(projects) = record.get_mut("projects").and_then(|v| v.as_array_mut()) {
+        projects.retain(|project| {
+            let id = project.get("id").and_then(|v| v.as_str()).unwrap_or("");
+            !DEMO_IDS.contains(&id)
+        });
+    }
+
+    // If the active project was one of the demo sentinels, clear it so the
+    // web layer falls back to the first real project (or creates a new one).
+    let active_is_demo = record
+        .get("activeProjectId")
+        .and_then(|v| v.as_str())
+        .map_or(false, |id| DEMO_IDS.contains(&id));
+    if active_is_demo {
+        if let Some(obj) = record.as_object_mut() {
+            obj.remove("activeProjectId");
+        }
+    }
+
+    // Return None when there is nothing left — the web layer will create a
+    // brand-new blank project on its own.
+    let is_empty = record
+        .get("projects")
+        .and_then(|v| v.as_array())
+        .map_or(true, |arr| arr.is_empty());
+
+    if is_empty { None } else { Some(record) }
 }
 
 fn find_headers_end(buffer: &[u8]) -> Option<usize> {

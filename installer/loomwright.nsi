@@ -1,12 +1,12 @@
-; Loomwright 2.0 — per-user Windows installer (NSIS 3.11)
-; Build: makensis /DVERSION=3.0.0 loomwright.nsi
+; Loomwright 1.6 — per-user Windows installer (NSIS 3.11)
+; Build: makensis /DVERSION=1.6.0 loomwright.nsi
 
 Unicode True
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
 !ifndef VERSION
-  !define VERSION "3.0.0"
+  !define VERSION "1.6.0"
 !endif
 
 !define APPNAME "Loomwright"
@@ -79,6 +79,16 @@ Section "Loomwright (required)" SecMain
   ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
   IntFmt $0 "0x%08X" $0
   WriteRegDWORD HKCU "${REGKEY}" "EstimatedSize" "$0"
+
+  ; --- Clean up demo / test data left by earlier builds -------------------
+  ; The shared sync file may contain a bundled sample project ("p-demo").
+  ; Loomwright 1.6 purges it at runtime, but deleting the file here gives
+  ; a guaranteed clean slate on fresh installs and upgrades performed
+  ; while Loomwright is not running.  User manuscripts are stored in the
+  ; WebView2 profile ($LOCALAPPDATA\Loomwright\WebView2), which is NOT
+  ; touched here.
+  Delete "$APPDATA\Loomwright\shared.json"
+  Delete "$APPDATA\Loomwright\shared.json.bak"
 SectionEnd
 
 Section "Desktop shortcut" SecDesktop
