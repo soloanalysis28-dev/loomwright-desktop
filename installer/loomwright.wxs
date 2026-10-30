@@ -12,7 +12,7 @@
            UpgradeCode="4E78D712-421F-4B82-9694-8C2C90DE35F1">
     <Package InstallerVersion="300"
              Compressed="yes"
-             InstallScope="perUser"
+             InstallPrivileges="limited"
              Comments="Loomwright Desktop Installer" />
 
     <MajorUpgrade AllowSameVersionUpgrades="yes"

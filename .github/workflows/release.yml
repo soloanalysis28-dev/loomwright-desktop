@@ -72,7 +72,7 @@ jobs:
         run: |
           cd installer
           candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
-          light loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
+          light -sice:ICE38 -sice:ICE64 -sice:ICE91 loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
           if (-not (Test-Path "Loomwright-Setup-1.6.0.msi")) {
             throw "Loomwright-Setup-1.6.0.msi was not created."
           }
