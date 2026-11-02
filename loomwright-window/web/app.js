@@ -79,7 +79,12 @@ function hasMeaningfulProjectData(data){
   const projectDetails=['charNotes','charProfiles','charConfirmed','charReviewResolved','charStatus','charIgnore','charMerge','webPositions','finaliseChecklist'].some(key=>Object.keys(data?.[key]||{}).length>0);
   return sections.length>1||sections.some(section=>(section.title||'Chapter 1')!=='Chapter 1'||wc(section.html||'')>0||Object.keys(section).some(key=>!['id','title','html','_wc'].includes(key)))||Boolean(data?.templates?.length||data?.webNodes?.length||data?.webLinks?.length||projectDetails||bookDetails)
 }
-function keepProject(project){return Boolean(project&&project.id&&!isDemoProject(project)&&!(String(project.name||'').trim()==='My First Project'&&(!project.data||!hasMeaningfulProjectData(project.data))))}
+function isGeneratedEmptyStarter(project){
+  if(String(project?.name||'').trim()!=='My First Project'||!project.data||hasMeaningfulProjectData(project.data))return false;
+  const sections=Array.isArray(project.data.sections)?project.data.sections:[];
+  return String(project.data.activeId)==='1'&&sections.length===1&&String(sections[0].id)==='1'&&sections[0].title==='Chapter 1'&&wc(sections[0].html||'')===0
+}
+function keepProject(project){return Boolean(project&&project.id&&!isDemoProject(project)&&!isGeneratedEmptyStarter(project))}
 function projectRecords(value){return(Array.isArray(value)?value:[]).filter(keepProject)}
 const FEATURE_GUIDES={
   projects:{title:'Start with a project',intro:'Projects keep each book and its chapters together.',steps:['Give your book a working name.','Choose New project to create an empty workspace.','Open the project to start writing.'],target:'new-project-name',completion:'This guide disappears after you create your first project.'},
@@ -137,7 +142,10 @@ async function initializeOfflineStorage(){
   try{
     offlineDb=await openOfflineDatabase();let localRecord=null;
     try{localRecord=JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY)||'null')}catch(e){}
-    const localProjects=projectRecords(localRecord?.projects),stored=await indexedRead(),storedProjects=projectRecords(stored?.projects);
+    const stored=await indexedRead(),rawStoredProjects=Array.isArray(stored?.projects)?stored.projects:[];
+    const storedById=new Map(rawStoredProjects.filter(project=>project?.id).map(project=>[String(project.id),project]));
+    const localProjects=projectRecords(localRecord?.projects).filter(project=>!isGeneratedEmptyStarter(storedById.get(String(project.id))));
+    const storedProjects=projectRecords(rawStoredProjects);
     const localHasContent=localProjects.some(project=>project.data&&Array.isArray(project.data.sections)),storedHasContent=storedProjects.some(project=>project.data&&Array.isArray(project.data.sections));
     const localHasMetadata=localProjects.length>0&&!localHasContent,useIndexed=storedHasContent&&(localHasMetadata||!localHasContent||(stored.savedAt||0)>(localRecord?.savedAt||0));
     deletedProjectIds=new Set([...(stored?.deletedProjectIds||[]),...(localRecord?.deletedProjectIds||[]),...deletedProjectIds].map(String));
