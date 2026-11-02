@@ -9,10 +9,13 @@ WebView2 engine that is part of Windows 10 and 11.
 Getting started
 ---------------
 1. Launch Loomwright from the Start menu.
-2. Your library is empty — ready for your first real project. Click
-   "New project", give it a name, and start writing.
-3. Chapters live in the left rail. Formatting uses the toolbar, or a small
-   Markdown subset: **bold**, *italic*, # heading, > quote, - bullet.
+2. Your library starts empty, with no sample books or chapters. Create a
+   project when you are ready; it also starts with no chapters.
+3. Add a chapter or import your own manuscript from the Writing desk. First-use
+   guides introduce Projects, Writing, Metrics, Characters, Story Web and
+   Finalise, then disappear after you use each feature.
+4. Format text with the Writing toolbar, or use a small Markdown subset:
+   **bold**, *italic*, # heading, > quote, - bullet.
 
 Where your work is stored
 -------------------------
