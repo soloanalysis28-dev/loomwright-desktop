@@ -12,8 +12,9 @@ const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
 const APP_VERSION='1.6.0.1';
 const PROJECT_RECORD_VERSION=3;
-const DEFAULT_STATE={sections:[{id:1,title:'Chapter 1',html:'<p></p>'}],activeId:1,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[]};
+const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';
+const FEATURE_GUIDES_STORAGE_KEY='loomwright_feature_guides_v1';
 const ONLINE_SYNC_ENABLED=false; // Reserved for a later, explicit online-save feature; offline mode is the only active storage.
 const DEFAULT_BOOK={title:'',subtitle:'',author:'',coverStyle:'botanical',trim:'trade',font:'serif',dedication:'',includeToc:true,includeCopyright:true};
 const CHARACTER_STATUSES=[['unknown','Unknown'],['alive','Alive'],['dead','Dead'],['injured','Injured'],['missing','Missing'],['presumed-dead','Presumed dead'],['captured','Captured'],['recovering','Recovering']];
@@ -68,9 +69,41 @@ async function screenImportFile(file){
   return {ext,bytes,notes};
 }
 function newProjectId(){return 'project-'+(window.crypto?.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2,9))}
-function newProjectState(){return {...DEFAULT_STATE,sections:[{id:1,title:'Chapter 1',html:'<p></p>'}],charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webNodes:[],webLinks:[],templates:[],book:{...DEFAULT_BOOK}}}
+function newProjectState(){return {...DEFAULT_STATE,sections:[],charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[],book:{...DEFAULT_BOOK}}}
 function normalizeSettings(settings){const next={palette:'sage',theme:'light',bgEffect:'none',navPosition:'top',zenIdleMinutes:2,...(settings||{})};if(!['sage','parchment','slate','forest','ink'].includes(next.palette))next.palette='sage';if(!['auto','light','dark'].includes(next.theme))next.theme='light';if(!['none','rain','clouds','snow','dragon'].includes(next.bgEffect))next.bgEffect='none';if(!['top','side'].includes(next.navPosition))next.navPosition='top';const timerNum=Number(next.zenIdleMinutes);next.zenIdleMinutes=[0,0.5,1,2,5,10,15].includes(timerNum)?timerNum:2;if(next.palette==='parchment'&&next.theme==='auto'){next.palette='sage';next.theme='light'}next.writing=normalizeWritingSettings(next.writing);return next}
-function normalizeProjectState(value){const next=value&&typeof value==='object'?value:newProjectState();if(!Array.isArray(next.sections)||!next.sections.length)next.sections=newProjectState().sections;next.sections=next.sections.filter(s=>s&&typeof s==='object').map(s=>({...s,html:sanitizeRichHtml(s.html||'')}));if(!next.sections.length)next.sections=newProjectState().sections;delete next.settings;next.charNotes=next.charNotes||{};next.charProfiles=next.charProfiles&&typeof next.charProfiles==='object'?next.charProfiles:{};next.charConfirmed=next.charConfirmed&&typeof next.charConfirmed==='object'?next.charConfirmed:{};next.charReviewResolved=next.charReviewResolved&&typeof next.charReviewResolved==='object'?next.charReviewResolved:{};next.charStatus=next.charStatus||{};next.finaliseChecklist=next.finaliseChecklist||{};next.charIgnore=next.charIgnore||{};next.charMerge=next.charMerge||{};next.webPositions=next.webPositions||{};next.webNodes=Array.isArray(next.webNodes)?next.webNodes.filter(node=>node&&['place','event','object','thread'].includes(node.type)&&String(node.label||'').trim()).map(node=>({id:String(node.id||newProjectId()),type:node.type,label:String(node.label).trim().slice(0,80)})):[];next.webLinks=Array.isArray(next.webLinks)?next.webLinks.filter(link=>link&&typeof link.from==='string'&&typeof link.to==='string'):[];next.templates=Array.isArray(next.templates)?next.templates.filter(template=>template&&String(template.title||'').trim()&&typeof template.html==='string'&&template.html.length<=MAX_TEMPLATE_HTML_CHARS).slice(0,MAX_PROJECT_TEMPLATES).map(template=>({id:String(template.id||newProjectId()),title:String(template.title).trim().slice(0,120),html:sanitizeRichHtml(template.html),createdAt:template.createdAt||new Date().toISOString()})):[];next.book={...DEFAULT_BOOK,...(next.book||{})};return next}
+function normalizeProjectState(value){const next=value&&typeof value==='object'?value:newProjectState();if(!Array.isArray(next.sections))next.sections=[];next.sections=next.sections.filter(s=>s&&typeof s==='object').map(s=>({...s,html:sanitizeRichHtml(s.html||'')}));delete next.settings;next.charNotes=next.charNotes||{};next.charProfiles=next.charProfiles&&typeof next.charProfiles==='object'?next.charProfiles:{};next.charConfirmed=next.charConfirmed&&typeof next.charConfirmed==='object'?next.charConfirmed:{};next.charReviewResolved=next.charReviewResolved&&typeof next.charReviewResolved==='object'?next.charReviewResolved:{};next.charStatus=next.charStatus||{};next.finaliseChecklist=next.finaliseChecklist||{};next.charIgnore=next.charIgnore||{};next.charMerge=next.charMerge||{};next.webPositions=next.webPositions||{};next.webNodes=Array.isArray(next.webNodes)?next.webNodes.filter(node=>node&&['place','event','object','thread'].includes(node.type)&&String(node.label||'').trim()).map(node=>({id:String(node.id||newProjectId()),type:node.type,label:String(node.label).trim().slice(0,80)})):[];next.webLinks=Array.isArray(next.webLinks)?next.webLinks.filter(link=>link&&typeof link.from==='string'&&typeof link.to==='string'):[];next.templates=Array.isArray(next.templates)?next.templates.filter(template=>template&&String(template.title||'').trim()&&typeof template.html==='string'&&template.html.length<=MAX_TEMPLATE_HTML_CHARS).slice(0,MAX_PROJECT_TEMPLATES).map(template=>({id:String(template.id||newProjectId()),title:String(template.title).trim().slice(0,120),html:sanitizeRichHtml(template.html),createdAt:template.createdAt||new Date().toISOString()})):[];next.book={...DEFAULT_BOOK,...(next.book||{})};return next}
+function isDemoProject(project){return String(project?.id||'')==='p-demo'||project?.isDemo===true||project?.demo===true}
+function hasMeaningfulProjectData(data){const sections=Array.isArray(data?.sections)?data.sections:[];return sections.length>1||sections.some(section=>(section.title||'Chapter 1')!=='Chapter 1'||wc(section.html||'')>0)||Boolean(data?.templates?.length||data?.webNodes?.length||data?.webLinks?.length||Object.keys(data?.charNotes||{}).length||Object.keys(data?.charProfiles||{}).length||Object.keys(data?.finaliseChecklist||{}).length||data?.book?.title||data?.book?.subtitle||data?.book?.author||data?.book?.dedication||data?.book?.coverArt)}
+function keepProject(project){return Boolean(project&&project.id&&!isDemoProject(project)&&!(String(project.name||'').trim()==='My First Project'&&(!project.data||!hasMeaningfulProjectData(project.data))))}
+function projectRecords(value){return(Array.isArray(value)?value:[]).filter(keepProject)}
+const FEATURE_GUIDES={
+  projects:{title:'Start with a project',intro:'Projects keep each book and its chapters together.',steps:['Give your book a working name.','Choose New project to create an empty workspace.','Open the project to start writing.'],target:'new-project-name',completion:'This guide disappears after you create your first project.'},
+  write:{title:'Write your manuscript',intro:'Create chapters and write in the editor. Your work saves on this device.',steps:['Add a chapter or import a TXT, DOCX, or PDF.','Select a chapter to open the editor.','Use the toolbar to format text; changes save automatically.'],target:'create-blank-doc',completion:'This guide disappears after you add or edit a chapter.'},
+  metrics:{title:'Track your progress',intro:'Metrics show word counts, estimated pages, and recurring character mentions.',steps:['Compare chapters by words, pages, or characters.','Select a chapter to see its details.','Open a chapter from its detail card to continue writing.'],target:'metrics-title',completion:'This guide disappears after you change a comparison or open a chapter.'},
+  characters:{title:'Find and organize characters',intro:'Loomwright can scan your manuscript locally for recurring names.',steps:['Scan chapters to find likely characters.','Review suggestions and confirm the people in your story.','Open a character to add roles, aliases, and notes.'],target:'btn-scan-characters',completion:'This guide disappears after you scan the manuscript or edit a character.'},
+  web:{title:'Build your Story Web',intro:'Map people, places, events, objects, and story threads, then connect related details.',steps:['Add a story detail with the form.','Drag nodes to arrange your map.','Connect an output port to an input port to link details.'],target:'web-add-label',completion:'This guide disappears after you add or connect a story detail.'},
+  finalise:{title:'Prepare your book',intro:'Shape the front matter, review your checklist, and export a copy when you are ready.',steps:['Set a title, author, and optional cover details.','Use the checklist for your final review.','Export a plain-text or formatted HTML copy.'],target:'book-title',completion:'This guide disappears after you change a book detail, checklist item, or export.'}
+};
+let completedFeatureGuides={};
+try{const savedGuides=JSON.parse(localStorage.getItem(FEATURE_GUIDES_STORAGE_KEY)||'{}');if(savedGuides&&typeof savedGuides==='object'&&!Array.isArray(savedGuides))completedFeatureGuides=Object.fromEntries(Object.keys(FEATURE_GUIDES).filter(key=>savedGuides[key]===true).map(key=>[key,true]))}catch(error){console.warn('Onboarding progress could not be read:',error)}
+function renderFeatureGuide(feature){
+  const container=document.querySelector(`[data-feature-guide="${feature}"]`),guide=FEATURE_GUIDES[feature];
+  if(!container||!guide)return;
+  const complete=completedFeatureGuides[feature]===true;container.hidden=complete;
+  if(complete)return;
+  container.innerHTML=`<div class="feature-guide-copy"><span class="feature-guide-label">FIRST-TIME GUIDE</span><h3>${guide.title}</h3><p>${guide.intro}</p><ol>${guide.steps.map(step=>`<li>${step}</li>`).join('')}</ol><small>${guide.completion}</small></div><button class="secondary-button feature-guide-action" type="button" aria-label="Go to ${guide.title} controls">Show me</button>`;
+  container.querySelector('.feature-guide-action').addEventListener('click',()=>{
+    const target=document.getElementById(guide.target);target?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'});target?.focus?.({preventScroll:true});
+  });
+}
+function renderFeatureGuides(){Object.keys(FEATURE_GUIDES).forEach(renderFeatureGuide)}
+function completeFeatureGuide(feature){
+  if(!FEATURE_GUIDES[feature]||completedFeatureGuides[feature])return;
+  completedFeatureGuides[feature]=true;
+  try{localStorage.setItem(FEATURE_GUIDES_STORAGE_KEY,JSON.stringify(completedFeatureGuides))}
+  catch(error){console.warn('Onboarding progress could not be saved:',error);toast('Onboarding progress could not be saved on this device.')}
+  renderFeatureGuide(feature);
+}
 let legacyState=null,projectStore=null;
 try{legacyState=JSON.parse(localStorage.getItem('loomwright_state')||'null')}catch(e){}
 try{projectStore=JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY)||'null')}catch(e){}
@@ -78,15 +111,14 @@ const initialActiveId=projectStore?.activeProjectId||localStorage.getItem(ACTIVE
 const initialActiveProject=projectStore?.projects?.find(p=>p.id===initialActiveId);
 let appSettings,appSettingsStoredAtBoot=false,appSettingsTouched=false;
 try{const savedAppSettings=JSON.parse(localStorage.getItem(APP_SETTINGS_KEY)||'null');appSettingsStoredAtBoot=!!(savedAppSettings&&typeof savedAppSettings==='object');appSettings=normalizeSettings(savedAppSettings||initialActiveProject?.data?.settings||legacyState?.settings)}catch(e){appSettings=normalizeSettings(null)}
-let projects=Array.isArray(projectStore?.projects)?projectStore.projects:[];
-let activeProjectId=initialActiveId;
+let projects=projectRecords(projectStore?.projects).map(project=>({...project,data:normalizeProjectState(project.data)}));
+let activeProjectId=projects.some(project=>String(project.id)===String(initialActiveId))?initialActiveId:'';
 let deletedProjectIds=new Set();
 try{const storedDeleted=JSON.parse(localStorage.getItem(DELETED_PROJECTS_STORAGE_KEY)||'[]');if(Array.isArray(storedDeleted))deletedProjectIds=new Set(storedDeleted.map(String))}catch(_){ }
-if(!projects.length){activeProjectId=newProjectId();projects=[{id:activeProjectId,name:'My First Project',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),data:normalizeProjectState(legacyState)}]}
-projects=projects.filter(p=>p&&p.id).map(p=>({...p,name:String(p.name||'Untitled Project'),createdAt:p.createdAt||new Date().toISOString(),updatedAt:p.updatedAt||p.createdAt||new Date().toISOString(),data:normalizeProjectState(p.data)}));
-if(!projects.length){activeProjectId=newProjectId();projects=[{id:activeProjectId,name:'My First Project',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),data:newProjectState()}]}
-if(!projects.some(p=>p.id===activeProjectId))activeProjectId=projects[0].id;
-let state=normalizeProjectState(projects.find(p=>p.id===activeProjectId)?.data||legacyState);
+if(!projects.length&&hasMeaningfulProjectData(legacyState)){const now=new Date().toISOString();activeProjectId=newProjectId();projects=[{id:activeProjectId,name:'My First Project',createdAt:now,updatedAt:now,data:normalizeProjectState(legacyState)}]}
+projects=projects.map(p=>({...p,name:String(p.name||'Untitled Project'),createdAt:p.createdAt||new Date().toISOString(),updatedAt:p.updatedAt||p.createdAt||new Date().toISOString(),data:normalizeProjectState(p.data)}));
+if(!projects.some(p=>String(p.id)===String(activeProjectId)))activeProjectId=projects[0]?.id||'';
+let state=normalizeProjectState(projects.find(p=>String(p.id)===String(activeProjectId))?.data||newProjectState());
 let renamingProjectId=null;
 let offlineDb=null,offlineSaveTimer=null,offlineWriteQueue=Promise.resolve(),offlineStorageReady=false,sharedSyncReady=false,sharedSyncBusy=false,sharedSyncPoll=null,sharedSyncTimer=null,sharedApplyingRecord=false;
 function openOfflineDatabase(){return new Promise((resolve,reject)=>{if(!window.indexedDB){reject(new Error('IndexedDB unavailable'));return}const request=indexedDB.open('loomwright-offline-library',1);request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains('library'))request.result.createObjectStore('library')};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('Could not open offline storage'))})}
@@ -100,10 +132,25 @@ async function initializeOfflineStorage(){
   try{
     offlineDb=await openOfflineDatabase();let localRecord=null;
     try{localRecord=JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY)||'null')}catch(e){}
-    const localHasContent=Array.isArray(localRecord?.projects)&&localRecord.projects.some(p=>p.data&&Array.isArray(p.data.sections)),stored=await indexedRead(),storedHasContent=Array.isArray(stored?.projects)&&stored.projects.some(p=>p.data&&Array.isArray(p.data.sections)),localHasMetadata=Array.isArray(localRecord?.projects)&&localRecord.projects.length>0&&!localHasContent,useIndexed=storedHasContent&&(localHasMetadata||!localHasContent||(stored.savedAt||0)>(localRecord?.savedAt||0));
+    const localProjects=projectRecords(localRecord?.projects),stored=await indexedRead(),storedProjects=projectRecords(stored?.projects);
+    const localHasContent=localProjects.some(project=>project.data&&Array.isArray(project.data.sections)),storedHasContent=storedProjects.some(project=>project.data&&Array.isArray(project.data.sections));
+    const localHasMetadata=localProjects.length>0&&!localHasContent,useIndexed=storedHasContent&&(localHasMetadata||!localHasContent||(stored.savedAt||0)>(localRecord?.savedAt||0));
     deletedProjectIds=new Set([...(stored?.deletedProjectIds||[]),...(localRecord?.deletedProjectIds||[]),...deletedProjectIds].map(String));
     if(useIndexed&&!appSettingsStoredAtBoot&&!appSettingsTouched){const oldActive=stored.projects.find(p=>p.id===(stored.activeProjectId||activeProjectId)),storedSettings=stored.appSettings||oldActive?.data?.settings;if(storedSettings)appSettings=normalizeSettings(storedSettings)}
-    if(useIndexed){const localMeta=new Map((localRecord?.projects||[]).filter(p=>p&&p.id).map(p=>[String(p.id),p]));const storedIds=new Set(stored.projects.filter(p=>p&&p.id).map(p=>String(p.id)));projects=stored.projects.filter(p=>p&&p.id&&(!localHasMetadata||localMeta.has(String(p.id)))).map(p=>({...p,...(localMeta.get(String(p.id))||{}),data:normalizeProjectState(p.data)}));if(localHasMetadata)(localRecord.projects||[]).filter(p=>p&&p.id&&!storedIds.has(String(p.id))).forEach(p=>projects.push({...p,data:newProjectState()}));if(!projects.length)throw new Error('Offline library is empty');activeProjectId=localRecord?.activeProjectId||stored.activeProjectId||projects[0].id;if(!projects.some(p=>p.id===activeProjectId))activeProjectId=projects[0].id;state=projects.find(p=>p.id===activeProjectId).data}
+    if(useIndexed){
+      const localMeta=new Map(localProjects.map(project=>[String(project.id),project])),storedIds=new Set(storedProjects.map(project=>String(project.id)));
+      projects=storedProjects.filter(project=>!localHasMetadata||localMeta.has(String(project.id))).map(project=>({...project,...(localMeta.get(String(project.id))||{}),data:normalizeProjectState(project.data)}));
+      if(localHasMetadata)localProjects.filter(project=>!storedIds.has(String(project.id))).forEach(project=>projects.push({...project,data:newProjectState()}));
+      activeProjectId=localRecord?.activeProjectId||stored.activeProjectId||projects[0]?.id||'';
+      if(!projects.some(project=>String(project.id)===String(activeProjectId)))activeProjectId=projects[0]?.id||'';
+      state=projects.find(project=>String(project.id)===String(activeProjectId))?.data||newProjectState();
+    }else if(!localHasContent&&localProjects.length){
+      projects=localProjects.map(project=>({...project,data:newProjectState()}));
+      activeProjectId=projects.some(project=>String(project.id)===String(localRecord?.activeProjectId))?localRecord.activeProjectId:projects[0].id;
+      state=projects.find(project=>String(project.id)===String(activeProjectId)).data;
+    }else if(!localHasContent&&!storedHasContent&&projects.every(project=>!hasMeaningfulProjectData(project.data))){
+      projects=[];activeProjectId='';state=newProjectState();
+    }
     offlineStorageReady=true;persistAppSettings();persistProjectStore();refreshProjectViews();setSyncStatus('Offline · this device',false);
   }catch(e){offlineDb=null;offlineStorageReady=true;persistAppSettings();if(projects.every(project=>project.data))persistProjectStore();refreshProjectViews();setSyncStatus('Offline · this browser',false)}
 }
@@ -190,8 +237,8 @@ function sameSharedProjects(first,second){
 }
 function mergeSharedRecords(local,remote){
   const deleted=new Set([...(remote?.deletedProjectIds||[]),...(local?.deletedProjectIds||[])].map(String));
-  const merged=new Map((remote?.projects||[]).map(project=>[String(project.id),project]));
-  (local?.projects||[]).forEach(project=>{
+  const merged=new Map(projectRecords(remote?.projects).map(project=>[String(project.id),project]));
+  projectRecords(local?.projects).forEach(project=>{
     const id=String(project.id),previous=merged.get(id),localTime=Date.parse(project.updatedAt||project.createdAt||'')||0,remoteTime=Date.parse(previous?.updatedAt||previous?.createdAt||'')||0;
     if(!previous||localTime>remoteTime)merged.set(id,project);
   });
@@ -202,11 +249,10 @@ function mergeSharedRecords(local,remote){
 }
 function applySharedRecord(record){
   deletedProjectIds=new Set((record.deletedProjectIds||[]).map(String));
-  const nextProjects=(record.projects||[]).filter(project=>project&&project.id&&!deletedProjectIds.has(String(project.id))).map(project=>({...project,name:String(project.name||'Untitled Project'),data:normalizeProjectState(project.data)}));
-  if(!nextProjects.length)return;
+  const nextProjects=projectRecords(record.projects).filter(project=>!deletedProjectIds.has(String(project.id))).map(project=>({...project,name:String(project.name||'Untitled Project'),data:normalizeProjectState(project.data)}));
   const currentId=projects.some(project=>String(project.id)===String(activeProjectId))?activeProjectId:record.activeProjectId;
-  projects=nextProjects;activeProjectId=projects.some(project=>String(project.id)===String(currentId))?currentId:projects[0].id;
-  state=projects.find(project=>String(project.id)===String(activeProjectId)).data;
+  projects=nextProjects;activeProjectId=projects.some(project=>String(project.id)===String(currentId))?currentId:projects[0]?.id||'';
+  state=projects.find(project=>String(project.id)===String(activeProjectId))?.data||newProjectState();
   sharedApplyingRecord=true;
   try{persistProjectStore();refreshProjectViews()}finally{sharedApplyingRecord=false}
 }
@@ -716,6 +762,7 @@ function switchView(name){
   if(name!=='write'){document.body.classList.remove('writer-focus');document.getElementById('writer-statusbar').hidden=true}
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));
+  renderFeatureGuide(name);
   try {
     if(name==='home')renderHome();
     if(name==='projects')renderProjects();
@@ -734,6 +781,10 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>swit
 document.querySelectorAll('[data-open-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.openView)));
 
 function renderHome(){
+  const hasProject=projects.some(project=>String(project.id)===String(activeProjectId));
+  document.getElementById('home-empty-state').hidden=hasProject;
+  ['.resume-panel','.dashboard-stats','.home-project-section-heading','.home-bento-grid','.home-secondary-grid'].forEach(selector=>{const element=document.querySelector(`#view-home ${selector}`);if(element)element.hidden=!hasProject});
+  if(!hasProject)return;
   const words=totalWords(),sections=state.sections.length,characters=totalCharacters();
   document.getElementById('home-word-count').textContent=words.toLocaleString();document.getElementById('home-section-count').textContent=sections.toLocaleString();document.getElementById('home-character-count').textContent=characters.toLocaleString();
   const done=Object.values(state.finaliseChecklist).filter(Boolean).length,total=FINALISE_ITEMS.length,pct=Math.round(done/total*100);
@@ -760,6 +811,7 @@ function renderDocumentList(){
   list.innerHTML='';
   const count=document.getElementById('write-document-count');
   if(count)count.textContent=`${state.sections.length} ${state.sections.length===1?'chapter':'chapters'}`;
+  if(!state.sections.length)list.innerHTML='<p class="empty">No chapters yet. Add one or import your own manuscript when you are ready.</p>';
   state.sections.forEach(section=>{
     const item=document.createElement('button');
     item.type='button';
@@ -798,6 +850,13 @@ function showWriteLibrary(){
   document.getElementById('write-workspace').hidden=true;
   renderDocumentList();
 }
+function requireActiveProject(){
+  if(projects.some(project=>String(project.id)===String(activeProjectId)))return true;
+  toast('Create a project before adding manuscript content.');
+  switchView('projects');
+  document.getElementById('new-project-name')?.focus();
+  return false;
+}
 function showWriteWorkspace(){
   document.getElementById('write-library').hidden=true;
   document.getElementById('write-workspace').hidden=false;
@@ -814,12 +873,13 @@ function openSection(id){
   showWriteWorkspace();
 }
 function createSectionFromTemplate(templateId){
+  if(!requireActiveProject())return;
   const template=state.templates.find(item=>String(item.id)===String(templateId));if(!template)return;
   const id=Date.now()+Math.floor(Math.random()*1000);
-  state.sections.push({id,title:template.title,html:sanitizeRichHtml(template.html)});state.activeId=id;save();renderHome();showWriteWorkspace();document.getElementById('title-input')?.focus();
+  state.sections.push({id,title:template.title,html:sanitizeRichHtml(template.html)});state.activeId=id;save();completeFeatureGuide('write');renderHome();showWriteWorkspace();document.getElementById('title-input')?.focus();
 }
 function createBlankDocument(){
-  addSection();
+  if(!addSection())return;
   showWriteWorkspace();
   document.getElementById('title-input')?.focus();
 }
@@ -861,9 +921,9 @@ function renderMetrics(){
       <article class="metric-card"><div class="metric-card-header"><div><h3>Highlights</h3><p>Quick manuscript signals.</p></div></div><div class="metric-milestones"><div class="metric-milestone"><span>Longest chapter</span><strong>${highestWordChapter?escapeHtml(highestWordChapter.title):'—'}</strong></div><div class="metric-milestone"><span>Most characters</span><strong>${highestCharacterChapter?escapeHtml(highestCharacterChapter.title):'—'}</strong></div><div class="metric-milestone"><span>Recurring characters</span><strong>${characters.length.toLocaleString()}</strong></div><div class="metric-milestone"><span>Sections</span><strong>${chapters.length.toLocaleString()}</strong></div></div></article>
       <article class="metric-card metric-character-card"><div class="metric-card-header"><div><h3>Character mentions</h3><p>Mentions by chapter across your recurring cast.</p></div><div class="metric-character-tools"><input id="metric-character-filter" type="search" placeholder="Find a character" aria-label="Find a character"><span class="template-count" id="metric-character-count"></span></div></div><div class="metric-table-wrap"><table class="metric-table"><thead><tr><th scope="col">Character</th>${chapterHeaders}</tr></thead><tbody>${characterRows||`<tr><td colspan="${chapters.length+1}">Recurring characters will appear here as your draft develops.</td></tr>`}</tbody></table></div></article>
     </div>`;
-  shell.querySelectorAll('[data-metric-mode]').forEach(button=>button.addEventListener('click',()=>{metricMode=button.dataset.metricMode;renderMetrics()}));
+  shell.querySelectorAll('[data-metric-mode]').forEach(button=>button.addEventListener('click',()=>{metricMode=button.dataset.metricMode;completeFeatureGuide('metrics');renderMetrics()}));
   shell.querySelectorAll('[data-metric-chapter]').forEach(button=>button.addEventListener('click',()=>{selectedMetricChapterId=button.dataset.metricChapter;renderMetrics()}));
-  shell.querySelector('[data-open-metric-chapter]')?.addEventListener('click',()=>{const chapter=state.sections.find(item=>String(item.id)===String(selectedMetricChapterId));if(chapter){switchView('write');openSection(chapter.id)}});
+  shell.querySelector('[data-open-metric-chapter]')?.addEventListener('click',()=>{const chapter=state.sections.find(item=>String(item.id)===String(selectedMetricChapterId));if(chapter){completeFeatureGuide('metrics');switchView('write');openSection(chapter.id)}});
   const filter=shell.querySelector('#metric-character-filter'),count=shell.querySelector('#metric-character-count');
   if(filter){filter.value=metricCharacterFilter;const updateFilter=()=>{metricCharacterFilter=filter.value.trim().toLocaleLowerCase();let visible=0;shell.querySelectorAll('.metric-table tbody tr').forEach(row=>{row.hidden=!!metricCharacterFilter&&!row.textContent.toLocaleLowerCase().includes(metricCharacterFilter);if(!row.hidden)visible++});count.textContent=`${visible} ${visible===1?'character':'characters'}`};filter.addEventListener('input',updateFilter);updateFilter()}
 }
@@ -885,17 +945,18 @@ function renderProjects(){
     const actions=document.createElement('div');actions.className='project-actions';
     const open=document.createElement('button');open.type='button';open.className=project.id===activeProjectId?'primary-button':'secondary-button';open.textContent=project.id===activeProjectId?'Open current':'Open project';open.onclick=()=>activateProject(project.id);actions.appendChild(open);
     if(project.id!==renamingProjectId){const rename=document.createElement('button');rename.type='button';rename.className='secondary-button';rename.textContent='Rename';rename.onclick=()=>renameProject(project.id);actions.appendChild(rename)}
-    const remove=document.createElement('button');remove.type='button';remove.className='del';remove.textContent='Delete';remove.disabled=projects.length<2;remove.title=projects.length<2?'Keep at least one project':'Delete this project from this browser';remove.onclick=()=>deleteProject(project.id);actions.appendChild(remove);
+    const remove=document.createElement('button');remove.type='button';remove.className='del';remove.textContent='Delete';remove.title='Delete this project from this browser';remove.onclick=()=>deleteProject(project.id);actions.appendChild(remove);
     card.appendChild(actions);grid.appendChild(card);
   });
+  renderFeatureGuide('projects');
   if(!projects.length)grid.innerHTML='<div class="project-empty">No projects yet. Create one above to start a book.</div>';
 }
 function refreshProjectViews(){renderSidebar();renderEditor();applyTheme();renderHome();renderProjects();renderFinalise()}
 function activateProject(id){const project=projects.find(p=>p.id===id);if(!project)return;const changed=id!==activeProjectId;if(changed){save();activeProjectId=id;state=project.data;persistProjectStore();refreshProjectViews()}switchView('write');if(changed)toast('Opened '+project.name+'.')}
-function createProject(name){const clean=String(name||'').trim().slice(0,80);if(!clean){toast('Add a name for the project.');return}save();const now=new Date().toISOString(),project={id:newProjectId(),name:clean,createdAt:now,updatedAt:now,data:newProjectState()};projects.unshift(project);activeProjectId=project.id;state=project.data;persistProjectStore();refreshProjectViews();switchView('home');toast('Created '+clean+'.')}
+function createProject(name){const clean=String(name||'').trim().slice(0,80);if(!clean){toast('Add a name for the project.');return}if(activeProjectId)save();const now=new Date().toISOString(),project={id:newProjectId(),name:clean,createdAt:now,updatedAt:now,data:newProjectState()};projects.unshift(project);activeProjectId=project.id;state=project.data;persistProjectStore();completeFeatureGuide('projects');refreshProjectViews();switchView('home');toast('Created '+clean+'.')}
 function renameProject(id){if(!projects.some(project=>project.id===id))return;renamingProjectId=id;renderProjects();const input=document.getElementById('project-name-edit');input?.focus();input?.select()}
 function saveProjectRename(id,value){const project=projects.find(item=>item.id===id);if(!project)return;const clean=String(value||'').trim().slice(0,80);if(!clean){toast('Project name cannot be empty.');document.getElementById('project-name-edit')?.focus();return}project.name=clean;project.updatedAt=new Date().toISOString();renamingProjectId=null;persistProjectStore();renderProjects();renderHome();renderBookPreview();toast('Project renamed.')}
-async function deleteProject(id){if(projects.length<2){toast('Keep at least one project in your library.');return}const project=projects.find(p=>p.id===id);if(!project||!await showConfirmDialog('Delete project?',`Delete “${project.name}” and all of its writing from this browser? This cannot be undone.`))return;deletedProjectIds.add(String(id));projects=projects.filter(p=>p.id!==id);if(activeProjectId===id){activeProjectId=projects[0].id;state=projects[0].data}persistProjectStore();void flushOfflineSave().catch(()=>toast('Project deleted here, but the offline save needs attention.'));refreshProjectViews();switchView('projects');toast('Project deleted from this browser.')}
+async function deleteProject(id){const project=projects.find(p=>p.id===id);if(!project||!await showConfirmDialog('Delete project?',`Delete “${project.name}” and all of its writing from this browser? This cannot be undone.`))return;deletedProjectIds.add(String(id));projects=projects.filter(p=>p.id!==id);if(activeProjectId===id){activeProjectId=projects[0]?.id||'';state=projects[0]?.data||newProjectState()}persistProjectStore();void flushOfflineSave().catch(()=>toast('Project deleted here, but the offline save needs attention.'));refreshProjectViews();switchView('projects');toast('Project deleted from this browser.')}
 function renderSidebar(){
   const sel=document.getElementById('section-select');sel.innerHTML='';
   state.sections.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=`${s.title||'Untitled'} (${wc(s.html||'')}w)`;sel.appendChild(o)});
@@ -1079,6 +1140,7 @@ function renderEditor(){
   if(titleInput){
     titleInput.oninput = e => {
       s.title = e.target.value;
+      completeFeatureGuide('write');
       const sel = document.getElementById('section-select');
       const opt = sel?.querySelector(`option[value="${s.id}"]`);
       if (opt) opt.textContent = `${s.title || 'Untitled'} (${s._wc !== undefined ? s._wc : (s._wc = wc(s.html || ''))}w)`;
@@ -1143,6 +1205,7 @@ function renderEditor(){
     }
   });
   editor.oninput=()=>{
+    if(textOf(editor.innerHTML).trim())completeFeatureGuide('write');
     writerDirty = true;
     updateUnsavedIndicator();
     if (!writerStatusTimer) {
@@ -1197,8 +1260,8 @@ function renderEditor(){
   lsSelect.onchange=e=>setLineSpacing(e.target.value);
   document.getElementById('delete-section').onclick=()=>delSection(s.id);
 }
-function addSection(){flushWriterSave();const id=Date.now();state.sections.push({id,title:'New Chapter',html:'<p></p>'});state.activeId=id;save();renderSidebar();renderEditor();renderHome();document.getElementById('title-input')?.focus()}
-async function delSection(id){flushWriterSave();if(state.sections.length===1){toast("You can’t delete your only chapter.");return}const s=state.sections.find(item=>item.id===id);const title=s?.title?.trim()||'Untitled';const confirmed=await showConfirmDialog('Delete “'+title+'”?','Are you sure you want to delete this chapter? This cannot be undone.','Delete chapter');if(!confirmed)return;state.sections=state.sections.filter(s=>s.id!==id);state.activeId=state.sections[0].id;save();void flushOfflineSave().catch(()=>toast('Chapter deleted here, but the offline save needs attention.'));renderSidebar();renderEditor();renderHome();toast('Chapter deleted.')}
+function addSection(){if(!requireActiveProject())return false;flushWriterSave();const id=Date.now();state.sections.push({id,title:'New Chapter',html:'<p></p>'});state.activeId=id;save();completeFeatureGuide('write');renderSidebar();renderEditor();renderHome();document.getElementById('title-input')?.focus();return true}
+async function delSection(id){flushWriterSave();const s=state.sections.find(item=>item.id===id);const title=s?.title?.trim()||'Untitled';const confirmed=await showConfirmDialog('Delete “'+title+'”?','Are you sure you want to delete this chapter? This cannot be undone.','Delete chapter');if(!confirmed)return;state.sections=state.sections.filter(section=>section.id!==id);state.activeId=state.sections[0]?.id??null;save();void flushOfflineSave().catch(()=>toast('Chapter deleted here, but the offline save needs attention.'));renderSidebar();renderEditor();renderHome();toast('Chapter deleted.')}
 
 document.getElementById('add-section').addEventListener('click',addSection);
 document.getElementById('create-blank-doc').addEventListener('click',createBlankDocument);
@@ -1222,6 +1285,7 @@ document.getElementById('writer-sort-chapters-btn')?.addEventListener('click',so
 async function importChapterFiles(rawFileList){
   const rawFiles=[...(rawFileList||[])];
   if(!rawFiles.length) return;
+  if(!requireActiveProject())return;
   if(rawFiles.length>50)toast('Choose up to 50 files at a time.');
   const files=rawFiles.sort((a,b)=>compareChapterTitles(a.name,b.name)).slice(0,50);
   let imported=0;
@@ -1250,7 +1314,7 @@ async function importChapterFiles(rawFileList){
       state.sections.sort((a,b)=>compareChapterTitles(a.title,b.title));
     }
     state.activeId=newSections[0].id;
-    save();renderSidebar();renderEditor();renderHome();showWriteWorkspace();
+    save();completeFeatureGuide('write');renderSidebar();renderEditor();renderHome();showWriteWorkspace();
     toast(`${imported} chapter${imported===1?'':'s'} ordered in sequence by title.`);
   }
 }
@@ -1375,13 +1439,13 @@ function characterRows(){
   const chars=detectCharacters()||[];const max=Math.max(1,...chars.map(([,d])=>d.count||0));
   return chars.map(([name,data])=>{const profile=characterProfile(name),chapters=state.sections.map((chapter,index)=>({chapter,index,count:chapterMentionCount(data,chapter)})),first=chapters.find(item=>item.count>0),sections=new Set(chapters.filter(item=>item.count>0).map(item=>item.chapter.title||'Untitled'));const aliases=[...new Set([...(Array.isArray(data.aliases)?data.aliases:[]),...profile.aliases].filter(alias=>alias&&alias.toLowerCase()!==name.toLowerCase()))];const oftenWith=chars.filter(([other,otherData])=>other!==name&&state.sections.reduce((sum,chapter)=>sum+(chapterMentionCount(data,chapter)>0&&chapterMentionCount(otherData,chapter)>0?1:0),0)>0).map(([other])=>other).slice(0,3);return {name,data,profile,chapters,first,sections,aliases,oftenWith,tier:(data.count||0)>=max*.45?'main':(data.count||0)>=max*.12?'supporting':'minor',late:first&&first.index>=Math.max(2,state.sections.length-3)}})
 }
-function saveCharacterProfile(name,profile){state.charProfiles=state.charProfiles||{};state.charProfiles[name]={role:profile.role||'Unassigned',description:profile.description||'',aliases:Array.isArray(profile.aliases)?profile.aliases:[],relationships:profile.relationships||'',notes:profile.notes||''};state.charNotes[name]=profile.notes||'';save();renderCharacters();renderHome();renderWeb()}
+function saveCharacterProfile(name,profile){state.charProfiles=state.charProfiles||{};state.charProfiles[name]={role:profile.role||'Unassigned',description:profile.description||'',aliases:Array.isArray(profile.aliases)?profile.aliases:[],relationships:profile.relationships||'',notes:profile.notes||''};state.charNotes[name]=profile.notes||'';save();completeFeatureGuide('characters');renderCharacters();renderHome();renderWeb()}
 function jumpToCharacterChapter(name,chapterId){const chapter=state.sections.find(item=>String(item.id)===String(chapterId));if(!chapter)return;switchView('write');openSection(chapter.id);toast(`Opened ${chapter.title||'chapter'} for ${name}.`)}
 function openCharacterSheet(name,focus=''){
   const modal=document.getElementById('character-sheet'),row=characterRows().find(item=>item.name===name);if(!modal||!row)return;const profile=row.profile;modal.dataset.character=name;modal.querySelector('#character-sheet-title').textContent=name;modal.querySelector('#char-sheet-name').value=name;modal.querySelector('#char-sheet-role').value=profile.role;modal.querySelector('#char-sheet-description').value=profile.description||'';modal.querySelector('#char-sheet-aliases').value=row.aliases.join(', ');modal.querySelector('#char-sheet-first').textContent=row.first?`${row.first.chapter.title||'Untitled'} · ${row.first.count} mention${row.first.count===1?'':'s'}`:'Not found';modal.querySelector('#char-sheet-relationships').value=profile.relationships||row.oftenWith.join(', ');modal.querySelector('#char-sheet-notes').value=profile.notes||'';const mergeSelect=modal.querySelector('#char-sheet-merge');mergeSelect.innerHTML='<option value="">Choose a character…</option>'+characterRows().filter(item=>item.name!==name).map(item=>`<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join('');modal.hidden=false;requestAnimationFrame(()=>modal.querySelector(focus?`#char-sheet-${focus}`:'#char-sheet-name')?.focus())
 }
 function closeCharacterSheet(){const modal=document.getElementById('character-sheet');if(modal)modal.hidden=true}
-function saveCharacterSheet(){const modal=document.getElementById('character-sheet');if(!modal)return;const oldName=modal.dataset.character,newName=modal.querySelector('#char-sheet-name').value.trim().slice(0,120);if(!newName){toast('Give this character a name first.');return}const profile={role:modal.querySelector('#char-sheet-role').value,description:modal.querySelector('#char-sheet-description').value.trim(),aliases:modal.querySelector('#char-sheet-aliases').value.split(',').map(value=>value.trim()).filter(Boolean).slice(0,20),relationships:modal.querySelector('#char-sheet-relationships').value.trim(),notes:modal.querySelector('#char-sheet-notes').value.trim()};if(newName!==oldName){state.charMerge=state.charMerge||{};state.charMerge[oldName]=newName;state.charProfiles[newName]=profile;delete state.charProfiles[oldName];if(state.charNotes?.[oldName]){state.charNotes[newName]=state.charNotes[oldName];delete state.charNotes[oldName]}}else saveCharacterProfile(oldName,profile);if(newName!==oldName){save();renderCharacters();renderHome();renderWeb()}closeCharacterSheet()}
+function saveCharacterSheet(){const modal=document.getElementById('character-sheet');if(!modal)return;const oldName=modal.dataset.character,newName=modal.querySelector('#char-sheet-name').value.trim().slice(0,120);if(!newName){toast('Give this character a name first.');return}const profile={role:modal.querySelector('#char-sheet-role').value,description:modal.querySelector('#char-sheet-description').value.trim(),aliases:modal.querySelector('#char-sheet-aliases').value.split(',').map(value=>value.trim()).filter(Boolean).slice(0,20),relationships:modal.querySelector('#char-sheet-relationships').value.trim(),notes:modal.querySelector('#char-sheet-notes').value.trim()};if(newName!==oldName){state.charMerge=state.charMerge||{};state.charMerge[oldName]=newName;state.charProfiles[newName]=profile;delete state.charProfiles[oldName];if(state.charNotes?.[oldName]){state.charNotes[newName]=state.charNotes[oldName];delete state.charNotes[oldName]}}else saveCharacterProfile(oldName,profile);if(newName!==oldName){save();renderCharacters();renderHome();renderWeb()}completeFeatureGuide('characters');closeCharacterSheet()}
 function confirmReviewCandidate(name){state.charConfirmed=state.charConfirmed||{};state.charReviewResolved=state.charReviewResolved||{};state.charConfirmed[name]=true;state.charReviewResolved[name]='confirmed';save();renderCharacters();renderHome();renderWeb();renderMetrics();toast(`${name} added to the character roster.`)}
 function renderCharacters(){
   try{
@@ -1390,19 +1454,19 @@ function renderCharacters(){
     grid.querySelectorAll('[data-character-open]').forEach(button=>{button.addEventListener('click',()=>openCharacterSheet(button.dataset.characterOpen));button.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openCharacterSheet(button.dataset.characterOpen)}})});grid.querySelectorAll('[data-character-chapter]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();jumpToCharacterChapter(button.dataset.characterChapter,button.dataset.chapterId)}));grid.querySelectorAll('[data-character-menu]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();const menu=button.parentElement.querySelector('.char-menu');const open=!menu.hidden;grid.querySelectorAll('.char-menu').forEach(item=>item.hidden=true);grid.querySelectorAll('[data-character-menu]').forEach(item=>item.setAttribute('aria-expanded','false'));menu.hidden=open;button.setAttribute('aria-expanded',String(!open))}));grid.querySelectorAll('[data-character-action]').forEach(button=>button.addEventListener('click',()=>{const name=button.dataset.characterName,action=button.dataset.characterAction;if(action==='rename')openCharacterSheet(name);if(action==='alias')openCharacterSheet(name,'aliases');if(action==='ignore')ignoreCharacter(name);if(action==='merge')openCharacterSheet(name,'merge');if(action==='story-web')switchView('web');if(action==='first'){const row=rows.find(item=>item.name===name);if(row?.first)jumpToCharacterChapter(name,row.first.chapter.id)}}));reviewTray?.querySelectorAll('[data-review-confirm]').forEach(button=>button.addEventListener('click',()=>confirmReviewCandidate(button.dataset.reviewConfirm)));reviewTray?.querySelectorAll('[data-review-ignore]').forEach(button=>button.addEventListener('click',()=>ignoreCharacter(button.dataset.reviewIgnore)));reviewTray?.querySelectorAll('[data-review-merge]').forEach(select=>select.addEventListener('change',event=>{if(event.target.value)mergeCharacter(select.dataset.reviewMerge,event.target.value)}));
   }catch(error){console.error('Characters tab rendering error:',error);const grid=document.getElementById('char-grid');if(grid)grid.innerHTML=`<div class="empty">Unable to display characters: ${escapeHtml(error?.message||'Unexpected error')}.</div>`}
 }
-async function scanCharacters(){const button=document.getElementById('btn-scan-characters'),status=document.getElementById('character-scan-status'),progress=document.getElementById('character-scan-progress'),fill=document.getElementById('character-scan-progress-fill');if(!button||button.disabled)return;flushWriterSave();button.disabled=true;button.classList.add('is-scanning');if(progress)progress.hidden=false;if(fill)fill.style.width='8%';if(status)status.textContent=`Scanning ${state.sections.length} ${state.sections.length===1?'chapter':'chapters'} offline…`;await new Promise(resolve=>setTimeout(resolve,120));try{if(fill)fill.style.width='48%';await new Promise(resolve=>setTimeout(resolve,180));const characters=detectCharacters();if(fill)fill.style.width='82%';renderCharacters();renderHome();renderWeb();renderMetrics();if(fill)fill.style.width='100%';if(status)status.textContent=`Scanned just now · ${characters.length} character${characters.length===1?'':'s'} found`;toast(`Manuscript scan complete: ${characters.length} characters found.`)}catch(error){console.error('Character scan failed:',error);if(status)status.textContent='Scan could not be completed.';toast('Character scan failed: '+error.message)}finally{button.disabled=false;button.classList.remove('is-scanning');setTimeout(()=>{if(progress)progress.hidden=true;if(fill)fill.style.width='0%'},500)}}
+async function scanCharacters(){const button=document.getElementById('btn-scan-characters'),status=document.getElementById('character-scan-status'),progress=document.getElementById('character-scan-progress'),fill=document.getElementById('character-scan-progress-fill');if(!button||button.disabled)return;flushWriterSave();button.disabled=true;button.classList.add('is-scanning');if(progress)progress.hidden=false;if(fill)fill.style.width='8%';if(status)status.textContent=`Scanning ${state.sections.length} ${state.sections.length===1?'chapter':'chapters'} offline…`;await new Promise(resolve=>setTimeout(resolve,120));try{if(fill)fill.style.width='48%';await new Promise(resolve=>setTimeout(resolve,180));const characters=detectCharacters();completeFeatureGuide('characters');if(fill)fill.style.width='82%';renderCharacters();renderHome();renderWeb();renderMetrics();if(fill)fill.style.width='100%';if(status)status.textContent=`Scanned just now · ${characters.length} character${characters.length===1?'':'s'} found`;toast(`Manuscript scan complete: ${characters.length} characters found.`)}catch(error){console.error('Character scan failed:',error);if(status)status.textContent='Scan could not be completed.';toast('Character scan failed: '+error.message)}finally{button.disabled=false;button.classList.remove('is-scanning');setTimeout(()=>{if(progress)progress.hidden=true;if(fill)fill.style.width='0%'},500)}}
 let webViewport={x:0,y:0,scale:1,initialized:false},webSelectedNode='',webPendingOutput='';
 window.addEventListener('resize',()=>{if(document.getElementById('view-web').classList.contains('active')){webViewport.initialized=false;renderWeb()}});
 function renderWeb(){
   const svg=document.getElementById('webcanvas'),empty=document.getElementById('web-empty'),selection=document.getElementById('web-selection'),wrap=document.querySelector('.node-graph-wrap');
   if(!svg||!wrap)return;
-  const characters=detectCharacters(),chapters=state.sections,ns='http://www.w3.org/2000/svg';
+  const hasProject=projects.some(project=>String(project.id)===String(activeProjectId)),characters=detectCharacters(),chapters=state.sections,ns='http://www.w3.org/2000/svg';
   state.webPositions=state.webPositions||{};state.webLinks=Array.isArray(state.webLinks)?state.webLinks:[];state.webNodes=Array.isArray(state.webNodes)?state.webNodes:[];
   const migratedLayout=state.webLayoutVersion!==2;if(migratedLayout){state.webPositions={};state.webLayoutVersion=2;}
-  svg.hidden=false;empty.hidden=characters.length>0;empty.textContent='No recurring characters detected yet. Story and chapter nodes are still shown.';svg.innerHTML='';
+  svg.hidden=!hasProject;empty.hidden=hasProject&&characters.length>0;empty.textContent=hasProject?'No recurring characters detected yet. Story and chapter nodes are still shown.':'Create a project before mapping its story.';svg.innerHTML='';
   const bounds=wrap.getBoundingClientRect(),mapVisible=document.getElementById('view-web').classList.contains('active')&&bounds.width>0,width=Math.max(320,Math.round(bounds.width)),height=Math.max(360,Math.round(bounds.height));
   svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('preserveAspectRatio','none');
-  const nodes=[{key:'story-root',type:'story',label:projects.find(project=>String(project.id)===String(activeProjectId))?.name||'Story',detail:'MANUSCRIPT',width:176,height:58,defaultX:92,defaultY:120+(chapters.length-1)*66}];
+  const nodes=hasProject?[{key:'story-root',type:'story',label:projects.find(project=>String(project.id)===String(activeProjectId))?.name||'Story',detail:'MANUSCRIPT',width:176,height:58,defaultX:92,defaultY:120+(chapters.length-1)*66}]:[];
   chapters.forEach((chapter,index)=>nodes.push({key:`chapter:${chapter.id}`,type:'chapter',label:chapter.title||'Untitled chapter',detail:`${wc(chapter.html||'').toLocaleString()} words`,width:176,height:58,defaultX:390,defaultY:120+index*132,section:chapter}));
   characters.forEach(([name,data],index)=>{
     const inSection = (chapter) => data.sections instanceof Set ? data.sections.has(chapter.title||'Untitled') : (Array.isArray(data.sections) && data.sections.includes(chapter.title||'Untitled'));
@@ -1455,14 +1519,14 @@ function renderWeb(){
     group.append(header,body,title,detail);
     const makePort=(side,label)=>{
       const port=document.createElementNS(ns,'circle');port.setAttribute('cx',side==='out'?node.width:0);port.setAttribute('cy','39');port.setAttribute('r','5');port.setAttribute('fill','#1b211e');port.setAttribute('stroke','#76cf99');port.setAttribute('stroke-width','2');port.setAttribute('data-port',side);port.setAttribute('aria-label',`${label} ${node.label}`);port.style.cursor='crosshair';group.appendChild(port);
-      port.addEventListener('click',event=>{event.stopPropagation();if(side==='out'){webPendingOutput=node.key;if(selection)selection.textContent=`Output selected: ${node.label}. Choose an input port.`;return}if(!webPendingOutput||webPendingOutput===node.key){if(selection)selection.textContent='Choose an output port first, then an input port.';return}if(!state.webLinks.some(link=>link.from===webPendingOutput&&link.to===node.key)){state.webLinks.push({from:webPendingOutput,to:node.key});save()}webPendingOutput='';renderWeb()});
+      port.addEventListener('click',event=>{event.stopPropagation();if(side==='out'){webPendingOutput=node.key;if(selection)selection.textContent=`Output selected: ${node.label}. Choose an input port.`;return}if(!webPendingOutput||webPendingOutput===node.key){if(selection)selection.textContent='Choose an output port first, then an input port.';return}if(!state.webLinks.some(link=>link.from===webPendingOutput&&link.to===node.key)){state.webLinks.push({from:webPendingOutput,to:node.key});save();completeFeatureGuide('web')}webPendingOutput='';renderWeb()});
     };
     makePort('in','Input for');makePort('out','Output from');
     group.addEventListener('click',()=>selectNode(node));group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();selectNode(node)}});
     let drag=null;
     group.addEventListener('pointerdown',event=>{if(event.target.closest('[data-port]'))return;drag={clientX:event.clientX,clientY:event.clientY,x:node.x,y:node.y};group.setPointerCapture(event.pointerId);group.style.cursor='grabbing';event.preventDefault()});
     group.addEventListener('pointermove',event=>{if(!drag)return;node.x=drag.x+(event.clientX-drag.clientX)/webViewport.scale;node.y=drag.y+(event.clientY-drag.clientY)/webViewport.scale;state.webPositions[node.key]={x:node.x,y:node.y};group.setAttribute('transform',`translate(${node.x} ${node.y})`);updateEdges()});
-    const finishDrag=()=>{if(!drag)return;drag=null;group.style.cursor='grab';save()};group.addEventListener('pointerup',finishDrag);group.addEventListener('pointercancel',finishDrag);
+    const finishDrag=()=>{if(!drag)return;drag=null;group.style.cursor='grab';save();completeFeatureGuide('web')};group.addEventListener('pointerup',finishDrag);group.addEventListener('pointercancel',finishDrag);
     nodeLayer.appendChild(group);
   });
   svg.onpointerdown=event=>{if(event.target.closest('[data-node-key]'))return;svg.classList.add('is-panning');svg.setPointerCapture(event.pointerId);svg._panStart={x:event.clientX,y:event.clientY,panX:webViewport.x,panY:webViewport.y};event.preventDefault()};
@@ -1474,7 +1538,7 @@ function renderWeb(){
   document.getElementById('web-zoom-out').onclick=()=>zoomBy(.85);document.getElementById('web-zoom-in').onclick=()=>zoomBy(1.18);document.getElementById('web-fit').onclick=fitMap;
   if(!webViewport.initialized&&mapVisible)fitMap();else updateTransform();
   document.getElementById('web-map-count').textContent=`${visible.length} nodes · ${uniqueLinks.length} links`;
-  const addForm=document.getElementById('web-add-form');addForm.onsubmit=event=>{event.preventDefault();const input=document.getElementById('web-add-label'),label=input.value.trim();if(!label)return;const id=newProjectId(),custom={id,type:document.getElementById('web-add-type').value,label:label.slice(0,80)};state.webNodes.push(custom);state.webPositions[`custom:${id}`]={x:1010+Math.floor((state.webNodes.length-1)/9)*260,y:120+((state.webNodes.length-1)%9)*96};input.value='';webViewport.initialized=false;save();renderWeb()};
+  const addForm=document.getElementById('web-add-form');addForm.onsubmit=event=>{event.preventDefault();if(!requireActiveProject())return;const input=document.getElementById('web-add-label'),label=input.value.trim();if(!label)return;const id=newProjectId(),custom={id,type:document.getElementById('web-add-type').value,label:label.slice(0,80)};state.webNodes.push(custom);state.webPositions[`custom:${id}`]={x:1010+Math.floor((state.webNodes.length-1)/9)*260,y:120+((state.webNodes.length-1)%9)*96};input.value='';webViewport.initialized=false;save();completeFeatureGuide('web');renderWeb()};
   document.getElementById('web-remove-node').onclick=()=>{const customId=webSelectedNode.startsWith('custom:')?webSelectedNode.slice(7):'';if(!customId)return;state.webNodes=state.webNodes.filter(node=>node.id!==customId);state.webLinks=state.webLinks.filter(link=>link.from!==webSelectedNode&&link.to!==webSelectedNode);delete state.webPositions[webSelectedNode];webSelectedNode='';save();renderWeb()};
   document.getElementById('web-category').onchange=()=>{webViewport.initialized=false;renderWeb()};document.getElementById('web-status').onchange=()=>{webViewport.initialized=false;renderWeb()};
   if(selection&&!webPendingOutput)selection.textContent='Select a node for details, drag it to arrange, or connect its ports.';
@@ -1490,19 +1554,19 @@ const FINALISE_ITEMS=[
   {id:'backup',title:'I have saved a copy somewhere safe.',hint:'Export a plain-text or formatted copy below before you share or publish.'}
 ];
 function renderFinalise(){
-  const list=document.getElementById('finalise-checklist');list.innerHTML='';FINALISE_ITEMS.forEach(item=>{const label=document.createElement('label');label.className='check-item';const input=document.createElement('input');input.type='checkbox';input.checked=!!state.finaliseChecklist[item.id];input.setAttribute('aria-label',item.title);const copy=document.createElement('span');copy.className='check-copy';copy.innerHTML=`<strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.hint)}</small>`;input.addEventListener('change',()=>{state.finaliseChecklist[item.id]=input.checked;save();updateFinaliseProgress();renderHome()});label.append(input,copy);list.appendChild(label)});
+  const list=document.getElementById('finalise-checklist');list.innerHTML='';FINALISE_ITEMS.forEach(item=>{const label=document.createElement('label');label.className='check-item';const input=document.createElement('input');input.type='checkbox';input.checked=!!state.finaliseChecklist[item.id];input.setAttribute('aria-label',item.title);const copy=document.createElement('span');copy.className='check-copy';copy.innerHTML=`<strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.hint)}</small>`;input.addEventListener('change',()=>{state.finaliseChecklist[item.id]=input.checked;save();completeFeatureGuide('finalise');updateFinaliseProgress();renderHome()});label.append(input,copy);list.appendChild(label)});
   document.getElementById('final-word-count').textContent=totalWords().toLocaleString();document.getElementById('final-section-count').textContent=state.sections.length.toLocaleString();document.getElementById('final-character-count').textContent=totalCharacters().toLocaleString();updateFinaliseProgress();renderBookDesigner();
 }
 function updateFinaliseProgress(){const done=FINALISE_ITEMS.filter(x=>state.finaliseChecklist[x.id]).length,pct=Math.round(done/FINALISE_ITEMS.length*100);document.getElementById('finalise-count').textContent=`${done} of ${FINALISE_ITEMS.length} complete`;document.getElementById('finalise-progress').style.width=pct+'%'}
 function validCoverArt(data){return typeof data==='string'&&/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(data)?data:''}
 async function encodeCoverArt(file){if(!file||!/^image\/(jpeg|png|webp)$/.test(file.type))throw new Error('Choose a JPG, PNG, or WebP image.');if(file.size>20*1024*1024)throw new Error('Choose an image under 20 MB.');const bitmap=await createImageBitmap(file),scale=Math.min(1,1600/bitmap.width,2200/bitmap.height,Math.sqrt(6000000/(bitmap.width*bitmap.height))),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close?.();const result=canvas.toDataURL('image/jpeg',.82);if(result.length>3*1024*1024)throw new Error('The compressed artwork is too large to store offline. Try a smaller image.');return result}
-async function handleCoverArtUpload(file){if(!file)return;const note=document.getElementById('cover-art-note');note.textContent='Preparing cover art…';try{state.book.coverArt=await encodeCoverArt(file);state.book.coverArtName=file.name.slice(0,120);save();renderBookPreview();document.getElementById('remove-cover-art').disabled=false;note.textContent=`${file.name.slice(0,65)} · resized for offline storage`;toast('Cover art added to this project.')}catch(error){note.textContent=error.message||'Could not read that image.';toast(error.message||'Could not add cover art.')}finally{document.getElementById('cover-art-input').value=''}}
-function removeCoverArt(){delete state.book.coverArt;delete state.book.coverArtName;save();renderBookDesigner();toast('Cover art removed.')}
+async function handleCoverArtUpload(file){if(!file)return;const note=document.getElementById('cover-art-note');note.textContent='Preparing cover art…';try{state.book.coverArt=await encodeCoverArt(file);state.book.coverArtName=file.name.slice(0,120);save();completeFeatureGuide('finalise');renderBookPreview();document.getElementById('remove-cover-art').disabled=false;note.textContent=`${file.name.slice(0,65)} · resized for offline storage`;toast('Cover art added to this project.')}catch(error){note.textContent=error.message||'Could not read that image.';toast(error.message||'Could not add cover art.')}finally{document.getElementById('cover-art-input').value=''}}
+function removeCoverArt(){delete state.book.coverArt;delete state.book.coverArtName;save();completeFeatureGuide('finalise');renderBookDesigner();toast('Cover art removed.')}
 function renderBookDesigner(){
   const book=state.book||(state.book={...DEFAULT_BOOK});
   document.getElementById('book-title').value=book.title||'';document.getElementById('book-subtitle').value=book.subtitle||'';document.getElementById('book-author').value=book.author||'';document.getElementById('book-cover-style').value=book.coverStyle||'botanical';document.getElementById('book-trim').value=book.trim||'trade';document.getElementById('book-font').value=book.font||'serif';document.getElementById('book-dedication').value=book.dedication||'';document.getElementById('book-include-toc').checked=book.includeToc!==false;document.getElementById('book-include-copyright').checked=book.includeCopyright!==false;document.getElementById('remove-cover-art').disabled=!validCoverArt(book.coverArt);document.getElementById('cover-art-note').textContent=book.coverArtName?`${book.coverArtName} · resized for offline storage`:'JPG, PNG, or WebP · resized and stored with this offline project.';renderBookPreview();
 }
-function updateBookSetting(key,value){state.book[key]=value;save();renderBookPreview()}
+function updateBookSetting(key,value){state.book[key]=value;save();completeFeatureGuide('finalise');renderBookPreview()}
 function renderBookPreview(){
   const target=document.getElementById('book-preview-pages');if(!target)return;const book=state.book||DEFAULT_BOOK,project=projects.find(p=>p.id===activeProjectId),title=book.title?.trim()||project?.name||'Untitled Book',author=book.author?.trim()||'Author name',subtitle=book.subtitle?.trim(),cover=['botanical','minimal','classic'].includes(book.coverStyle)?book.coverStyle:'botanical';
   const coverArt=validCoverArt(book.coverArt),pages=[`<article class="book-page book-cover-page cover-${cover}${coverArt?' has-cover-art':''}">${coverArt?`<img class="book-cover-art-preview" src="${coverArt}" alt="Uploaded cover artwork">`:''}<span class="book-page-label">${escapeHtml(cover==='botanical'?'A Loomwright edition':cover==='minimal'?'Title page':'Collected work')}</span><h3>${escapeHtml(title)}</h3>${subtitle?`<p class="book-cover-subtitle">${escapeHtml(subtitle)}</p>`:''}<span class="book-cover-author">${escapeHtml(author)}</span></article>`];
@@ -1518,15 +1582,15 @@ function bindBookDesigner(){
   [['book-cover-style','coverStyle'],['book-trim','trim'],['book-font','font']].forEach(([id,key])=>document.getElementById(id).addEventListener('change',e=>updateBookSetting(key,e.target.value)));
   [['book-include-toc','includeToc'],['book-include-copyright','includeCopyright']].forEach(([id,key])=>document.getElementById(id).addEventListener('change',e=>updateBookSetting(key,e.target.checked)));
   document.getElementById('cover-art-input').addEventListener('change',e=>handleCoverArtUpload(e.target.files?.[0]));document.getElementById('remove-cover-art').addEventListener('click',removeCoverArt);
-  document.getElementById('book-reset').addEventListener('click',()=>{state.book={...DEFAULT_BOOK};save();renderBookDesigner();toast('Book design reset.')});
+  document.getElementById('book-reset').addEventListener('click',()=>{state.book={...DEFAULT_BOOK};save();completeFeatureGuide('finalise');renderBookDesigner();toast('Book design reset.')});
 }
 const buildHtmlExportWithoutCoverArt=buildHtmlExport;
 buildHtmlExport=function(){let doc=buildHtmlExportWithoutCoverArt();const book=state.book||DEFAULT_BOOK,subtitle=book.subtitle?.trim(),art=validCoverArt(book.coverArt);if(subtitle)doc=doc.replace(`<p>${subtitle}</p>`,`<p>${escapeHtml(subtitle)}</p>`);if(!art)return doc;return doc.replace('<style>','<style>.book-cover{position:relative;isolation:isolate;overflow:hidden}.book-cover-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1}.book-cover.has-cover-art{background:transparent!important}.book-cover.has-cover-art:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#ffffff20 0%,#ffffffe0 48%,#fffffff2 100%);z-index:-1}\n').replace(/(<section class="book-cover [^"]+">)/,`$1<img class="book-cover-art" src="${art}" alt="Uploaded cover artwork">`)};
 function downloadFile(filename,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function fileBase(){const project=projects.find(p=>p.id===activeProjectId);return (state.book?.title||project?.name||'loomwright-manuscript').replace(/[^a-z0-9-_]+/gi,'-').replace(/^-|-$/g,'').toLowerCase()||'loomwright-manuscript'}
-function exportText(){const content=state.sections.map(s=>`${s.title||'Untitled'}\n${'='.repeat(Math.min(40,(s.title||'Untitled').length))}\n\n${textOf(s.html||'').trim()}`).join('\n\n\n');downloadFile(fileBase()+'.txt',content,'text/plain;charset=utf-8');toast('Plain-text copy downloaded.')}
+function exportText(){const content=state.sections.map(s=>`${s.title||'Untitled'}\n${'='.repeat(Math.min(40,(s.title||'Untitled').length))}\n\n${textOf(s.html||'').trim()}`).join('\n\n\n');downloadFile(fileBase()+'.txt',content,'text/plain;charset=utf-8');completeFeatureGuide('finalise');toast('Plain-text copy downloaded.')}
 function buildHtmlExport(){const book=state.book||DEFAULT_BOOK,project=projects.find(p=>p.id===activeProjectId),title=book.title?.trim()||project?.name||'Loomwright manuscript',author=book.author?.trim()||'',sections=state.sections.map((s,i)=>`<section class="chapter" id="section-${i+1}"><h1>${escapeHtml(s.title||'Untitled')}</h1>${sanitizeRichHtml(s.html||'<p></p>')}</section>`).join('\n'),copyright=book.includeCopyright!==false?`<section class="front-page copyright"><h1>${escapeHtml(title)}</h1><p>Copyright © ${new Date().getFullYear()} ${escapeHtml(author)}</p><p>All rights reserved.</p></section>`:'',dedication=book.dedication?.trim()?`<section class="front-page dedication"><p>${escapeHtml(book.dedication).replace(/\n/g,'<br>')}</p></section>`:'',toc=book.includeToc!==false?`<section class="front-page contents"><h1>Contents</h1><ol>${state.sections.map((s,i)=>`<li><a href="#section-${i+1}">${escapeHtml(s.title||'Untitled')}</a></li>`).join('')}</ol></section>`:'',font=book.font==='sans'?'Arial, sans-serif':book.font==='classic'?"'Palatino Linotype', Palatino, Georgia, serif":"Georgia, 'Iowan Old Style', serif",trim=book.trim==='a5'?'5.8in 8.3in':book.trim==='letter'?'8.5in 11in':'5in 8in',coverClass=['botanical','minimal','classic'].includes(book.coverStyle)?book.coverStyle:'botanical',cover=`<section class="book-cover ${coverClass}"><small>${coverClass==='classic'?'A collected work':'LOOMWRIGHT EDITION'}</small><h1>${escapeHtml(title)}</h1>${book.subtitle?`<p>${escapeHtml(book.subtitle)}</p>`:''}<footer>${escapeHtml(author)}</footer></section>`,doc=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(title)}</title><style>@page{size:${trim};margin:.75in}*{box-sizing:border-box}body{max-width:6in;margin:3rem auto;padding:0 1rem;font:18px/1.75 ${font};color:#26362d}.book-cover{min-height:85vh;display:flex;flex-direction:column;justify-content:center;text-align:center;page-break-after:always;padding:2rem;border:1px solid #91a997}.book-cover small,.book-cover footer{font: .8rem Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#596b5e}.book-cover h1{font:normal 2.3rem/1.2 ${font};margin:auto 0 1rem}.book-cover p{font:1rem/1.5 Arial,sans-serif;color:#64766a;margin:0 0 4rem}.book-cover footer{margin-top:auto}.book-cover.minimal{border-top:8px solid #91a997}.book-cover.classic{background:#f5f1e8;border:4px double #aeb8a9}.front-page{min-height:80vh;page-break-after:always;display:flex;flex-direction:column;justify-content:center}.copyright{font:14px/1.6 Arial,sans-serif;color:#596b5e}.dedication{text-align:center;font-style:italic}.contents h1,.chapter h1{font-size:1.5rem;font-weight:normal}.contents ol{padding-left:1.5rem}.contents li{margin:.5rem 0}.contents a{color:inherit;text-decoration:none}.chapter{page-break-before:always;margin:0 0 4rem}.chapter h1{margin:0 0 1.5rem}</style></head><body>${cover}${copyright}${dedication}${toc}${sections}</body></html>`;return doc}
-function exportHtml(){downloadFile(fileBase()+'.html',buildHtmlExport(),'text/html;charset=utf-8');toast('Formatted book copy downloaded.')}
+function exportHtml(){downloadFile(fileBase()+'.html',buildHtmlExport(),'text/html;charset=utf-8');completeFeatureGuide('finalise');toast('Formatted book copy downloaded.')}
 document.getElementById('export-txt').addEventListener('click',exportText);document.getElementById('export-html').addEventListener('click',exportHtml);
 
 let confirmResolver=null,confirmPreviousFocus=null;
@@ -1696,6 +1760,7 @@ function setupWritingSettingsControls() {
 setupWritingSettingsControls();
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(appSettings.theme==='auto')applyTheme()});
 document.getElementById('project-create-form').addEventListener('submit',e=>{e.preventDefault();const input=document.getElementById('new-project-name');createProject(input.value);input.value=''});
+document.getElementById('home-create-project').addEventListener('click',()=>{switchView('projects');document.getElementById('new-project-name')?.focus()});
 function setupWriteDragDrop(){
   const writeView = document.getElementById('view-write');
   if(!writeView) return;
@@ -2081,7 +2146,9 @@ function initDragonFlight() {
 
 bindBookDesigner();
 setupConfirmDialog();
+renderFeatureGuides();
 renderAppVersion();
+renderHome();
 setupZenMode();
 setupGitSync();
 setupWriteDragDrop();

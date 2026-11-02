@@ -569,6 +569,10 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
 @media(max-width:560px){.metric-grid{grid-template-columns:minmax(0,1fr)}.metric-card-header{align-items:flex-start;flex-wrap:wrap}.metric-mode{max-width:100%}.metric-mode button{padding:5px 7px}.metric-chart-row{grid-template-columns:minmax(75px,34%) minmax(0,1fr) 42px;gap:7px;padding-right:5px;padding-left:5px}.metric-character-tools{width:100%;margin-left:0}.metric-character-tools input{width:100%;min-width:0}}
 @media(max-width:560px){.character-toolbar{gap:5px;padding:6px}.character-tool-button{flex-basis:32px;width:32px;height:34px}.character-toolbar select{padding:8px 5px;font-size:.68rem}.character-toolbar select.character-sort{min-width:108px}.character-toolbar select.character-layout{min-width:62px}.character-search input{padding-left:28px}.review-tray-heading{align-items:flex-start;flex-direction:column;gap:4px}.review-candidate{align-items:flex-start;flex-direction:column}.review-candidate-actions{justify-content:flex-start}.char-list-layout .char-card-main{display:block}.char-list-layout .char-count{margin:13px 0 7px}.character-sheet-backdrop{padding:8px}.character-sheet-header,.character-sheet-body,.character-sheet-actions{padding-left:16px;padding-right:16px}.character-sheet-merge{align-items:flex-start;flex-direction:column}.character-sheet-merge .secondary-button{width:100%}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.thread-mark path{stroke-dashoffset:0}}
+.feature-guide{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:0 0 20px;padding:18px 20px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;background:var(--panel);box-shadow:0 8px 24px rgba(24,38,28,.045)}
+.feature-guide-copy{min-width:0}.feature-guide-label{font-size:.65rem;font-weight:800;letter-spacing:.11em;color:var(--accent);text-transform:uppercase}.feature-guide h3{margin:5px 0;font:600 1.02rem/1.3 Georgia,serif;color:var(--ink)}.feature-guide p{margin:0;color:var(--sub);font-size:.8rem;line-height:1.55}.feature-guide ol{display:flex;flex-wrap:wrap;gap:5px 24px;margin:9px 0 7px;padding-left:18px;color:var(--ink);font-size:.75rem;line-height:1.5}.feature-guide small{color:var(--sub);font-size:.7rem}.feature-guide-action{flex:0 0 auto;white-space:nowrap}.home-empty-state{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(180px,.7fr);align-items:center;gap:30px;max-width:900px;margin:clamp(35px,8vh,90px) auto;padding:clamp(24px,5vw,56px);border:1px solid var(--line);border-radius:22px;background:var(--panel);box-shadow:0 18px 55px rgba(30,46,34,.07)}.home-empty-state .eyebrow{color:var(--accent);font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.home-empty-state h2{margin:10px 0;font:normal clamp(1.8rem,4vw,2.7rem)/1.15 Georgia,serif;color:var(--ink)}.home-empty-state p{max-width:440px;margin:0 0 20px;color:var(--sub);line-height:1.7}.home-empty-illustration{display:grid;place-items:center;min-height:180px;border-radius:18px;background:linear-gradient(145deg,var(--bg),var(--panel));color:var(--accent)}.home-empty-illustration svg{width:min(130px,50%);height:auto}.project-empty{grid-column:1/-1;padding:20px;border:1px dashed var(--line);border-radius:12px;color:var(--sub);text-align:center}
+.home-empty-state[hidden],.feature-guide[hidden],#view-home .resume-panel[hidden],#view-home .dashboard-stats[hidden],#view-home .home-project-section-heading[hidden],#view-home .home-bento-grid[hidden],#view-home .home-secondary-grid[hidden]{display:none!important}
+@media(max-width:700px){.feature-guide{align-items:flex-start;flex-direction:column;gap:12px;padding:15px}.feature-guide ol{display:block}.feature-guide li+li{margin-top:3px}.home-empty-state{grid-template-columns:1fr}.home-empty-illustration{min-height:120px}.home-empty-illustration svg{width:85px}}
 </style>
 <script src="./theme-bootstrap.js"></script>
 </head>
@@ -620,6 +624,10 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
   </nav>
   <main>
     <section class="view active" id="view-home" aria-labelledby="home-title">
+      <section class="home-empty-state" id="home-empty-state" hidden aria-labelledby="home-empty-title">
+        <div><span class="eyebrow">A fresh writing space</span><h2 id="home-empty-title">Your library is ready when you are.</h2><p>Loomwright starts with no sample books or chapters. Create a project to begin with a clean, empty manuscript.</p><button class="primary-button" id="home-create-project" type="button">＋ Create your first project</button></div>
+        <div class="home-empty-illustration" aria-hidden="true"><svg viewBox="0 0 120 140" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 18h66a9 9 0 0 1 9 9v92H31a9 9 0 0 1-9-9V18Z"/><path d="M31 119a9 9 0 0 1-9-9V27a9 9 0 0 1 9-9h9v101M51 47h31M51 65h31M51 83h20"/></svg></div>
+      </section>
       <div class="welcome-panel resume-panel">
         <div class="resume-copy">
           <div class="eyebrow">Resume writing</div>
@@ -636,7 +644,7 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
         <div class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v15H4zM8 3v4m8-4v4M7 11h3m4 0h3M7 15h3"/></svg></span><div><div class="stat-value" id="home-section-count">1</div><div class="stat-label">Sections</div></div></div>
         <div class="stat-card"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 8a2.5 2.5 0 1 1 0 5m1 2c2 .6 3 2 3 4"/></svg></span><div><div class="stat-value" id="home-character-count">0</div><div class="stat-label">Recurring characters</div></div></div>
       </div>
-      <div class="section-heading"><div><h3>Jump back in</h3><p>Live views of the people and connections shaping your manuscript.</p></div><button class="secondary-button" type="button" data-open-view="projects">All projects →</button></div>
+      <div class="section-heading home-project-section-heading"><div><h3>Jump back in</h3><p>Live views of the people and connections shaping your manuscript.</p></div><button class="secondary-button" type="button" data-open-view="projects">All projects →</button></div>
       <div class="home-bento-grid">
         <button class="home-bento-card home-characters-card" type="button" data-open-view="characters">
           <div class="home-bento-head"><span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5.5a3 3 0 0 1 0 5.8M18 14c2 .8 3 2.5 3 5"/></svg></span><span class="tile-arrow" aria-hidden="true">↗</span></div>
@@ -656,6 +664,7 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
 
     <section class="view" id="view-projects" aria-labelledby="projects-title">
       <div class="page-intro"><h2 id="projects-title">Projects</h2></div>
+      <aside class="feature-guide" data-feature-guide="projects" aria-label="Projects first-time guide"></aside>
       <form class="project-create" id="project-create-form"><label class="sr-only" for="new-project-name">New project name</label><input id="new-project-name" maxlength="80" placeholder="Name your next book or writing project" required><button class="primary-button" type="submit">＋ New project</button></form>
       <div id="project-grid" class="project-grid" aria-live="polite"></div>
     </section>
@@ -667,6 +676,7 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
             <div class="write-library-copy"><div class="eyebrow">Loomwright writing desk</div><h2 id="write-title">Where would you like to begin?</h2><p>Open a recent chapter or start a new one. Your writing stays saved on this device.</p></div>
             <div class="write-library-actions"><button class="primary-button" id="create-blank-doc" type="button" aria-label="Add chapter">＋ Add chapter</button><label class="secondary-button upload-button" for="file-input">⇪ Import chapters</label><input type="file" id="file-input" accept=".txt,.docx,.pdf" multiple hidden></div>
           </div>
+          <aside class="feature-guide" data-feature-guide="write" aria-label="Writing first-time guide"></aside>
           <section class="write-library-documents" aria-labelledby="document-list-title"><div class="write-library-heading"><h3 id="document-list-title">Recent chapters</h3><div style="display:flex;align-items:center;gap:8px"><span id="write-document-count"></span><button class="secondary-button" id="sort-chapters-btn" type="button" style="padding:3px 9px;font-size:.72rem" title="Order chapters in natural sequence by title">↕ Sort by title</button></div></div><div class="document-list" id="document-list" aria-live="polite"></div></section>
           <section class="template-library" aria-labelledby="template-library-title">
             <div class="template-library-heading"><div><h3 id="template-library-title">Templates</h3><p>Start a new chapter from one of your writing templates.</p></div><div class="template-library-actions"><span class="template-count" id="template-count"></span><label class="secondary-button upload-button" for="template-file-input">＋ Add template</label><input id="template-file-input" type="file" accept=".txt,.docx" multiple hidden></div></div>
@@ -695,11 +705,13 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
 
     <section class="view" id="view-metrics" aria-labelledby="metrics-title">
       <div class="page-intro"><h2 id="metrics-title">Metrics</h2><p>Track your momentum, chapter pacing, and character presence as the draft evolves.</p></div>
+      <aside class="feature-guide" data-feature-guide="metrics" aria-label="Metrics first-time guide"></aside>
       <div class="metrics-shell" id="metrics-shell"></div>
     </section>
 
     <section class="view" id="view-characters" aria-labelledby="characters-title">
       <div class="page-intro"><h2 id="characters-title">Characters</h2><p>Review recurring people, chapter appearances, and the relationships shaping your manuscript.</p></div>
+      <aside class="feature-guide" data-feature-guide="characters" aria-label="Characters first-time guide"></aside>
       <div class="character-toolbar"><label class="character-search"><span class="sr-only">Search characters</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5" stroke-linecap="round"/></svg><input id="character-search" type="search" placeholder="Search characters or aliases…" autocomplete="off"></label><button class="character-tool-button" type="button" id="btn-scan-characters" title="Scan manuscript offline" aria-label="Scan manuscript offline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 11a8 8 0 1 0 1 4"/><path d="M20 4v7h-7"/></svg></button><label class="sr-only" for="character-sort">Sort characters</label><select class="character-sort" id="character-sort"><option value="mentions">Most mentioned</option><option value="az">A to Z</option><option value="first">First appearance</option></select><label class="sr-only" for="character-layout">Character layout</label><select class="character-layout" id="character-layout" aria-label="Character layout"><option value="grid">Grid</option><option value="list">List</option></select><span class="char-scan-status" id="character-scan-status" role="status" aria-live="polite">Not scanned this session.</span><div class="char-scan-progress" id="character-scan-progress" hidden><span id="character-scan-progress-fill"></span></div></div>
       <section id="character-review-tray" class="character-review-tray" hidden></section>
       <div id="char-grid" class="char-grid"></div>
@@ -715,6 +727,7 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
 
     <section class="view" id="view-web" aria-labelledby="web-title">
       <div class="page-intro"><h2 id="web-title">Story Web</h2><p>Map your manuscript from left to right. Arrange the nodes and connect story details as they develop.</p></div>
+      <aside class="feature-guide" data-feature-guide="web" aria-label="Story Web first-time guide"></aside>
       <div class="web-controls" aria-label="Filter story nodes"><label for="web-category">Show</label><select id="web-category" aria-label="Filter by node type"><option value="all">All nodes</option><option value="story">Story and chapters</option><option value="character">Characters</option><option value="place">Places</option><option value="event">Events</option><option value="object">Objects</option><option value="thread">Story threads</option></select><label for="web-status">Character status</label><select id="web-status" aria-label="Filter characters by status"><option value="all">All statuses</option><option value="alive">Alive</option><option value="dead">Dead</option><option value="injured">Injured</option><option value="missing">Missing</option><option value="presumed-dead">Presumed dead</option><option value="captured">Captured</option><option value="recovering">Recovering</option><option value="unknown">Unknown</option></select></div>
       <form id="web-add-form" class="web-controls" aria-label="Add a story node"><label for="web-add-type">Add</label><select id="web-add-type" aria-label="New node type"><option value="place">Place</option><option value="event">Event</option><option value="object">Object</option><option value="thread">Story thread</option></select><input id="web-add-label" type="text" maxlength="80" placeholder="Name a node" aria-label="Node name" required><button class="primary" type="submit">Add node</button><button class="ghost" id="web-remove-node" type="button" disabled>Remove selected</button></form>
       <div class="web-map-toolbar">
@@ -730,6 +743,7 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
 
     <section class="view" id="view-finalise" aria-labelledby="finalise-title">
       <div class="page-intro"><h2 id="finalise-title">Finalise</h2><p>Design the front of your book, review your manuscript, and export a formatted copy when you’re ready. Your book settings and checklist are saved with this project.</p></div>
+      <aside class="feature-guide" data-feature-guide="finalise" aria-label="Finalise first-time guide"></aside>
       <section class="book-design-panel" aria-labelledby="book-design-title">
         <div class="section-heading" style="margin:0 0 14px"><div><h3 id="book-design-title">Book design &amp; pages</h3><p>Set up a cover, front matter, table of contents, and a preview of your book’s opening pages.</p></div></div>
         <div class="book-design-grid">

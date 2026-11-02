@@ -93,6 +93,7 @@ jobs:
           draft: false
           prerelease: false
           make_latest: true
+          overwrite_files: true
           body: |
             ## Loomwright Desktop v${{ steps.release-version.outputs.version }}
 
@@ -104,7 +105,8 @@ jobs:
             - **SHA-256 checksums:** [checksums.txt](https://github.com/${{ github.repository }}/releases/download/${{ steps.release-version.outputs.tag }}/checksums.txt)
 
             ### Highlights
-            - Starts with a clean, empty project library.
+            - Starts with an empty project library and no sample chapters.
+            - Offers first-use guides for Projects, Writing, Metrics, Characters, Story Web, and Finalise.
             - Per-user installation; no administrator privileges required.
             - Includes both the NSIS `.exe` setup and Windows Installer `.msi`.
             - Safe upgrades preserve user manuscripts.

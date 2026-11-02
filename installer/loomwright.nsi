@@ -80,15 +80,6 @@ Section "Loomwright (required)" SecMain
   IntFmt $0 "0x%08X" $0
   WriteRegDWORD HKCU "${REGKEY}" "EstimatedSize" "$0"
 
-  ; --- Clean up demo / test data left by earlier builds -------------------
-  ; The shared sync file may contain a bundled sample project ("p-demo").
-  ; Loomwright 1.6 purges it at runtime, but deleting the file here gives
-  ; a guaranteed clean slate on fresh installs and upgrades performed
-  ; while Loomwright is not running.  User manuscripts are stored in the
-  ; WebView2 profile ($LOCALAPPDATA\Loomwright\WebView2), which is NOT
-  ; touched here.
-  Delete "$APPDATA\Loomwright\shared.json"
-  Delete "$APPDATA\Loomwright\shared.json.bak"
 SectionEnd
 
 Section "Desktop shortcut" SecDesktop

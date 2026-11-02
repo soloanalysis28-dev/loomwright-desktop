@@ -80,9 +80,10 @@ rights needed) and starts Loomwright when it finishes.
 
 Uninstall from **Settings → Apps**, or from the Start-menu folder; the uninstaller removes the application but leaves your manuscripts in place.
 
-> **Fresh install — zero pre-loaded data.** Every new installation starts with an
-> empty project library. Click **New project** to create your first manuscript;
-> no sample or demo content is pre-loaded.
+> **Fresh install — zero pre-loaded data.** Loomwright starts with an empty
+> project library and no sample books, chapters, characters, or story nodes.
+> Create a project when you are ready; first-use guides introduce the core
+> features and disappear after you use each one.
 
 ## Build
 
@@ -167,11 +168,13 @@ A new installation starts with **no pre-loaded data**. The app opens to an empty
 project library and prompts the user to create their first project. No sample
 chapters, characters or story nodes are pre-populated.
 
-On upgrade from an earlier build the installer removes any leftover `shared.json`
-(which may contain demo content) before the new binary runs. The user's own
-projects — stored in the WebView2 profile — are untouched. The runtime also
-filters the sentinel project id `"p-demo"` so that demo data is never shown even
-if an older `shared.json` was somehow preserved.
+Projects created by a user are retained in the WebView2 profile and shared store
+when the app is upgraded or reinstalled. The installers do not delete
+`shared.json`; the app filters the known bundled demo project and generated
+empty starter placeholders while preserving meaningful existing manuscripts.
+On first use, contextual guides appear for Projects, Writing, Metrics,
+Characters, Story Web, and Finalise. Each guide is saved as complete after the
+corresponding feature is first used.
 
 ## Privacy
 
@@ -205,14 +208,16 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
 - Fixed the WiX build invocation so the MSI compiles with its four-part public
   version and publishes alongside the EXE.
 - Both setup packages and the app now report version `1.6.0.1`.
+- New installations open to a truly empty project library and chapters are
+  created only when the user asks for them.
+- Added persistent, action-based first-use guides for the core features.
+- Installer upgrades now preserve shared user manuscripts while filtering
+  known demo/empty starter data in the app.
 
 ### 1.6.0 (2026-10-30)
 - **Clean-slate install**: every new installation starts with an empty project
   library. No sample or demo content is pre-loaded.
-- The installer removes any `shared.json` left by earlier builds before the new
-  binary runs, guaranteeing a clean state on upgrade too.
-- The runtime `purge_demo_data` guard strips the `"p-demo"` sentinel project from
-  any surviving `shared.json` so demo chapters never appear to real users.
+- Runtime cleanup strips the known `"p-demo"` sentinel project from shared data.
 - App version reported in Settings updated to `1.6.0.0`.
 
 ## Licence

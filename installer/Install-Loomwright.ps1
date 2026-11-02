@@ -50,11 +50,5 @@ if ($DesktopShortcut) {
     $dShortcut.Save()
 }
 
-# Clean legacy demo shared.json
-$sharedJson = "$env:APPDATA\Loomwright\shared.json"
-if (Test-Path $sharedJson) { Remove-Item $sharedJson -Force -ErrorAction SilentlyContinue }
-$sharedBak = "$env:APPDATA\Loomwright\shared.json.bak"
-if (Test-Path $sharedBak) { Remove-Item $sharedBak -Force -ErrorAction SilentlyContinue }
-
 Write-Host "Loomwright installed successfully!" -ForegroundColor Green
 Write-Host "Launch it from the Start menu or: $installedDir\loomwright.exe" -ForegroundColor Green
