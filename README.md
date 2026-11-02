@@ -61,8 +61,8 @@ local service and the installer.
 - Windows 10 or 11, x64.
 - The **WebView2 runtime**. It is installed by default with Microsoft Edge on
   Windows 10/11; if it is missing, install the Evergreen runtime from Microsoft.
-- To build: Rust (tested with 1.99), a linker (MinGW-w64 or MSVC) and,
-  optionally, NSIS 3 for the installer.
+- To build the installers: Rust (tested with 1.99), a linker (MinGW-w64 or
+  MSVC), NSIS 3 and WiX Toolset v3.11.
 
 ## Download & Install
 
@@ -70,10 +70,13 @@ Download the installer from [**GitHub Releases**](https://github.com/soloanalysi
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0/Loomwright-Setup-1.6.0.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0/Loomwright-Setup-1.6.0.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.6.0.1.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.1/Loomwright-Setup-1.6.0.1.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.1.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.1/Loomwright-Setup-1.6.0.1.msi) | Windows Installer package (enterprise / scripted deployments) |
 
-Run either installer. It installs to `%LOCALAPPDATA%\Programs\Loomwright` without elevation (no administrator rights needed) and starts Loomwright when it finishes.
+Both installers are also saved in the repository's [`installer/`](./installer/)
+folder after a local build. Run either installer. It installs to
+`%LOCALAPPDATA%\Programs\Loomwright` without elevation (no administrator
+rights needed) and starts Loomwright when it finishes.
 
 Uninstall from **Settings → Apps**, or from the Start-menu folder; the uninstaller removes the application but leaves your manuscripts in place.
 
@@ -87,7 +90,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.6.0
+.\tools\build-installers.ps1 -Version 1.6.0.1
 ```
 
 Or step-by-step:
@@ -99,12 +102,16 @@ cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.6.0 loomwright.nsi   # → Loomwright-Setup-1.6.0.exe
+makensis /DVERSION=1.6.0.1 loomwright.nsi # → Loomwright-Setup-1.6.0.1.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3.11)
-candle -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
-light -ext WixUIExtension loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
+candle -define Version=1.6.1 -define DisplayVersion=1.6.0.1 loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.1.msi
 ```
+
+The MSI database uses `1.6.1` internally because Windows Installer accepts only
+three numeric version fields; its installed app and Apps & Features display
+version is `1.6.0.1`.
 
 `.cargo/config.toml` selects the MinGW `gcc` linker for the
 `x86_64-pc-windows-gnu` target. On a standard MSVC toolchain, delete that file
@@ -193,6 +200,11 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
   is untouched; the desktop script adjusts it at runtime.
 
 ## Changelog
+
+### 1.6.0.1
+- Fixed the WiX build invocation so the MSI compiles with its four-part public
+  version and publishes alongside the EXE.
+- Both setup packages and the app now report version `1.6.0.1`.
 
 ### 1.6.0 (2026-10-30)
 - **Clean-slate install**: every new installation starts with an empty project

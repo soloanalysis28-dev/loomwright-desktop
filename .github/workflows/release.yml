@@ -2,16 +2,14 @@ name: Build & Release Installers
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release Tag (e.g. v1.6.0)'
+        description: 'Release tag (for example v1.6.0.1)'
         required: false
-        default: 'v1.6.0'
+        default: 'v1.6.0.1'
 
 permissions:
   contents: write
@@ -24,6 +22,28 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set release version
+        id: release-version
+        shell: pwsh
+        env:
+          INPUT_TAG_NAME: ${{ github.event.inputs.tag_name }}
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch' -and $env:INPUT_TAG_NAME) {
+            $tag = $env:INPUT_TAG_NAME
+          } elseif ($env:GITHUB_REF -like 'refs/tags/*') {
+            $tag = $env:GITHUB_REF_NAME
+          } else {
+            $tag = 'v1.6.0.1'
+          }
+
+          $version = $tag -replace '^v', ''
+          if ($version -notmatch '^\d+\.\d+\.\d+\.\d+$') {
+            throw "Release tag must contain four numeric version parts: v1.6.0.1"
+          }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -39,86 +59,58 @@ jobs:
         shell: pwsh
         run: |
           choco install wixtoolset -y
-          $wixDir = Get-ChildItem "C:\Program Files (x86)\WiX Toolset*" -Directory -ErrorAction SilentlyContinue | Select-Object -Last 1 -ExpandProperty FullName
-          if ($wixDir -and (Test-Path "$wixDir\bin")) {
-            Write-Host "Found WiX at $wixDir\bin"
-            "$wixDir\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          } else {
-            "C:\ProgramData\chocolatey\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $wixDir = Get-ChildItem "C:\Program Files (x86)\WiX Toolset*" -Directory -ErrorAction SilentlyContinue |
+            Select-Object -Last 1 -ExpandProperty FullName
+          if (-not $wixDir -or -not (Test-Path "$wixDir\bin\candle.exe") -or -not (Test-Path "$wixDir\bin\light.exe")) {
+            throw "WiX Toolset v3 was not installed."
           }
+          "$wixDir\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      - name: Build release executable
+      - name: Build app and both installers
         shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
         run: |
-          cd loomwright-window
-          cargo build --release
-          if (-not (Test-Path "target\release\loomwright.exe")) {
-            throw "loomwright.exe was not created."
-          }
-          Write-Host "loomwright.exe built successfully."
+          .\tools\build-installers.ps1 -Version $env:RELEASE_VERSION
 
-      - name: Build NSIS Installer (.exe)
-        shell: pwsh
-        run: |
-          cd installer
-          makensis /DVERSION=1.6.0 loomwright.nsi
-          if (-not (Test-Path "Loomwright-Setup-1.6.0.exe")) {
-            throw "Loomwright-Setup-1.6.0.exe was not created."
-          }
-          Write-Host "Loomwright-Setup-1.6.0.exe built successfully."
-
-      - name: Build WiX Installer (.msi)
-        shell: pwsh
-        run: |
-          cd installer
-          candle.exe -dVersion=1.6.0 loomwright.wxs -out loomwright.wixobj
-          light.exe -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.msi
-          if (-not (Test-Path "Loomwright-Setup-1.6.0.msi")) {
-            throw "Loomwright-Setup-1.6.0.msi was not created."
-          }
-          Write-Host "Loomwright-Setup-1.6.0.msi built successfully."
-
-      - name: Generate Checksums
-        shell: pwsh
-        run: |
-          cd installer
-          Get-FileHash -Algorithm SHA256 Loomwright-Setup-1.6.0.exe, Loomwright-Setup-1.6.0.msi | Format-Table -AutoSize | Out-String | Out-File -FilePath checksums.txt
-          Get-Content checksums.txt
-
-      - name: Upload Artifacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Loomwright-1.6.0-Windows-Installers
+          name: Loomwright-Windows-Installers-${{ steps.release-version.outputs.version }}
           path: |
-            installer/Loomwright-Setup-1.6.0.exe
-            installer/Loomwright-Setup-1.6.0.msi
+            installer/Loomwright-Setup-${{ steps.release-version.outputs.version }}.exe
+            installer/Loomwright-Setup-${{ steps.release-version.outputs.version }}.msi
             installer/checksums.txt
+          if-no-files-found: error
 
       - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.tag_name || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || 'v1.6.0' }}
-          name: Loomwright 1.6.0
+          tag_name: ${{ steps.release-version.outputs.tag }}
+          name: Loomwright ${{ steps.release-version.outputs.version }}
+          target_commitish: ${{ github.sha }}
           draft: false
           prerelease: false
           make_latest: true
           body: |
-            ## Loomwright Desktop v1.6.0
+            ## Loomwright Desktop v${{ steps.release-version.outputs.version }}
 
             Native Windows writing desk for books, characters, and story threads.
 
             ### Downloads
-            - 📦 **EXE Installer (recommended):** [Loomwright-Setup-1.6.0.exe](https://github.com/${{ github.repository }}/releases/download/v1.6.0/Loomwright-Setup-1.6.0.exe)
-            - 📦 **MSI Installer:** [Loomwright-Setup-1.6.0.msi](https://github.com/${{ github.repository }}/releases/download/v1.6.0/Loomwright-Setup-1.6.0.msi)
+            - **EXE Installer (recommended):** [Loomwright-Setup-${{ steps.release-version.outputs.version }}.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.release-version.outputs.tag }}/Loomwright-Setup-${{ steps.release-version.outputs.version }}.exe)
+            - **MSI Installer:** [Loomwright-Setup-${{ steps.release-version.outputs.version }}.msi](https://github.com/${{ github.repository }}/releases/download/${{ steps.release-version.outputs.tag }}/Loomwright-Setup-${{ steps.release-version.outputs.version }}.msi)
+            - **SHA-256 checksums:** [checksums.txt](https://github.com/${{ github.repository }}/releases/download/${{ steps.release-version.outputs.tag }}/checksums.txt)
 
             ### Highlights
-            - **Clean slate on start**: Starts with zero pre-loaded or dummy data.
-            - **Per-user installation**: Does not require administrator privileges.
-            - **Both formats**: Standard NSIS `.exe` setup and Windows Installer `.msi` package.
-            - **Safe upgrades**: Cleans leftover test/dummy data while preserving existing user manuscripts.
+            - Starts with a clean, empty project library.
+            - Per-user installation; no administrator privileges required.
+            - Includes both the NSIS `.exe` setup and Windows Installer `.msi`.
+            - Safe upgrades preserve user manuscripts.
           files: |
-            installer/Loomwright-Setup-1.6.0.exe
-            installer/Loomwright-Setup-1.6.0.msi
+            installer/Loomwright-Setup-${{ steps.release-version.outputs.version }}.exe
+            installer/Loomwright-Setup-${{ steps.release-version.outputs.version }}.msi
             installer/checksums.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

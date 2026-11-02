@@ -1,6 +1,7 @@
 target/
 dist/
 installer/*.exe
+installer/*.msi
+installer/checksums.txt
 *.pdb
 *.tmp
-
