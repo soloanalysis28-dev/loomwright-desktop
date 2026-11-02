@@ -91,7 +91,7 @@ $lightPath = if ($light.Source) { $light.Source } else { $light.FullName }
 
 Push-Location $installerDir
 try {
-    & $candlePath "-define" "Version=$MsiVersion" "-define" "DisplayVersion=$Version" "loomwright.wxs" "-out" "loomwright.wixobj"
+    & $candlePath "-dVersion=$MsiVersion" "-dDisplayVersion=$Version" "loomwright.wxs" "-out" "loomwright.wixobj"
     if ($LASTEXITCODE -ne 0) { throw "candle failed." }
     & $lightPath "-sval" "loomwright.wixobj" "-out" "Loomwright-Setup-$Version.msi"
     if ($LASTEXITCODE -ne 0) { throw "light failed." }

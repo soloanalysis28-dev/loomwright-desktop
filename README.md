@@ -105,7 +105,7 @@ cd ..\installer
 makensis /DVERSION=1.6.0.1 loomwright.nsi # → Loomwright-Setup-1.6.0.1.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3.11)
-candle -define Version=1.6.1 -define DisplayVersion=1.6.0.1 loomwright.wxs -out loomwright.wixobj
+candle "-dVersion=1.6.1" "-dDisplayVersion=1.6.0.1" loomwright.wxs -out loomwright.wixobj
 light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.1.msi
 ```
 
