@@ -5,12 +5,13 @@ import * as pdfjsLib from './vendor/pdfjs/build/pdf.min.mjs';
 import { WRITING_DEFAULTS, BUNDLED_FONTS, normalizeWritingSettings } from './writing-settings.mjs';
 import { smartenInput } from './smart-typography.mjs';
 import { recognizeCharacters, getCharacterRecognitionConfig, SENSITIVITY_THRESHOLDS } from './character-recognition.mjs';
+import { splitDocumentHtml } from './chapter-splitting.mjs';
 const mammoth=window.mammoth;
 window.pdfjsLib=pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/build/pdf.worker.min.mjs',import.meta.url).href;
 const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
-const APP_VERSION='1.6.0.1';
+const APP_VERSION='1.0.6.2';
 const PROJECT_RECORD_VERSION=3;
 const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';
@@ -1312,8 +1313,14 @@ async function importChapterFiles(rawFileList){
       try{for(let i=1;i<=doc.numPages;i++){const page=await doc.getPage(i),content=await page.getTextContent(),text=content.items.map(it=>it.str).join(' ');charTotal+=text.length;if(charTotal>3000000)throw new Error('This PDF has too much extracted text for one import. Split it into smaller parts.');paras.push('<p>'+escapeHtml(text)+'</p>')}}finally{await pdfTask.destroy()}
       html=paras.join('');check.notes.push('PDFs are imported as plain text; PDF scripts, links, forms, and attachments are not run or imported.');
     }else html=new TextDecoder('utf-8',{fatal:true}).decode(check.bytes).split(/\n\s*\n+/).map(p=>'<p>'+escapeHtml(p).replace(/\n/g,'<br>')+'</p>').join('');
-    html=sanitizeRichHtml(html);const id=Date.now()+Math.floor(Math.random()*1000)+newSections.length;
-    newSections.push({id,title:name,html,_wc:wc(html)});imported++;
+    html=sanitizeRichHtml(html);
+    const chapters=splitDocumentHtml(html,name);
+    chapters.forEach((chapter,index)=>{
+      const id=Date.now()+Math.floor(Math.random()*100000)+newSections.length+index;
+      newSections.push({id,title:chapter.title,html:chapter.html,_wc:wc(chapter.html)});
+    });
+    imported+=chapters.length;
+    if(chapters.length>1)check.notes.push(`Detected ${chapters.length} chapter headings and split the manuscript into separate chapters.`);
     setImportSafetyStatus(`${file.name}: local checks passed. Unsafe formatting and active links were removed.${check.notes.length?' '+check.notes.join(' '):''}`,check.notes.length?'warning':'ok');
   }catch(err){const message=err?.message||'Could not safely check this file.';setImportSafetyStatus(`${file.name}: not imported. ${message}`,'error');toast('Import stopped: '+message);console.warn('Import safety check stopped a file:',file.name,message)}}
 

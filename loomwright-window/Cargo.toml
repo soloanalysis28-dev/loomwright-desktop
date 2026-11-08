@@ -1,6 +1,6 @@
 [package]
 name = "loomwright"
-version = "1.6.1"
+version = "1.0.6"
 edition = "2021"
 description = "Loomwright — native Windows shell around the original Loomwright interface"
 build = "build.rs"
