@@ -66,12 +66,12 @@ local service and the installer.
 
 ## Download & Install
 
-Download the installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
+Download the currently published installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest). The latest published binaries are v1.6.0.1; update 1.0.6.2 is in the source and installer definitions and will receive its downloadable binaries when its release workflow is published:
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.0.6.2.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.0.6.2/Loomwright-Setup-1.0.6.2.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.0.6.2.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.0.6.2/Loomwright-Setup-1.0.6.2.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.6.0.1.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.1/Loomwright-Setup-1.6.0.1.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.1.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.1/Loomwright-Setup-1.6.0.1.msi) | Windows Installer package (enterprise / scripted deployments) |
 
 Both installers are also saved in the repository's [`installer/`](./installer/)
 folder after a local build. Run either installer. It installs to
