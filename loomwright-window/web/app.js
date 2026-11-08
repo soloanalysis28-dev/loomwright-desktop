@@ -11,7 +11,7 @@ window.pdfjsLib=pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/build/pdf.worker.min.mjs',import.meta.url).href;
 const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
-const APP_VERSION='1.0.6.2';
+const APP_VERSION='1.6.0.2';
 const PROJECT_RECORD_VERSION=3;
 const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';

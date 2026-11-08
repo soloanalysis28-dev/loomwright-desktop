@@ -1153,7 +1153,7 @@ checksum = "f9f8bd3e56ce4dfc153cf470fffbfa98c7620958b312ca5c3a4b8d5181fd13c6"
 
 [[package]]
 name = "loomwright"
-version = "1.0.6"
+version = "1.6.0"
 dependencies = [
  "image",
  "include_dir",
@@ -1252,7 +1252,7 @@ dependencies = [
 
 [[package]]
 name = "new_debug_unreachable"
-version = "1.0.6"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 
@@ -1777,7 +1777,7 @@ checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 
 [[package]]
 name = "same-file"
-version = "1.0.6"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [

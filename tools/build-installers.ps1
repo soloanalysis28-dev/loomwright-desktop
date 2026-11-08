@@ -1,13 +1,13 @@
 # Build loomwright.exe and both installers (.exe and .msi)
 param(
-    [string]$Version = "1.0.6.2",
+    [string]$Version = "1.6.0.2",
     [switch]$SkipCargo
 )
 
 $ErrorActionPreference = 'Stop'
 $versionParts = $Version.Split('.')
 if ($versionParts.Count -ne 4 -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
-    throw "Version must contain four numeric parts, for example 1.0.6.2."
+    throw "Version must contain four numeric parts, for example 1.6.0.2."
 }
 
 $major = [int]$versionParts[0]

@@ -66,12 +66,12 @@ local service and the installer.
 
 ## Download & Install
 
-Download the currently published installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest). The latest published binaries are v1.6.0.1; update 1.0.6.2 is in the source and installer definitions and will receive its downloadable binaries when its release workflow is published:
+Download the currently published installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest). The latest published binaries are v1.6.0.2; update 1.6.0.2 is in the source and installer definitions and will receive its downloadable binaries when its release workflow is published:
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.1.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.1/Loomwright-Setup-1.6.0.1.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.1.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.1/Loomwright-Setup-1.6.0.1.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.6.0.2.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.2/Loomwright-Setup-1.6.0.2.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.2.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.2/Loomwright-Setup-1.6.0.2.msi) | Windows Installer package (enterprise / scripted deployments) |
 
 Both installers are also saved in the repository's [`installer/`](./installer/)
 folder after a local build. Run either installer. It installs to
@@ -91,7 +91,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.0.6.2
+.\tools\build-installers.ps1 -Version 1.6.0.2
 ```
 
 Or step-by-step:
@@ -103,16 +103,16 @@ cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.0.6.2 loomwright.nsi # → Loomwright-Setup-1.0.6.2.exe
+makensis /DVERSION=1.6.0.2 loomwright.nsi # → Loomwright-Setup-1.6.0.2.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3.11)
-candle "-dVersion=1.0.6" "-dDisplayVersion=1.0.6.2" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.0.6.2.msi
+candle "-dVersion=1.6.0" "-dDisplayVersion=1.6.0.2" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.2.msi
 ```
 
-The MSI database uses `1.0.6` internally because Windows Installer accepts only
+The MSI database uses `1.6.0` internally because Windows Installer accepts only
 three numeric version fields; its installed app and Apps & Features display
-version is `1.0.6.2`.
+version is `1.6.0.2`.
 
 `.cargo/config.toml` selects the MinGW `gcc` linker for the
 `x86_64-pc-windows-gnu` target. On a standard MSVC toolchain, delete that file
@@ -204,10 +204,10 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
 
 ## Changelog
 
-### 1.0.6.2
+### 1.6.0.2
 - Fixed the WiX build invocation so the MSI compiles with its four-part public
   version and publishes alongside the EXE.
-- Both setup packages and the app now report version `1.0.6.2`.
+- Both setup packages and the app now report version `1.6.0.2`.
 - Large DOCX, PDF, and TXT manuscript imports now detect explicit chapter
   headings such as `Chapter 1`, `Chapter One`, `Prologue`, and `Epilogue`,
   creating separate chapters automatically while preserving formatting.
