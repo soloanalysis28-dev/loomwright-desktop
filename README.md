@@ -66,7 +66,7 @@ local service and the installer.
 
 ## Download & Install
 
-Download the currently published installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest). The latest published binaries are v1.6.0.2; update 1.6.0.2 is in the source and installer definitions and will receive its downloadable binaries when its release workflow is published:
+Download the current v1.6.0.2 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
 
 | Format | File | Recommended For |
 |---|---|---|
