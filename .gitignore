@@ -5,3 +5,4 @@ installer/*.msi
 installer/checksums.txt
 *.pdb
 *.tmp
+.env
