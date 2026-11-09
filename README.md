@@ -21,6 +21,8 @@ local service and the installer.
   font, size, line spacing, quotes, lists) with autosave.
 - Chapter import from **DOCX, PDF and TXT**, cleaned and sanitised before it
   enters the manuscript, with ZIP/macro/embedded-object screening for Word files.
+  When splitting a full manuscript, Loomwright skips contents-page entries and
+  preliminary pages, then starts chapters at the actual chapter headings.
 - Reusable chapter templates (`.txt` / `.docx`).
 - Word and character counts, per-chapter and whole-manuscript, with a daily goal.
 - Focus mode, typewriter scrolling and a distraction-free zen mode.
@@ -66,12 +68,16 @@ local service and the installer.
 
 ## Download & Install
 
-Download the current v1.6.0.2 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
+Download the current v1.6.0.2.5 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.2.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.2/Loomwright-Setup-1.6.0.2.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.2.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.2/Loomwright-Setup-1.6.0.2.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.6.0.2.5.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.2.5/Loomwright-Setup-1.6.0.2.5.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.2.5.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.2.5/Loomwright-Setup-1.6.0.2.5.msi) | Windows Installer package (enterprise / scripted deployments) |
+
+**Manuscript import in the writing desk**
+
+![Loomwright writing desk with manuscript import](docs/chapter-import.png)
 
 Both installers are also saved in the repository's [`installer/`](./installer/)
 folder after a local build. Run either installer. It installs to
@@ -91,7 +97,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.6.0.2
+.\tools\build-installers.ps1 -Version 1.6.0.2.5
 ```
 
 Or step-by-step:
@@ -99,20 +105,22 @@ Or step-by-step:
 ```powershell
 # 1. Build application binary
 cd loomwright-window
+$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.2.5"
 cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.6.0.2 loomwright.nsi # → Loomwright-Setup-1.6.0.2.exe
+makensis /DVERSION=1.6.0.2.5 /DFILE_VERSION=1.6.0.2005 loomwright.nsi # → Loomwright-Setup-1.6.0.2.5.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3.11)
-candle "-dVersion=1.6.0" "-dDisplayVersion=1.6.0.2" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.2.msi
+candle "-dVersion=1.6.2005" "-dDisplayVersion=1.6.0.2.5" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.2.5.msi
 ```
 
-The MSI database uses `1.6.0` internally because Windows Installer accepts only
-three numeric version fields; its installed app and Apps & Features display
-version is `1.6.0.2`.
+The app and installer display version is `1.6.0.2.5`. Windows executable file
+metadata uses `1.6.0.2005`, and the MSI database uses `1.6.2005`, because Windows
+file metadata accepts four numeric fields and Windows Installer accepts three.
+The installer and Apps & Features retain the full display version.
 
 `.cargo/config.toml` selects the MinGW `gcc` linker for the
 `x86_64-pc-windows-gnu` target. On a standard MSVC toolchain, delete that file
@@ -218,6 +226,16 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
 - Added persistent, action-based first-use guides for the core features.
 - Installer upgrades now preserve shared user manuscripts while filtering
   known demo/empty starter data in the app.
+
+### 1.6.0.2.5
+- Import splitting now ignores linked/table-of-contents entries, page-number
+  leaders and preliminary pages, and starts chapters at actual manuscript
+  headings.
+- Chapter headings in a contents page no longer become duplicate chapters;
+  single-chapter manuscripts with a contents page are still extracted.
+- The Rust build embeds a Windows-compatible file version derived from the
+  five-part public version, and both installers display the complete version.
+- Added a chapter-import screenshot to the project and release page.
 
 ### 1.6.0 (2026-10-30)
 - **Clean-slate install**: every new installation starts with an empty project

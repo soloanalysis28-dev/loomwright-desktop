@@ -1,24 +1,28 @@
 # Build loomwright.exe and both installers (.exe and .msi)
 param(
-    [string]$Version = "1.6.0.2",
+    [string]$Version = "1.6.0.2.5",
     [switch]$SkipCargo
 )
 
 $ErrorActionPreference = 'Stop'
 $versionParts = $Version.Split('.')
-if ($versionParts.Count -ne 4 -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
-    throw "Version must contain four numeric parts, for example 1.6.0.2."
+if ($versionParts.Count -ne 5 -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
+    throw "Version must contain five numeric parts, for example 1.6.0.2.5."
 }
 
 $major = [int]$versionParts[0]
 $minor = [int]$versionParts[1]
 $patch = [int]$versionParts[2]
 $revision = [int]$versionParts[3]
-$msiBuild = ($patch * 1000) + $revision
-if ($major -gt 255 -or $minor -gt 255 -or $patch -gt 65535 -or $revision -gt 65535 -or $msiBuild -gt 65535) {
+$micro = [int]$versionParts[4]
+# Windows file metadata and MSI version fields are shorter than the public display version.
+$fileRevision = ($revision * 1000) + $micro
+$msiBuild = ($patch * 10000) + $fileRevision
+$FileVersion = "$major.$minor.$patch.$fileRevision"
+$MsiVersion = "$major.$minor.$msiBuild"
+if ($major -gt 255 -or $minor -gt 255 -or $patch -gt 65535 -or $micro -gt 999 -or $fileRevision -gt 65535 -or $msiBuild -gt 65535) {
     throw "Version $Version cannot be represented by a Windows Installer version."
 }
-$MsiVersion = "$major.$minor.$msiBuild"
 
 $repoRoot = (Get-Item $PSScriptRoot).Parent.FullName
 $windowDir = Join-Path $repoRoot "loomwright-window"
@@ -38,6 +42,7 @@ if (-not $SkipCargo) {
         }
         if (-not $cargo) { throw "cargo.exe not found. Install Rust and ensure Cargo is available." }
         $cargoPath = if ($cargo.Source) { $cargo.Source } else { $cargo.FullName }
+        $env:LOOMWRIGHT_DISPLAY_VERSION = $Version
         & $cargoPath build --release
         if ($LASTEXITCODE -ne 0) { throw "Cargo build failed." }
     } finally {
@@ -47,6 +52,12 @@ if (-not $SkipCargo) {
 
 if (-not (Test-Path $exePath)) {
     throw "Release binary not found at $exePath"
+}
+if (-not $SkipCargo) {
+    $builtVersion = (Get-Item $exePath).VersionInfo.ProductVersion
+    if ($builtVersion -ne $FileVersion) {
+        throw "The built executable reports version $builtVersion; expected $FileVersion."
+    }
 }
 Write-Host "Binary ready: $exePath" -ForegroundColor Green
 
@@ -65,7 +76,7 @@ $makensisPath = if ($makensis.Source) { $makensis.Source } else { $makensis.Full
 
 Push-Location $installerDir
 try {
-    & $makensisPath "/DVERSION=$Version" "loomwright.nsi"
+    & $makensisPath "/DVERSION=$Version" "/DFILE_VERSION=$FileVersion" "loomwright.nsi"
     if ($LASTEXITCODE -ne 0) { throw "makensis failed." }
     Write-Host "NSIS installer created: Loomwright-Setup-$Version.exe" -ForegroundColor Green
 } finally {

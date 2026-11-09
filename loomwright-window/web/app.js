@@ -11,7 +11,7 @@ window.pdfjsLib=pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/build/pdf.worker.min.mjs',import.meta.url).href;
 const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
-const APP_VERSION='1.6.0.2';
+const APP_VERSION='1.6.0.2.5';
 const PROJECT_RECORD_VERSION=3;
 const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';
@@ -1320,7 +1320,7 @@ async function importChapterFiles(rawFileList){
       newSections.push({id,title:chapter.title,html:chapter.html,_wc:wc(chapter.html)});
     });
     imported+=chapters.length;
-    if(chapters.length>1)check.notes.push(`Detected ${chapters.length} chapter headings and split the manuscript into separate chapters.`);
+    if(chapters.length>1)check.notes.push(`Detected ${chapters.length} chapter headings and split the manuscript into separate chapters. Contents-page entries and material before the first chapter were skipped when detected.`);
     setImportSafetyStatus(`${file.name}: local checks passed. Unsafe formatting and active links were removed.${check.notes.length?' '+check.notes.join(' '):''}`,check.notes.length?'warning':'ok');
   }catch(err){const message=err?.message||'Could not safely check this file.';setImportSafetyStatus(`${file.name}: not imported. ${message}`,'error');toast('Import stopped: '+message);console.warn('Import safety check stopped a file:',file.name,message)}}
 

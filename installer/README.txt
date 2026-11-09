@@ -1,4 +1,4 @@
-Loomwright 1.6.0.2
+Loomwright 1.6.0.2.5
 ==============
 
 A writing desk for books, characters and story threads. This build ships the
@@ -14,6 +14,8 @@ Getting started
 3. Add a chapter or import your own manuscript from the Writing desk. First-use
    guides introduce Projects, Writing, Metrics, Characters, Story Web and
    Finalise, then disappear after you use each feature.
+   When splitting a full manuscript, contents-page entries and preliminary
+   pages are skipped so chapters start at their actual headings.
 4. Format text with the Writing toolbar, or use a small Markdown subset:
    **bold**, *italic*, # heading, > quote, - bullet.
 
@@ -40,4 +42,4 @@ Ctrl+N        New chapter
 Ctrl+Shift+Z  Focus mode
 Esc           Leave focus mode / close a dialog
 
-Version 1.6.0.2 - built for Windows 10 and 11 (x64)
+Version 1.6.0.2.5 - built for Windows 10 and 11 (x64)

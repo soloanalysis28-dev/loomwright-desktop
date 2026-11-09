@@ -1,12 +1,16 @@
 ; Loomwright 1.6 — per-user Windows installer (NSIS 3.11)
-; Build: makensis /DVERSION=1.6.0.2 loomwright.nsi
+; Build: makensis /DVERSION=1.6.0.2.5 /DFILE_VERSION=1.6.0.2005 loomwright.nsi
 
 Unicode True
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
 !ifndef VERSION
-  !define VERSION "1.6.0.2"
+  !define VERSION "1.6.0.2.5"
+!endif
+
+!ifndef FILE_VERSION
+  !define FILE_VERSION "1.6.0.2005"
 !endif
 
 !define APPNAME "Loomwright"
@@ -23,7 +27,7 @@ SetCompressor /SOLID lzma
 ShowInstDetails show
 ShowUninstDetails show
 
-VIProductVersion "${VERSION}"
+VIProductVersion "${FILE_VERSION}"
 VIAddVersionKey "ProductName" "${APPNAME}"
 VIAddVersionKey "ProductVersion" "${VERSION}"
 VIAddVersionKey "CompanyName" "${COMPANY}"
