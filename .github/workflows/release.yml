@@ -108,18 +108,50 @@ jobs:
           $msiInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.msi"
           $msiInstall = Join-Path $env:RUNNER_TEMP "loomwright-msi-smoke"
           $log = Join-Path $env:RUNNER_TEMP 'loomwright-msi-smoke.log'
+          function Write-MsiDiagnostics {
+            if (Test-Path $log) {
+              $tail = Get-Content $log -Tail 100
+              Write-Host 'Last 100 lines of the Windows Installer log:'
+              $tail | ForEach-Object { Write-Host $_ }
+              @(
+                '### MSI installer diagnostic log (last 100 lines)'
+                '```text'
+                $tail
+                '```'
+              ) | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+            }
+          }
+
           Write-Host "Installing MSI to $msiInstall"
           $install = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/i', "`"$msiInstaller`"", "INSTALLFOLDER=`"$msiInstall`"", '/qn', '/norestart', '/l*v', "`"$log`"") -Wait -PassThru
-          if ($install.ExitCode -notin @(0, 3010)) { throw "MSI installation failed with exit code $($install.ExitCode)." }
+          if ($install.ExitCode -notin @(0, 3010)) {
+            Write-MsiDiagnostics
+            throw "MSI installation failed with exit code $($install.ExitCode)."
+          }
           $exe = Join-Path $msiInstall 'loomwright.exe'
           if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:RELEASE_VERSION) {
+            Write-MsiDiagnostics
             throw "MSI installation did not produce the expected Loomwright executable."
           }
           Write-Host 'MSI installation smoke test passed. Uninstalling test installation.'
           $uninstall = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/x', "`"$msiInstaller`"", '/qn', '/norestart', '/l*v', "`"$log`"") -Wait -PassThru
-          if ($uninstall.ExitCode -notin @(0, 3010)) { throw "MSI uninstallation failed with exit code $($uninstall.ExitCode)." }
-          if (Test-Path $exe) { throw "MSI uninstallation did not remove the Loomwright executable." }
+          if ($uninstall.ExitCode -notin @(0, 3010)) {
+            Write-MsiDiagnostics
+            throw "MSI uninstallation failed with exit code $($uninstall.ExitCode)."
+          }
+          if (Test-Path $exe) {
+            Write-MsiDiagnostics
+            throw "MSI uninstallation did not remove the Loomwright executable."
+          }
           Write-Host 'MSI install/uninstall smoke test passed.'
+
+      - name: Upload MSI smoke-test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Loomwright-MSI-Smoke-Test-Log-${{ github.run_id }}
+          path: ${{ runner.temp }}/loomwright-msi-smoke.log
+          if-no-files-found: ignore
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
