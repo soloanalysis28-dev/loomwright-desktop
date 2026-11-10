@@ -1,26 +1,35 @@
 # Build loomwright.exe and both installers (.exe and .msi)
 param(
-    [string]$Version = "1.6.0.2.5",
+    [string]$Version = "1.0.6.3",
     [switch]$SkipCargo
 )
 
 $ErrorActionPreference = 'Stop'
 $versionParts = $Version.Split('.')
-if ($versionParts.Count -ne 5 -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
-    throw "Version must contain five numeric parts, for example 1.6.0.2.5."
+if (($versionParts.Count -ne 4 -and $versionParts.Count -ne 5) -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
+    throw "Version must contain four or five numeric parts, for example 1.0.6.3."
 }
 
 $major = [int]$versionParts[0]
 $minor = [int]$versionParts[1]
 $patch = [int]$versionParts[2]
 $revision = [int]$versionParts[3]
-$micro = [int]$versionParts[4]
-# Windows file metadata and MSI version fields are shorter than the public display version.
-$fileRevision = ($revision * 1000) + $micro
-$msiBuild = ($patch * 10000) + $fileRevision
-$FileVersion = "$major.$minor.$patch.$fileRevision"
-$MsiVersion = "$major.$minor.$msiBuild"
-if ($major -gt 255 -or $minor -gt 255 -or $patch -gt 65535 -or $micro -gt 999 -or $fileRevision -gt 65535 -or $msiBuild -gt 65535) {
+$micro = if ($versionParts.Count -eq 5) { [int]$versionParts[4] } else { 0 }
+# Windows file metadata has four fields; MSI's three numeric fields require packing
+# the last public version component into its build field.
+if ($versionParts.Count -eq 5) {
+    $fileRevision = ($revision * 1000) + $micro
+    $msiBuild = ($patch * 10000) + $fileRevision
+    $FileVersion = "$major.$minor.$patch.$fileRevision"
+} else {
+    $fileRevision = $revision
+    $msiBuild = ($patch * 1000) + $revision
+    $FileVersion = "$major.$minor.$patch.$revision"
+}
+$msiMajor = $major
+$msiMinor = if ($versionParts.Count -eq 4) { $minor + 6 } else { $minor }
+$MsiVersion = "$msiMajor.$msiMinor.$msiBuild"
+if ($major -gt 255 -or $msiMinor -gt 255 -or $patch -gt 65535 -or $micro -gt 999 -or $revision -gt 65535 -or $fileRevision -gt 65535 -or $msiBuild -gt 65535) {
     throw "Version $Version cannot be represented by a Windows Installer version."
 }
 

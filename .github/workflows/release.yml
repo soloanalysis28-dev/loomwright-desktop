@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (for example v1.6.0.2.5)'
+        description: 'Release tag (for example v1.0.6.3)'
         required: false
-        default: 'v1.6.0.2.5'
+        default: 'v1.0.6.3'
 
 permissions:
   contents: write
@@ -42,12 +42,12 @@ jobs:
           } elseif ($env:GITHUB_REF -like 'refs/tags/*') {
             $tag = $env:GITHUB_REF_NAME
           } else {
-            $tag = 'v1.6.0.2.5'
+            $tag = 'v1.0.6.3'
           }
 
           $version = $tag -replace '^v', ''
-          if ($version -notmatch '^\d+\.\d+\.\d+\.\d+\.\d+$') {
-            throw "Release tag must contain five numeric version parts: v1.6.0.2.5"
+          if ($version -notmatch '^\d+\.\d+\.\d+\.\d+(\.\d+)?$') {
+            throw "Release tag must contain four or five numeric version parts, for example v1.0.6.3."
           }
 
           "version=$version" >> $env:GITHUB_OUTPUT
@@ -113,6 +113,7 @@ jobs:
             - **SHA-256 checksums:** [checksums.txt](https://github.com/${{ github.repository }}/releases/download/${{ steps.release-version.outputs.tag }}/checksums.txt)
 
             ### Highlights
+            - Veritas chat integrates with Ollama and keeps chapter-specific chat history and saved memory.
             - Ignores contents-page entries and preliminary pages when splitting imported manuscripts into chapters.
             - Starts with an empty project library and no sample chapters.
             - Offers first-use guides for Projects, Writing, Metrics, Characters, Story Web, and Finalise.
@@ -120,7 +121,8 @@ jobs:
             - Includes both the NSIS `.exe` setup and Windows Installer `.msi`.
             - Safe upgrades preserve user manuscripts.
 
-            ![Loomwright chapter import](https://github.com/${{ github.repository }}/blob/${{ steps.release-version.outputs.tag }}/docs/chapter-import.png?raw=true)
+            ![Loomwright writing desk](https://github.com/${{ github.repository }}/blob/${{ steps.release-version.outputs.tag }}/docs/window.png?raw=true)
+            ![Veritas chapter memory](https://github.com/${{ github.repository }}/blob/${{ steps.release-version.outputs.tag }}/docs/veritas-memory.png?raw=true)
           files: |
             installer/Loomwright-Setup-${{ steps.release-version.outputs.version }}.exe
             installer/Loomwright-Setup-${{ steps.release-version.outputs.version }}.msi

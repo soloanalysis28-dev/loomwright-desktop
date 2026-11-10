@@ -1,4 +1,4 @@
-Loomwright 1.6.0.2.5
+Loomwright 1.0.6.3
 ==============
 
 A writing desk for books, characters and story threads. This build ships the
@@ -18,6 +18,9 @@ Getting started
    pages are skipped so chapters start at their actual headings.
 4. Format text with the Writing toolbar, or use a small Markdown subset:
    **bold**, *italic*, # heading, > quote, - bullet.
+5. To use Veritas, install Ollama and a model, then enable Veritas in
+   Settings > Veritas. Saved chat history and memory notes are specific to the
+   active chapter. Veritas never edits the manuscript unless you insert a reply.
 
 Where your work is stored
 -------------------------
@@ -35,6 +38,12 @@ Use Settings > Apps > Installed apps, or the "Uninstall Loomwright" shortcut in
 the Start menu folder. Uninstalling removes the application only; the folders
 above are deliberately left in place.
 
+Veritas and privacy
+-------------------
+Veritas sends your chat and any context you choose to include to Ollama.
+Local models run on this device; Ollama Cloud models may process requests
+outside it. Loomwright has no telemetry.
+
 Keyboard shortcuts
 ------------------
 Ctrl+S        Save now
@@ -42,4 +51,4 @@ Ctrl+N        New chapter
 Ctrl+Shift+Z  Focus mode
 Esc           Leave focus mode / close a dialog
 
-Version 1.6.0.2.5 - built for Windows 10 and 11 (x64)
+Version 1.0.6.3 - built for Windows 10 and 11 (x64)

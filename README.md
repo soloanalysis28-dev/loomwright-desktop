@@ -33,6 +33,10 @@ local service and the installer.
   sensitivity, review tray, aliases, merging, roles, notes and per-chapter
   appearance counts.
 - Story web: a draggable map of places, events, objects and threads with links.
+- Veritas writing companion powered by Ollama, with installed-model selection,
+  optional manuscript context, and explicit controls for inserting replies.
+- Chapter-specific Veritas chat history and saved memory notes, stored with the
+  project and never added to the manuscript automatically.
 
 **Finishing**
 - Book designer: title, subtitle, author, dedication, cover style, trim size,
@@ -44,8 +48,10 @@ local service and the installer.
 **Appearance and data**
 - Light and dark themes, five colour palettes, eight bundled typefaces, zen
   background effects.
-- Everything is local: projects live in the app's WebView2 profile, exports go to
-  `Documents\Loomwright`, and the app makes no network requests.
+- Projects and Veritas chapter memory live in the app's WebView2 profile;
+  exports go to `Documents\Loomwright`. The app has no telemetry. Veritas sends
+  only your chat and any context you opt to include to Ollama; cloud models may
+  process requests outside this device.
 - Two Loomwright windows on the same machine share projects through a small
   loopback service (`/api/sync`).
 
@@ -68,16 +74,20 @@ local service and the installer.
 
 ## Download & Install
 
-Download the current v1.6.0.2.5 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
+Download the current v1.0.6.3 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.2.5.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.2.5/Loomwright-Setup-1.6.0.2.5.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.2.5.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.2.5/Loomwright-Setup-1.6.0.2.5.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.0.6.3.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.0.6.3/Loomwright-Setup-1.0.6.3.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.0.6.3.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.0.6.3/Loomwright-Setup-1.0.6.3.msi) | Windows Installer package (enterprise / scripted deployments) |
 
 **Manuscript import in the writing desk**
 
 ![Loomwright writing desk with manuscript import](docs/chapter-import.png)
+
+**Veritas chapter memory**
+
+![Veritas chat and chapter-specific saved memory](docs/veritas-memory.png)
 
 Both installers are also saved in the repository's [`installer/`](./installer/)
 folder after a local build. Run either installer. It installs to
@@ -97,7 +107,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.6.0.2.5
+.\tools\build-installers.ps1 -Version 1.0.6.3
 ```
 
 Or step-by-step:
@@ -105,22 +115,30 @@ Or step-by-step:
 ```powershell
 # 1. Build application binary
 cd loomwright-window
-$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.2.5"
+$env:LOOMWRIGHT_DISPLAY_VERSION = "1.0.6.3"
 cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.6.0.2.5 /DFILE_VERSION=1.6.0.2005 loomwright.nsi # → Loomwright-Setup-1.6.0.2.5.exe
+makensis /DVERSION=1.0.6.3 /DFILE_VERSION=1.0.6.3 loomwright.nsi # → Loomwright-Setup-1.0.6.3.exe
 
-# 3. Build WiX (.msi) installer (requires WiX Toolset v3.11)
-candle "-dVersion=1.6.2005" "-dDisplayVersion=1.6.0.2.5" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.2.5.msi
+# 3. Build WiX (.msi) installer (requires WiX Toolset v3)
+candle "-dVersion=1.6.6003" "-dDisplayVersion=1.0.6.3" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.0.6.3.msi
 ```
 
-The app and installer display version is `1.6.0.2.5`. Windows executable file
-metadata uses `1.6.0.2005`, and the MSI database uses `1.6.2005`, because Windows
-file metadata accepts four numeric fields and Windows Installer accepts three.
-The installer and Apps & Features retain the full display version.
+The app and installer display version is `1.0.6.3`. The Windows executable file
+metadata uses `1.0.6.3`; the MSI database uses `1.6.6003`, packing the final
+display-version component into its build field because Windows Installer accepts
+only three numeric fields. Its major/minor pair follows the earlier MSI version
+line so this release upgrades prior installs; Apps & Features retains the full
+display version. Future four-part releases increment the MSI build field, and
+the installer rejects genuine downgrades.
+
+To use Veritas, install Ollama and at least one model, then enable it under
+**Settings → Veritas**. The chat can use saved chapter memory without including
+the manuscript; context inclusion and adding replies to the draft are separate,
+explicit actions.
 
 `.cargo/config.toml` selects the MinGW `gcc` linker for the
 `x86_64-pc-windows-gnu` target. On a standard MSVC toolchain, delete that file
@@ -236,6 +254,14 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
 - The Rust build embeds a Windows-compatible file version derived from the
   five-part public version, and both installers display the complete version.
 - Added a chapter-import screenshot to the project and release page.
+
+### 1.0.6.3
+- Added Veritas, an Ollama-powered writing companion with model selection and
+  optional manuscript context.
+- Added chapter-specific Veritas conversation history and manually saved
+  memory notes, with explicit controls for inserting generated text.
+- Expanded the Veritas UI screenshots and updated both Windows installer
+  packages and their displayed version.
 
 ### 1.6.0 (2026-10-30)
 - **Clean-slate install**: every new installation starts with an empty project

@@ -2,6 +2,9 @@
 //! web application expects (`/api/app-status`, `/api/sync`, `/api/git/*`).
 
 use crate::assets::{mime, WEB};
+use crate::veritas::Veritas;
+use ollama_rs::Ollama;
+use serde::Deserialize;
 use std::fs;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
@@ -160,6 +163,20 @@ fn route(
     store: &Arc<Mutex<Store>>,
 ) -> (String, String, Vec<u8>) {
     match (method, path) {
+        ("GET", "/api/veritas/status") => match veritas_models() {
+            Ok(models) => json_response(
+                "200 OK",
+                serde_json::json!({ "connected": true, "models": models }),
+            ),
+            Err(error) => json_response(
+                "503 Service Unavailable",
+                serde_json::json!({ "connected": false, "error": error }),
+            ),
+        },
+        ("POST", "/api/veritas/generate") => match generate_veritas_response(body) {
+            Ok(response) => json_response("200 OK", serde_json::json!({ "response": response })),
+            Err((status, error)) => json_response(&status, serde_json::json!({ "error": error })),
+        },
         ("GET", "/api/app-status") => (
             "200 OK".into(),
             "application/json".into(),
@@ -232,6 +249,112 @@ fn route(
             ("404 Not Found".into(), "text/plain".into(), b"Not found".to_vec())
         }
     }
+}
+
+#[derive(Deserialize)]
+struct VeritasRequest {
+    model: String,
+    prompt: String,
+    #[serde(default)]
+    context: String,
+}
+
+#[derive(serde::Serialize)]
+struct VeritasModel {
+    name: String,
+    size: u64,
+    offline: bool,
+}
+
+fn veritas_models() -> Result<Vec<VeritasModel>, String> {
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .map_err(|error| format!("Could not start Veritas: {error}"))?;
+    let models = runtime
+        .block_on(Ollama::default().list_local_models())
+        .map_err(|error| {
+            format!("Could not connect to Ollama at http://127.0.0.1:11434. Start Ollama and try again. Details: {}", ollama_error_detail(&error))
+        })?;
+    Ok(models
+        .into_iter()
+        .map(|model| {
+            let name = model.name.to_ascii_lowercase();
+            let offline = model.size >= 1024 * 1024
+                && !name.contains("-cloud")
+                && !name.contains(":cloud");
+            VeritasModel {
+                name: model.name,
+                size: model.size,
+                offline,
+            }
+        })
+        .collect())
+}
+
+fn generate_veritas_response(body: &[u8]) -> Result<String, (String, String)> {
+    let request: VeritasRequest = serde_json::from_slice(body)
+        .map_err(|_| ("400 Bad Request".into(), "The Veritas request was invalid. Check the prompt and selected model.".to_string()))?;
+    let model = request.model.trim();
+    let prompt = request.prompt.trim();
+    if model.is_empty() || model.len() > 200 {
+        return Err(("400 Bad Request".into(), "Choose a valid model in Settings → Veritas.".into()));
+    }
+    if prompt.is_empty() || prompt.len() > 20_000 {
+        return Err(("400 Bad Request".into(), "Enter a prompt no longer than 20,000 characters.".into()));
+    }
+    if request.context.len() > 100_000 {
+        return Err(("400 Bad Request".into(), "The selected writing context is too large (maximum 100,000 characters).".into()));
+    }
+
+    let models = veritas_models().map_err(|error| ("503 Service Unavailable".into(), error))?;
+    if !models.iter().any(|available| available.name == model) {
+        return Err((
+            "422 Unprocessable Entity".into(),
+            format!("The model “{model}” is not installed in Ollama. Install it with `ollama pull {model}`, then refresh Veritas status."),
+        ));
+    }
+
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .map_err(|error| ("500 Internal Server Error".into(), format!("Could not start Veritas: {error}")))?;
+    runtime
+        .block_on(Veritas::new(model).generate_story_text(prompt, &request.context))
+        .map_err(|error| {
+            let detail = ollama_error_detail(error.as_ref());
+            let message = if detail.to_lowercase().contains("credits") || detail.to_lowercase().contains("subscribe") {
+                format!("Ollama Cloud requires usage credits or a subscription to use “{model}”. You can add credits at https://ollama.com/plans or install a local model. Details: {detail}")
+            } else {
+                format!("Ollama could not generate a response using “{model}”. Check that Ollama is running and the model is available. Details: {detail}")
+            };
+            ("502 Bad Gateway".into(), message)
+        })
+}
+
+fn ollama_error_detail(error: &(dyn std::error::Error + 'static)) -> String {
+    use ollama_rs::error::OllamaError;
+
+    if let Some(error) = error.downcast_ref::<OllamaError>() {
+        return match error {
+            OllamaError::Other(body) => serde_json::from_str::<serde_json::Value>(body)
+                .ok()
+                .and_then(|value| value.get("error").and_then(|message| message.as_str()).map(str::to_owned))
+                .unwrap_or_else(|| body.clone()),
+            OllamaError::InternalError(error) => error.message.clone(),
+            OllamaError::ReqwestError(error) => error.to_string(),
+            other => other.to_string(),
+        };
+    }
+    error.to_string()
+}
+
+fn json_response(status: &str, value: serde_json::Value) -> (String, String, Vec<u8>) {
+    (
+        status.into(),
+        "application/json".into(),
+        value.to_string().into_bytes(),
+    )
 }
 
 /// Remove any demo / test projects from a shared-sync record and return
