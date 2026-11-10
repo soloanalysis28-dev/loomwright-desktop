@@ -488,6 +488,8 @@ body.writer-focus.focus-hide-footer .writer-statusbar,body.writer-focus.focus-hi
 .veritas-memory-list{display:grid;gap:6px;max-height:135px;overflow:auto;margin:8px 0 0;padding:0;list-style:none}
 .veritas-memory-item{display:flex;align-items:flex-start;gap:7px;padding:7px;border-radius:8px;background:var(--card);font-size:.73rem;line-height:1.45}
 .veritas-memory-item span{min-width:0;flex:1;white-space:pre-wrap;overflow-wrap:anywhere}
+.veritas-chapter-link-label{display:flex;align-items:center;gap:8px;min-width:0;flex:1;cursor:pointer}
+.veritas-chapter-link-label input{flex:none;accent-color:var(--accent2)}
 .veritas-memory-item button{flex:none}
 .veritas-memory-empty{margin:8px 0 0;color:var(--sub);font-size:.72rem}
 .veritas-sidebar .veritas-messages{min-height:0;padding:15px;gap:11px}
@@ -736,6 +738,20 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
             <aside class="veritas-sidebar" id="veritas-sidebar" aria-label="Veritas writing companion" hidden>
               <header class="veritas-header"><span class="veritas-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 14 9l6 3-6 2-2 7-2-7-6-2 6-3z"/><path d="m19 3 .7 2.3L22 6l-2.3.7L19 9l-.7-2.3L16 6l2.3-.7z"/></svg></span><div class="veritas-heading"><h2>Veritas</h2><p>Your writing companion</p></div><button class="veritas-close" id="veritas-sidebar-close" type="button" aria-label="Hide Veritas sidebar">×</button></header>
               <div class="veritas-status" id="veritas-sidebar-status" role="status" aria-live="polite">Checking Ollama connection…</div>
+              <details class="veritas-memory" id="veritas-story-memory">
+                <summary>Story memory <span class="veritas-memory-count" id="veritas-story-memory-count">0 saved</span></summary>
+                <p class="veritas-memory-empty">Shared with Veritas across every chapter in this project.</p>
+                <form class="veritas-memory-form" id="veritas-story-memory-form">
+                  <textarea id="veritas-story-memory-input" maxlength="2000" placeholder="Save a story-wide fact, decision, or continuity detail…" aria-label="Story-wide Veritas memory note" required></textarea>
+                  <button type="submit">Save story note</button>
+                </form>
+                <ul class="veritas-memory-list" id="veritas-story-memory-list"></ul>
+              </details>
+              <details class="veritas-memory" id="veritas-chapter-link-panel">
+                <summary>Link chapters <span class="veritas-memory-count" id="veritas-linked-chapter-count">0 linked</span></summary>
+                <p class="veritas-memory-empty">Linked chapters share continuity context with each other. Choose up to five.</p>
+                <ul class="veritas-memory-list" id="veritas-chapter-links"></ul>
+              </details>
               <details class="veritas-memory" id="veritas-memory">
                 <summary>Chapter memory <span class="veritas-memory-count" id="veritas-memory-count">0 saved</span></summary>
                 <form class="veritas-memory-form" id="veritas-memory-form">

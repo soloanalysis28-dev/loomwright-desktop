@@ -37,6 +37,13 @@ local service and the installer.
   optional manuscript context, and explicit controls for inserting replies.
 - Chapter-specific Veritas chat history and saved memory notes, stored with the
   project and never added to the manuscript automatically.
+- Project-wide Veritas story memory for continuity facts shared across all
+  chapters, while keeping each chapter's existing memory separate.
+- Explicit chapter links let Veritas compare linked chapter text and events
+  when helping with continuity; links and excerpts are limited for privacy and
+  request size.
+- Separate project-scoped Veritas conversations for Metrics, Characters, and
+  Story Web, with optional view-specific context.
 
 **Finishing**
 - Book designer: title, subtitle, author, dedication, cover style, trim size,
@@ -74,20 +81,25 @@ local service and the installer.
 
 ## Download & Install
 
-Download the current v1.0.6.3 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
+Download the current v1.6.0.4 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.0.6.3.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.0.6.3/Loomwright-Setup-1.0.6.3.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.0.6.3.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.0.6.3/Loomwright-Setup-1.0.6.3.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.6.0.4.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.4/Loomwright-Setup-1.6.0.4.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.4.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.4/Loomwright-Setup-1.6.0.4.msi) | Windows Installer package (enterprise / scripted deployments) |
 
 **Manuscript import in the writing desk**
 
 ![Loomwright writing desk with manuscript import](docs/chapter-import.png)
 
-**Veritas chapter memory**
+**Veritas memory and chapter links**
 
 ![Veritas chat and chapter-specific saved memory](docs/veritas-memory.png)
+
+Story memory is shared by Veritas across the project; chapter memory remains
+private to its chapter. Link up to five chapters from the Write sidebar so
+Veritas can compare their text and continuity details. These saved notes and
+links are stored with the project.
 
 Both installers are also saved in the repository's [`installer/`](./installer/)
 folder after a local build. Run either installer. It installs to
@@ -107,7 +119,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.0.6.3
+.\tools\build-installers.ps1 -Version 1.6.0.4
 ```
 
 Or step-by-step:
@@ -115,20 +127,20 @@ Or step-by-step:
 ```powershell
 # 1. Build application binary
 cd loomwright-window
-$env:LOOMWRIGHT_DISPLAY_VERSION = "1.0.6.3"
+$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.4"
 cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.0.6.3 /DFILE_VERSION=1.0.6.3 loomwright.nsi # → Loomwright-Setup-1.0.6.3.exe
+makensis /DVERSION=1.6.0.4 /DFILE_VERSION=1.6.0.4 loomwright.nsi # → Loomwright-Setup-1.6.0.4.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3)
-candle "-dVersion=1.6.6003" "-dDisplayVersion=1.0.6.3" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.0.6.3.msi
+candle "-dVersion=1.12.4" "-dDisplayVersion=1.6.0.4" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.4.msi
 ```
 
-The app and installer display version is `1.0.6.3`. The Windows executable file
-metadata uses `1.0.6.3`; the MSI database uses `1.6.6003`, packing the final
+The app and installer display version is `1.6.0.4`. The Windows executable file
+metadata uses `1.6.0.4`; the MSI database uses `1.12.4`, packing the final
 display-version component into its build field because Windows Installer accepts
 only three numeric fields. Its major/minor pair follows the earlier MSI version
 line so this release upgrades prior installs; Apps & Features retains the full
@@ -136,9 +148,10 @@ display version. Future four-part releases increment the MSI build field, and
 the installer rejects genuine downgrades.
 
 To use Veritas, install Ollama and at least one model, then enable it under
-**Settings → Veritas**. The chat can use saved chapter memory without including
-the manuscript; context inclusion and adding replies to the draft are separate,
-explicit actions.
+**Settings → Veritas**. Story memory is shared across the project; chapter
+memory stays scoped to its chapter. Explicitly linked chapters and saved memory
+are included as continuity references, while manuscript context inclusion and
+adding replies to the draft remain separate actions.
 
 `.cargo/config.toml` selects the MinGW `gcc` linker for the
 `x86_64-pc-windows-gnu` target. On a standard MSVC toolchain, delete that file

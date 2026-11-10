@@ -257,6 +257,12 @@ struct VeritasRequest {
     prompt: String,
     #[serde(default)]
     context: String,
+    #[serde(default = "default_veritas_view")]
+    view: String,
+}
+
+fn default_veritas_view() -> String {
+    "write".into()
 }
 
 #[derive(serde::Serialize)]
@@ -271,6 +277,12 @@ fn veritas_models() -> Result<Vec<VeritasModel>, String> {
         .enable_all()
         .build()
         .map_err(|error| format!("Could not start Veritas: {error}"))?;
+    veritas_models_with_runtime(&runtime)
+}
+
+fn veritas_models_with_runtime(
+    runtime: &tokio::runtime::Runtime,
+) -> Result<Vec<VeritasModel>, String> {
     let models = runtime
         .block_on(Ollama::default().list_local_models())
         .map_err(|error| {
@@ -300,14 +312,22 @@ fn generate_veritas_response(body: &[u8]) -> Result<String, (String, String)> {
     if model.is_empty() || model.len() > 200 {
         return Err(("400 Bad Request".into(), "Choose a valid model in Settings → Veritas.".into()));
     }
-    if prompt.is_empty() || prompt.len() > 20_000 {
+    if prompt.is_empty() || prompt.chars().count() > 20_000 {
         return Err(("400 Bad Request".into(), "Enter a prompt no longer than 20,000 characters.".into()));
     }
-    if request.context.len() > 100_000 {
+    if request.context.chars().count() > 100_000 {
         return Err(("400 Bad Request".into(), "The selected writing context is too large (maximum 100,000 characters).".into()));
     }
+    if !matches!(request.view.as_str(), "write" | "metrics" | "characters" | "web") {
+        return Err(("400 Bad Request".into(), "Choose a supported Veritas view.".into()));
+    }
 
-    let models = veritas_models().map_err(|error| ("503 Service Unavailable".into(), error))?;
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .map_err(|error| ("500 Internal Server Error".into(), format!("Could not start Veritas: {error}")))?;
+    let models = veritas_models_with_runtime(&runtime)
+        .map_err(|error| ("503 Service Unavailable".into(), error))?;
     if !models.iter().any(|available| available.name == model) {
         return Err((
             "422 Unprocessable Entity".into(),
@@ -315,12 +335,8 @@ fn generate_veritas_response(body: &[u8]) -> Result<String, (String, String)> {
         ));
     }
 
-    let runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .map_err(|error| ("500 Internal Server Error".into(), format!("Could not start Veritas: {error}")))?;
     runtime
-        .block_on(Veritas::new(model).generate_story_text(prompt, &request.context))
+        .block_on(Veritas::new(model).generate_response(prompt, &request.context, &request.view))
         .map_err(|error| {
             let detail = ollama_error_detail(error.as_ref());
             let message = if detail.to_lowercase().contains("credits") || detail.to_lowercase().contains("subscribe") {

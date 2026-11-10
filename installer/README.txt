@@ -1,4 +1,4 @@
-Loomwright 1.0.6.3
+Loomwright 1.6.0.4
 ==============
 
 A writing desk for books, characters and story threads. This build ships the
@@ -19,8 +19,12 @@ Getting started
 4. Format text with the Writing toolbar, or use a small Markdown subset:
    **bold**, *italic*, # heading, > quote, - bullet.
 5. To use Veritas, install Ollama and a model, then enable Veritas in
-   Settings > Veritas. Saved chat history and memory notes are specific to the
-   active chapter. Veritas never edits the manuscript unless you insert a reply.
+   Settings > Veritas. Chapter chat history and chapter memory remain specific
+   to the active chapter. Story memory is shared across the project, and the
+   Write sidebar lets you link up to five chapters for continuity context.
+   Metrics, Characters and Story Web have separate project conversations with
+   optional view context. Veritas never edits the manuscript unless you insert
+   a reply.
 
 Where your work is stored
 -------------------------
@@ -51,4 +55,4 @@ Ctrl+N        New chapter
 Ctrl+Shift+Z  Focus mode
 Esc           Leave focus mode / close a dialog
 
-Version 1.0.6.3 - built for Windows 10 and 11 (x64)
+Version 1.6.0.4 - built for Windows 10 and 11 (x64)

@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (for example v1.0.6.3)'
+        description: 'Release tag (for example v1.6.0.4)'
         required: false
-        default: 'v1.0.6.3'
+        default: 'v1.6.0.4'
 
 permissions:
   contents: write
@@ -28,8 +28,8 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Test chapter import splitting
-        run: node --test loomwright-window/web/chapter-splitting.test.mjs
+      - name: Test frontend helpers
+        run: node --test loomwright-window/web/*.test.mjs
 
       - name: Set release version
         id: release-version
@@ -42,12 +42,12 @@ jobs:
           } elseif ($env:GITHUB_REF -like 'refs/tags/*') {
             $tag = $env:GITHUB_REF_NAME
           } else {
-            $tag = 'v1.0.6.3'
+            $tag = 'v1.6.0.4'
           }
 
           $version = $tag -replace '^v', ''
           if ($version -notmatch '^\d+\.\d+\.\d+\.\d+(\.\d+)?$') {
-            throw "Release tag must contain four or five numeric version parts, for example v1.0.6.3."
+            throw "Release tag must contain four or five numeric version parts, for example v1.6.0.4."
           }
 
           "version=$version" >> $env:GITHUB_OUTPUT
@@ -81,6 +81,36 @@ jobs:
         run: |
           .\tools\build-installers.ps1 -Version $env:RELEASE_VERSION
 
+      - name: Smoke-test both installers
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exeInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.exe"
+          $msiInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.msi"
+          $exeInstall = Join-Path $env:RUNNER_TEMP "loomwright-nsis-smoke"
+          $msiInstall = Join-Path $env:RUNNER_TEMP "loomwright-msi-smoke"
+
+          $install = Start-Process -FilePath $exeInstaller -ArgumentList @('/S', "/D=$exeInstall") -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "NSIS installation failed with exit code $($install.ExitCode)." }
+          $exe = Join-Path $exeInstall 'loomwright.exe'
+          if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:RELEASE_VERSION) {
+            throw "NSIS installation did not produce the expected Loomwright executable."
+          }
+          $uninstall = Start-Process -FilePath (Join-Path $exeInstall 'Uninstall.exe') -ArgumentList '/S' -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0 -or (Test-Path $exe)) { throw "NSIS uninstallation failed." }
+
+          $install = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/i', "`"$msiInstaller`"", "INSTALLFOLDER=`"$msiInstall`"", '/qn', '/norestart') -Wait -PassThru
+          if ($install.ExitCode -notin @(0, 3010)) { throw "MSI installation failed with exit code $($install.ExitCode)." }
+          $exe = Join-Path $msiInstall 'loomwright.exe'
+          if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:RELEASE_VERSION) {
+            throw "MSI installation did not produce the expected Loomwright executable."
+          }
+          $uninstall = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/x', "`"$msiInstaller`"", '/qn', '/norestart') -Wait -PassThru
+          if ($uninstall.ExitCode -notin @(0, 3010)) { throw "MSI uninstallation failed with exit code $($uninstall.ExitCode)." }
+          if (Test-Path $exe) { throw "MSI uninstallation did not remove the Loomwright executable." }
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -113,7 +143,9 @@ jobs:
             - **SHA-256 checksums:** [checksums.txt](https://github.com/${{ github.repository }}/releases/download/${{ steps.release-version.outputs.tag }}/checksums.txt)
 
             ### Highlights
-            - Veritas chat integrates with Ollama and keeps chapter-specific chat history and saved memory.
+            - Veritas now has project-wide story memory while preserving chapter-specific memory and chat history.
+            - Explicit links let Veritas compare text and continuity across up to five chapters.
+            - Metrics, Characters, and Story Web keep separate project-scoped conversations.
             - Ignores contents-page entries and preliminary pages when splitting imported manuscripts into chapters.
             - Starts with an empty project library and no sample chapters.
             - Offers first-use guides for Projects, Writing, Metrics, Characters, Story Web, and Finalise.
