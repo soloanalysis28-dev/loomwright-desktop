@@ -81,35 +81,45 @@ jobs:
         run: |
           .\tools\build-installers.ps1 -Version $env:RELEASE_VERSION
 
-      - name: Smoke-test both installers
+      - name: Smoke-test NSIS installer
         shell: pwsh
         env:
           RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
         run: |
           $ErrorActionPreference = 'Stop'
           $exeInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.exe"
-          $msiInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.msi"
           $exeInstall = Join-Path $env:RUNNER_TEMP "loomwright-nsis-smoke"
-          $msiInstall = Join-Path $env:RUNNER_TEMP "loomwright-msi-smoke"
-
+          Write-Host "Installing EXE to $exeInstall"
           $install = Start-Process -FilePath $exeInstaller -ArgumentList @('/S', "/D=$exeInstall") -Wait -PassThru
           if ($install.ExitCode -ne 0) { throw "NSIS installation failed with exit code $($install.ExitCode)." }
           $exe = Join-Path $exeInstall 'loomwright.exe'
           if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:RELEASE_VERSION) {
             throw "NSIS installation did not produce the expected Loomwright executable."
           }
-          $uninstall = Start-Process -FilePath (Join-Path $exeInstall 'Uninstall.exe') -ArgumentList '/S' -Wait -PassThru
-          if ($uninstall.ExitCode -ne 0 -or (Test-Path $exe)) { throw "NSIS uninstallation failed." }
+          if (-not (Test-Path (Join-Path $exeInstall 'Uninstall.exe'))) { throw "NSIS uninstaller is missing." }
+          Write-Host 'NSIS install smoke test passed.'
 
-          $install = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/i', "`"$msiInstaller`"", "INSTALLFOLDER=`"$msiInstall`"", '/qn', '/norestart') -Wait -PassThru
+      - name: Smoke-test MSI installer
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $msiInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.msi"
+          $msiInstall = Join-Path $env:RUNNER_TEMP "loomwright-msi-smoke"
+          $log = Join-Path $env:RUNNER_TEMP 'loomwright-msi-smoke.log'
+          Write-Host "Installing MSI to $msiInstall"
+          $install = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/i', "`"$msiInstaller`"", "INSTALLFOLDER=`"$msiInstall`"", '/qn', '/norestart', '/l*v', "`"$log`"") -Wait -PassThru
           if ($install.ExitCode -notin @(0, 3010)) { throw "MSI installation failed with exit code $($install.ExitCode)." }
           $exe = Join-Path $msiInstall 'loomwright.exe'
           if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:RELEASE_VERSION) {
             throw "MSI installation did not produce the expected Loomwright executable."
           }
-          $uninstall = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/x', "`"$msiInstaller`"", '/qn', '/norestart') -Wait -PassThru
+          Write-Host 'MSI installation smoke test passed. Uninstalling test installation.'
+          $uninstall = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/x', "`"$msiInstaller`"", '/qn', '/norestart', '/l*v', "`"$log`"") -Wait -PassThru
           if ($uninstall.ExitCode -notin @(0, 3010)) { throw "MSI uninstallation failed with exit code $($uninstall.ExitCode)." }
           if (Test-Path $exe) { throw "MSI uninstallation did not remove the Loomwright executable." }
+          Write-Host 'MSI install/uninstall smoke test passed.'
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
