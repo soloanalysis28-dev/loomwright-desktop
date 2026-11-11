@@ -21,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -106,24 +106,27 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $msiInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.msi"
-          $msiInstall = Join-Path $env:RUNNER_TEMP "loomwright-msi-smoke"
-          $log = Join-Path $env:RUNNER_TEMP 'loomwright-msi-smoke.log'
+          $msiInstall = Join-Path $env:LOCALAPPDATA 'Programs\Loomwright'
+          $installLog = Join-Path $env:RUNNER_TEMP 'loomwright-msi-install.log'
+          $uninstallLog = Join-Path $env:RUNNER_TEMP 'loomwright-msi-uninstall.log'
           function Write-MsiDiagnostics {
-            if (Test-Path $log) {
-              $tail = Get-Content $log -Tail 100
-              Write-Host 'Last 100 lines of the Windows Installer log:'
-              $tail | ForEach-Object { Write-Host $_ }
-              @(
-                '### MSI installer diagnostic log (last 100 lines)'
-                '```text'
-                $tail
-                '```'
-              ) | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+            foreach ($logPath in @($installLog, $uninstallLog)) {
+              if (Test-Path $logPath) {
+                $tail = Get-Content $logPath -Tail 100
+                Write-Host "Last 100 lines of $logPath"
+                $tail | ForEach-Object { Write-Host $_ }
+                @(
+                  "### $([System.IO.Path]::GetFileName($logPath)) (last 100 lines)"
+                  '```text'
+                  $tail
+                  '```'
+                ) | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+              }
             }
           }
 
           Write-Host "Installing MSI to $msiInstall"
-          $install = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/i', "`"$msiInstaller`"", "INSTALLFOLDER=`"$msiInstall`"", '/qn', '/norestart', '/l*v', "`"$log`"") -Wait -PassThru
+          $install = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/i', "`"$msiInstaller`"", '/qn', '/norestart', '/l*v', "`"$installLog`"") -Wait -PassThru
           if ($install.ExitCode -notin @(0, 3010)) {
             Write-MsiDiagnostics
             throw "MSI installation failed with exit code $($install.ExitCode)."
@@ -134,7 +137,7 @@ jobs:
             throw "MSI installation did not produce the expected Loomwright executable."
           }
           Write-Host 'MSI installation smoke test passed. Uninstalling test installation.'
-          $uninstall = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/x', "`"$msiInstaller`"", '/qn', '/norestart', '/l*v', "`"$log`"") -Wait -PassThru
+          $uninstall = Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/x', "`"$msiInstaller`"", '/qn', '/norestart', '/l*v', "`"$uninstallLog`"") -Wait -PassThru
           if ($uninstall.ExitCode -notin @(0, 3010)) {
             Write-MsiDiagnostics
             throw "MSI uninstallation failed with exit code $($uninstall.ExitCode)."
@@ -147,14 +150,14 @@ jobs:
 
       - name: Upload MSI smoke-test log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Loomwright-MSI-Smoke-Test-Log-${{ github.run_id }}
-          path: ${{ runner.temp }}/loomwright-msi-smoke.log
+          path: ${{ runner.temp }}/loomwright-msi-*.log
           if-no-files-found: ignore
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Loomwright-Windows-Installers-${{ steps.release-version.outputs.version }}
           path: |
