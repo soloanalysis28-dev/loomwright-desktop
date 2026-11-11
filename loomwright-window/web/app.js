@@ -6,13 +6,13 @@ import { WRITING_DEFAULTS, BUNDLED_FONTS, normalizeWritingSettings } from './wri
 import { smartenInput } from './smart-typography.mjs';
 import { recognizeCharacters, getCharacterRecognitionConfig, SENSITIVITY_THRESHOLDS } from './character-recognition.mjs';
 import { splitDocumentHtml } from './chapter-splitting.mjs';
-import { attachVeritasReferenceSections, buildVeritasPrompt, getVeritasViewConversation, normalizeVeritasConversation, serializeVeritasViewContext, VERITAS_MAX_LINKED_CHAPTERS } from './veritas-chat.mjs';
+import { attachVeritasReferenceSections, buildVeritasPrompt, buildVeritasStoryGraph, getVeritasViewConversation, normalizeVeritasConversation, serializeVeritasViewContext, VERITAS_MAX_LINKED_CHAPTERS } from './veritas-chat.mjs';
 const mammoth=window.mammoth;
 window.pdfjsLib=pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/build/pdf.worker.min.mjs',import.meta.url).href;
 const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
-const APP_VERSION='1.6.0.4.5';
+const APP_VERSION='1.6.0.4.6';
 const PROJECT_RECORD_VERSION=3;
 const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[],veritasViewConversations:{metrics:[],characters:[],web:[]},veritasCentralMemories:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';
@@ -1926,10 +1926,11 @@ function buildVeritasContext(view){
     return serializeVeritasViewContext(view,{projectName,characters});
   }
   if(view==='web'){
-    const characters=characterRows().map(row=>({name:row.name,mentions:row.data.count,chapters:row.chapters.filter(item=>item.count>0).map(item=>item.chapter.title||'Untitled')}));
+    const characters=characterRows().map(row=>({name:row.name,mentions:row.data.count,chapters:row.chapters.filter(item=>item.count>0).map(item=>({id:item.chapter.id,title:item.chapter.title||'Untitled',mentions:item.count}))}));
+    const chapters=state.sections.map(item=>({id:item.id,title:item.title||'Untitled',words:wc(item.html||'')}));
     const customNodes=(state.webNodes||[]).map(node=>({id:node.id,type:node.type,label:node.label}));
-    const links=(state.webLinks||[]).map(link=>({from:link.from,to:link.to}));
-    return serializeVeritasViewContext(view,{projectName,graph:{chapters:state.sections.map(item=>({id:item.id,title:item.title||'Untitled',words:wc(item.html||'')})),characters,customNodes,links}});
+    const graph=buildVeritasStoryGraph(projectName,chapters,characters,customNodes,state.webLinks);
+    return serializeVeritasViewContext(view,{projectName,graph});
   }
   return '';
 }

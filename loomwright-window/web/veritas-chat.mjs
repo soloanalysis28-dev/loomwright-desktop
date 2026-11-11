@@ -21,6 +21,59 @@ export function getVeritasViewConversation(projectState, view) {
   return conversations[view];
 }
 
+export function buildVeritasStoryGraph(projectName, chapters, characters, customNodes, manualLinks) {
+  const chapterNodes = Array.isArray(chapters) ? chapters : [];
+  const characterNodes = Array.isArray(characters) ? characters : [];
+  const extraNodes = Array.isArray(customNodes) ? customNodes : [];
+  const links = Array.isArray(manualLinks) ? manualLinks : [];
+  const nodeIds = new Set([
+    'story-root',
+    ...chapterNodes.map(chapter => `chapter:${chapter.id}`),
+    ...characterNodes.map(character => `character:${character.name}`),
+    ...extraNodes.map(node => `custom:${node.id}`)
+  ]);
+
+  return {
+    nodes: [
+      { id: 'story-root', type: 'story', label: projectName || 'Untitled project' },
+      ...chapterNodes.map(chapter => ({
+        id: `chapter:${chapter.id}`,
+        type: 'chapter',
+        label: chapter.title || 'Untitled chapter',
+        words: chapter.words
+      })),
+      ...characterNodes.map(character => ({
+        id: `character:${character.name}`,
+        type: 'character',
+        label: character.name,
+        mentions: character.mentions
+      })),
+      ...extraNodes.map(node => ({
+        id: `custom:${node.id}`,
+        type: node.type,
+        label: node.label
+      }))
+    ],
+    links: [
+      ...chapterNodes.map(chapter => ({ from: 'story-root', to: `chapter:${chapter.id}` })),
+      ...characterNodes.flatMap(character =>
+        (Array.isArray(character.chapters) ? character.chapters : [])
+          .filter(chapter => chapter && chapter.mentions > 0)
+          .map(chapter => ({ from: `chapter:${chapter.id}`, to: `character:${character.name}` }))
+      ),
+      ...links
+        .filter(link =>
+          link &&
+          typeof link.from === 'string' &&
+          typeof link.to === 'string' &&
+          nodeIds.has(link.from) &&
+          nodeIds.has(link.to)
+        )
+        .map(link => ({ from: link.from, to: link.to }))
+    ]
+  };
+}
+
 export function buildVeritasPrompt(conversation) {
   const history = conversation
     .slice(-8)

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?ifndef Version?>
-    <?define Version = "1.12.4005"?>
+    <?define Version = "1.12.4006"?>
   <?endif?>
   <?ifndef DisplayVersion?>
-    <?define DisplayVersion = "1.6.0.4.5"?>
+    <?define DisplayVersion = "1.6.0.4.6"?>
   <?endif?>
 
   <Product Id="*"

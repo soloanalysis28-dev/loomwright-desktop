@@ -5,7 +5,7 @@ fn main() {
     #[cfg(windows)]
     {
         let display_version = std::env::var("LOOMWRIGHT_DISPLAY_VERSION")
-            .unwrap_or_else(|_| "1.6.0.4.5".to_string());
+            .unwrap_or_else(|_| "1.6.0.4.6".to_string());
         let file_version = windows_file_version(&display_version);
         let mut resource = winres::WindowsResource::new();
         resource.set_icon("../installer/app.ico");

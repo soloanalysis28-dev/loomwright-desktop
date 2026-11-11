@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   attachChapterMemories,
   attachVeritasReferenceSections,
+  buildVeritasStoryGraph,
   buildVeritasPrompt,
   getVeritasViewConversation,
   normalizeVeritasConversation,
@@ -58,6 +59,26 @@ test('serializes story web nodes, character appearances, and links', () => {
   assert.match(context, /"Brass key"/);
   assert.match(context, /"from": "mara"/);
   assert.match(context, /"name": "Mara"/);
+});
+
+test('builds complete Story Web context with rendered and manual links', () => {
+  const graph = buildVeritasStoryGraph(
+    'The Glass Orchard',
+    [{ id: 'chapter-1', title: 'The Conservatory', words: 1200 }],
+    [{ name: 'Mara', mentions: 4, chapters: [{ id: 'chapter-1', mentions: 4 }] }],
+    [{ id: 'key', type: 'object', label: 'Brass key' }],
+    [{ from: 'character:Mara', to: 'custom:key' }]
+  );
+  const context = serializeVeritasViewContext('web', {
+    projectName: 'The Glass Orchard',
+    graph
+  });
+
+  assert.match(context, /"id": "character:Mara"/);
+  assert.match(context, /"label": "Brass key"/);
+  assert.match(context, /"from": "story-root",\s+"to": "chapter:chapter-1"/);
+  assert.match(context, /"from": "chapter:chapter-1",\s+"to": "character:Mara"/);
+  assert.match(context, /"from": "character:Mara",\s+"to": "custom:key"/);
 });
 
 test('keeps Veritas instructions while limiting long chat history', () => {
