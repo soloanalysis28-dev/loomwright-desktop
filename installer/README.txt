@@ -1,4 +1,4 @@
-Loomwright 1.6.0.4
+Loomwright 1.6.0.4.5
 ==============
 
 A writing desk for books, characters and story threads. This build ships the
@@ -55,4 +55,4 @@ Ctrl+N        New chapter
 Ctrl+Shift+Z  Focus mode
 Esc           Leave focus mode / close a dialog
 
-Version 1.6.0.4 - built for Windows 10 and 11 (x64)
+Version 1.6.0.4.5 - built for Windows 10 and 11 (x64)

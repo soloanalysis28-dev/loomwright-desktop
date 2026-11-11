@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (for example v1.6.0.4)'
+        description: 'Release tag (for example v1.6.0.4.5)'
         required: false
-        default: 'v1.6.0.4'
+        default: 'v1.6.0.4.5'
 
 permissions:
   contents: write
@@ -44,15 +44,19 @@ jobs:
           } elseif ($env:GITHUB_REF -like 'refs/tags/*') {
             $tag = $env:GITHUB_REF_NAME
           } else {
-            $tag = 'v1.6.0.4'
+            $tag = 'v1.6.0.4.5'
           }
 
           $version = $tag -replace '^v', ''
           if ($version -notmatch '^\d+\.\d+\.\d+\.\d+(\.\d+)?$') {
-            throw "Release tag must contain four or five numeric version parts, for example v1.6.0.4."
+            throw "Release tag must contain four or five numeric version parts, for example v1.6.0.4.5."
           }
 
+          $parts = $version.Split('.')
+          $fileRevision = if ($parts.Count -eq 5) { ([int]$parts[3] * 1000) + [int]$parts[4] } else { [int]$parts[3] }
+          $fileVersion = "$($parts[0]).$($parts[1]).$($parts[2]).$fileRevision"
           "version=$version" >> $env:GITHUB_OUTPUT
+          "file_version=$fileVersion" >> $env:GITHUB_OUTPUT
           "tag=$tag" >> $env:GITHUB_OUTPUT
 
       - name: Set up Rust
@@ -87,6 +91,7 @@ jobs:
         shell: pwsh
         env:
           RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+          FILE_VERSION: ${{ steps.release-version.outputs.file_version }}
         run: |
           $ErrorActionPreference = 'Stop'
           $exeInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.exe"
@@ -95,7 +100,7 @@ jobs:
           $install = Start-Process -FilePath $exeInstaller -ArgumentList @('/S', "/D=$exeInstall") -Wait -PassThru
           if ($install.ExitCode -ne 0) { throw "NSIS installation failed with exit code $($install.ExitCode)." }
           $exe = Join-Path $exeInstall 'loomwright.exe'
-          if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:RELEASE_VERSION) {
+          if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:FILE_VERSION) {
             throw "NSIS installation did not produce the expected Loomwright executable."
           }
           if (-not (Test-Path (Join-Path $exeInstall 'Uninstall.exe'))) { throw "NSIS uninstaller is missing." }
@@ -105,6 +110,7 @@ jobs:
         shell: pwsh
         env:
           RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+          FILE_VERSION: ${{ steps.release-version.outputs.file_version }}
         run: |
           $ErrorActionPreference = 'Stop'
           $msiInstaller = Join-Path $env:GITHUB_WORKSPACE "installer\Loomwright-Setup-$env:RELEASE_VERSION.msi"
@@ -134,7 +140,7 @@ jobs:
             throw "MSI installation failed with exit code $($install.ExitCode)."
           }
           $exe = Join-Path $msiInstall 'loomwright.exe'
-          if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:RELEASE_VERSION) {
+          if (-not (Test-Path $exe) -or (Get-Item $exe).VersionInfo.ProductVersion -ne $env:FILE_VERSION) {
             Write-MsiDiagnostics
             throw "MSI installation did not produce the expected Loomwright executable."
           }

@@ -138,6 +138,7 @@ body.nav-side-mounted .app-nav .nav-meta .stats{text-align:center;font-size:.68r
 @media(max-width:899px){body.nav-side-mounted .app-nav{left:8px;width:52px;padding:10px 5px;border-radius:16px}body.nav-side-mounted .app-nav .tab{padding:10px 6px;justify-content:center;border-left-width:0;font-size:0}body.nav-side-mounted .app-nav .tab svg{margin:0}body.nav-side-mounted .app-nav .tab.active{border-left-width:0;background:color-mix(in srgb,var(--accent) 22%,transparent)}body.nav-side-mounted .app-nav .nav-meta{display:none}body.nav-side-mounted .app-shell{padding-left:64px;box-sizing:border-box}}
 body.writer-focus.nav-side-mounted .app-shell{padding-left:0}
 main{padding:24px 28px 44px}
+main.has-veritas-sidebar{display:grid;grid-template-columns:minmax(0,1fr) 340px;align-items:start;gap:14px}
 .view{display:none;animation:view-in .22s var(--ease-out) both}
 .view.active{display:block}
 @keyframes view-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
@@ -470,8 +471,7 @@ body.writer-focus.focus-hide-footer .writer-statusbar,body.writer-focus.focus-hi
 .writer-back{flex:none;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font:600 .78rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;margin-left:auto}
 /* Keep old selector working for any legacy refs */
 .writer-command-bar select{min-width:160px;max-width:min(38vw,340px);padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);font: .82rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.writer-main-area{display:grid;grid-template-columns:minmax(0,1fr) 340px;align-items:start;gap:14px}
-.writer-main-area:not(.has-veritas-sidebar){grid-template-columns:minmax(0,1fr)}
+.writer-main-area{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:14px}
 .writer-main-area #editor-wrap{min-width:0}
 .veritas-sidebar{position:sticky;top:62px;display:flex;flex-direction:column;min-width:0;height:calc(100vh - 260px);min-height:0;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--panel);box-shadow:0 10px 32px #00000012;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .veritas-sidebar[hidden]{display:none}
@@ -500,7 +500,7 @@ body.writer-focus.focus-hide-footer .writer-statusbar,body.writer-focus.focus-hi
 .veritas-sidebar .veritas-compose-row{gap:6px;padding:7px}
 .veritas-sidebar .veritas-send{min-width:62px;padding:9px}
 .veritas-sidebar-toggle[aria-expanded="true"]{border-color:color-mix(in srgb,var(--accent2) 60%,var(--line));box-shadow:0 0 0 2px color-mix(in srgb,var(--accent2) 16%,transparent)}
-@media(max-width:980px){.writer-main-area{grid-template-columns:minmax(0,1fr)}.veritas-sidebar{position:relative;top:auto;width:100%;height:min(64vh,640px);min-height:380px}}
+@media(max-width:980px){main.has-veritas-sidebar{grid-template-columns:minmax(0,1fr)}.veritas-sidebar{position:relative;top:auto;width:100%;height:min(64vh,640px);min-height:380px}}
 body.nav-side-mounted .veritas-sidebar{top:10px}
 /* Sticky title + toolbar header inside the editor */
 .writer-sticky-header{position:sticky;top:0;z-index:12;background:var(--panel);padding-bottom:4px;margin-bottom:0}
@@ -762,7 +762,7 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
               </details>
               <div class="veritas-messages" id="veritas-sidebar-messages" aria-live="polite"><div class="veritas-welcome"><h3>Make room for a new idea.</h3><p>Ask for a scene, explore a character, or talk through a story problem. Veritas won’t change your manuscript unless you choose to insert a reply.</p></div></div>
               <form class="veritas-compose" id="veritas-sidebar-form">
-                <label class="veritas-context"><input id="veritas-sidebar-include-context" type="checkbox"> Include this chapter as context</label>
+                <label class="veritas-context"><input id="veritas-sidebar-include-context" type="checkbox"><span>Include this view as context</span></label>
                 <div class="veritas-compose-row"><textarea id="veritas-sidebar-prompt" rows="2" maxlength="20000" placeholder="What would you like help with?" aria-label="Message Veritas" required></textarea><button class="veritas-send" id="veritas-sidebar-send" type="submit">Send</button></div>
               </form>
             </aside>
@@ -1229,17 +1229,6 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
 <div class="writer-statusbar" id="writer-statusbar" aria-label="Writing status and shortcuts" hidden>
   <div class="writer-status-info" aria-live="polite"><span id="writer-status-section">Chapter 1 of 1</span><span id="writer-status-words">0 words</span><span id="writer-status-total">0 words total</span><span id="writer-unsaved-indicator" class="unsaved-badge" hidden>● Unsaved changes</span><span id="writer-daily-goal-indicator" class="daily-goal-badge" hidden>Goal: 0 / 500w</span></div>
   <div class="writer-status-actions"><button class="writer-status-action" id="writer-focus-toggle" type="button" aria-pressed="false" title="Toggle focus mode">Focus</button><button class="writer-status-action" id="writer-status-save" type="button" title="Save (Ctrl/Cmd+S)">Save</button></div>
-</div>
-<div class="veritas-backdrop" id="veritas-dialog" hidden>
-  <section class="veritas-dialog" role="dialog" aria-modal="true" aria-labelledby="veritas-title">
-    <header class="veritas-header"><span class="veritas-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 14 9l6 3-6 2-2 7-2-7-6-2 6-3z"/><path d="m19 3 .7 2.3L22 6l-2.3.7L19 9l-.7-2.3L16 6l2.3-.7z"/></svg></span><div class="veritas-heading"><h2 id="veritas-title">Veritas</h2><p>Your writing companion</p></div><button class="veritas-close" id="veritas-close" type="button" aria-label="Close Veritas">×</button></header>
-    <div class="veritas-status" id="veritas-chat-status" role="status" aria-live="polite">Checking Ollama connection…</div>
-    <div class="veritas-messages" id="veritas-messages" aria-live="polite"><div class="veritas-welcome"><h3>Make room for a new idea.</h3><p>Ask for a scene, explore a character, or talk through a story problem. Veritas won’t change your manuscript unless you choose to insert a reply.</p></div></div>
-    <form class="veritas-compose" id="veritas-form">
-      <label class="veritas-context"><input id="veritas-include-context" type="checkbox"> Include this view as context</label>
-      <div class="veritas-compose-row"><textarea id="veritas-prompt" rows="2" maxlength="20000" placeholder="What would you like help with?" aria-label="Message Veritas" required></textarea><button class="veritas-send" id="veritas-send" type="submit">Send</button></div>
-    </form>
-  </section>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="confirm-backdrop" id="confirm-dialog" hidden>

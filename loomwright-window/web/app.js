@@ -12,7 +12,7 @@ window.pdfjsLib=pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/build/pdf.worker.min.mjs',import.meta.url).href;
 const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
-const APP_VERSION='1.6.0.4';
+const APP_VERSION='1.6.0.4.5';
 const PROJECT_RECORD_VERSION=3;
 const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[],veritasViewConversations:{metrics:[],characters:[],web:[]},veritasCentralMemories:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';
@@ -573,10 +573,11 @@ function applyTheme(){
   const veritasOfflineToggle=document.getElementById('veritas-offline-only-toggle');
   if(veritasOfflineToggle)veritasOfflineToggle.setAttribute('aria-checked',String(appSettings.veritasOfflineOnly));
   document.querySelectorAll('[data-veritas-open]').forEach(button=>{button.hidden=!appSettings.veritasEnabled});
-  const veritasSidebar=document.getElementById('veritas-sidebar'),veritasSidebarToggle=document.getElementById('veritas-sidebar-toggle'),veritasSidebarOpen=appSettings.veritasEnabled&&appSettings.veritasSidebarOpen;
+  const activeView=document.querySelector('.view.active')?.id.slice(5),veritasViewAvailable=['write','metrics','characters','web'].includes(activeView);
+  const veritasSidebar=document.getElementById('veritas-sidebar'),veritasSidebarToggle=document.getElementById('veritas-sidebar-toggle'),veritasSidebarOpen=appSettings.veritasEnabled&&appSettings.veritasSidebarOpen&&veritasViewAvailable;
   if(veritasSidebar)veritasSidebar.hidden=!veritasSidebarOpen;
+  document.querySelector('main')?.classList.toggle('has-veritas-sidebar',veritasSidebarOpen);
   if(veritasSidebarToggle){veritasSidebarToggle.hidden=!appSettings.veritasEnabled;veritasSidebarToggle.setAttribute('aria-expanded',String(veritasSidebarOpen));veritasSidebarToggle.textContent=veritasSidebarOpen?'✦ Veritas · Hide':'✦ Veritas'}
-  document.querySelector('.writer-main-area')?.classList.toggle('has-veritas-sidebar',veritasSidebarOpen);
   const navSegmented = document.getElementById('nav-position-segmented');
   if (navSegmented) {
     navSegmented.querySelectorAll('.segmented-item').forEach(btn => {
@@ -811,9 +812,11 @@ function updateWriterStatus(){
 
 function switchView(name){
   flushWriterSave();
+  if(['write','metrics','characters','web'].includes(name))veritasContextView=name;
   if(name!=='write'){document.body.classList.remove('writer-focus');document.getElementById('writer-statusbar').hidden=true}
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));
+  applyTheme();
   renderFeatureGuide(name);
   try {
     if(name==='home')renderHome();
@@ -823,7 +826,7 @@ function switchView(name){
     if(name==='characters')renderCharacters();
     if(name==='web'){webViewport.initialized=false;renderWeb()}
     if(name==='finalise')renderFinalise();
-    if(name==='settings')applyTheme();
+    if(['write','metrics','characters','web'].includes(name)&&appSettings.veritasEnabled&&appSettings.veritasSidebarOpen)renderVeritasConversation();
   } catch (err) {
     console.error(`Error opening view "${name}":`, err);
   }
@@ -1878,9 +1881,11 @@ function addVeritasInsertAction(bubble,text){
 }
 function renderVeritasConversation(){
   renderChapterLinks();renderVeritasStoryMemory();
-  renderVeritasMessages(document.getElementById('veritas-sidebar-messages'),veritasConversation,Boolean(activeVeritasSection()));
-  const dialogView=veritasContextView;
-  renderVeritasMessages(document.getElementById('veritas-messages'),veritasConversationForView(dialogView),dialogView==='write'&&Boolean(activeVeritasSection()));
+  const isWriteView=veritasContextView==='write';
+  document.getElementById('veritas-chapter-link-panel').hidden=!isWriteView;
+  document.getElementById('veritas-memory').hidden=!isWriteView;
+  document.querySelector('#veritas-sidebar-form .veritas-context span').textContent=isWriteView?'Include this chapter as context':'Include this view as context';
+  renderVeritasMessages(document.getElementById('veritas-sidebar-messages'),veritasConversationForView(veritasContextView),isWriteView&&Boolean(activeVeritasSection()));
 }
 function buildVeritasRequestContext(view,chapter,selectedContext){
   const linkedChapters=(chapter?.veritasLinkedChapterIds||[])
@@ -1894,7 +1899,6 @@ function buildVeritasRequestContext(view,chapter,selectedContext){
   });
 }
 function setVeritasChatStatus(message,state=''){
-  setVeritasStatus(document.getElementById('veritas-chat-status'),message,state);
   setVeritasStatus(document.getElementById('veritas-sidebar-status'),message,state);
 }
 function insertVeritasReply(text){
@@ -1930,7 +1934,8 @@ function buildVeritasContext(view){
   return '';
 }
 function setupVeritas(){
-  const toggle=document.getElementById('veritas-enabled-toggle'),offlineToggle=document.getElementById('veritas-offline-only-toggle'),dialog=document.getElementById('veritas-dialog'),sidebarToggle=document.getElementById('veritas-sidebar-toggle'),sidebarClose=document.getElementById('veritas-sidebar-close');
+  const toggle=document.getElementById('veritas-enabled-toggle'),offlineToggle=document.getElementById('veritas-offline-only-toggle'),sidebar=document.getElementById('veritas-sidebar'),sidebarToggle=document.getElementById('veritas-sidebar-toggle'),sidebarClose=document.getElementById('veritas-sidebar-close');
+  document.querySelector('main').appendChild(sidebar);
   let lastLauncher=null;
   const memoryForm=document.getElementById('veritas-memory-form'),memoryInput=document.getElementById('veritas-memory-input'),memoryList=document.getElementById('veritas-memory-list');
   memoryForm.addEventListener('submit',event=>{event.preventDefault();if(saveVeritasMemory(memoryInput.value))memoryInput.value=''});
@@ -1956,7 +1961,7 @@ function setupVeritas(){
   toggle.addEventListener('click',()=>{updateAppSetting('veritasEnabled',!appSettings.veritasEnabled);toggle.setAttribute('aria-checked',String(appSettings.veritasEnabled));toast(appSettings.veritasEnabled?'Veritas enabled in the writing desk.':'Veritas disabled.')});
   const toggleSidebar=()=>{updateAppSetting('veritasSidebarOpen',!appSettings.veritasSidebarOpen);if(appSettings.veritasSidebarOpen)renderVeritasConversation()};
   sidebarToggle.addEventListener('click',toggleSidebar);
-  sidebarClose.addEventListener('click',()=>{toggleSidebar();sidebarToggle.focus()});
+  sidebarClose.addEventListener('click',()=>{updateAppSetting('veritasSidebarOpen',false);if(lastLauncher?.isConnected&&!lastLauncher.hidden)lastLauncher.focus();else if(!sidebarToggle.hidden)sidebarToggle.focus()});
   offlineToggle.addEventListener('click',()=>{
     updateAppSetting('veritasOfflineOnly',!appSettings.veritasOfflineOnly);
     offlineToggle.setAttribute('aria-checked',String(appSettings.veritasOfflineOnly));
@@ -1975,12 +1980,9 @@ function setupVeritas(){
     lastLauncher=button;
     veritasContextView=button.dataset.veritasOpen||'write';
     if(veritasContextView==='write')loadChapterVeritasSession();
-    renderVeritasConversation();dialog.hidden=false;document.getElementById('veritas-prompt').focus();await refreshVeritasStatus();
+    updateAppSetting('veritasSidebarOpen',true);
+    renderVeritasConversation();document.getElementById('veritas-sidebar-prompt').focus();await refreshVeritasStatus();
   }));
-  const close=()=>{dialog.hidden=true;if(lastLauncher?.isConnected&&!lastLauncher.hidden)lastLauncher.focus()};
-  document.getElementById('veritas-close').addEventListener('click',close);
-  dialog.addEventListener('click',event=>{if(event.target===dialog)close()});
-  document.addEventListener('keydown',event=>{if(!dialog.hidden&&event.key==='Escape')close()});
   const setupComposer=(formId,promptId,sendId,messagesId,contextId,view)=>{
     const form=document.getElementById(formId),promptInput=document.getElementById(promptId),send=document.getElementById(sendId),messages=document.getElementById(messagesId),contextCheckbox=document.getElementById(contextId);
     promptInput.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();form.requestSubmit()}});
@@ -2019,8 +2021,7 @@ function setupVeritas(){
     }finally{send.disabled=false;send.textContent='Send';promptInput.focus()}
     });
   };
-  setupComposer('veritas-form','veritas-prompt','veritas-send','veritas-messages','veritas-include-context',()=>veritasContextView);
-  setupComposer('veritas-sidebar-form','veritas-sidebar-prompt','veritas-sidebar-send','veritas-sidebar-messages','veritas-sidebar-include-context','write');
+  setupComposer('veritas-sidebar-form','veritas-sidebar-prompt','veritas-sidebar-send','veritas-sidebar-messages','veritas-sidebar-include-context',()=>veritasContextView);
   refreshVeritasStatus();
 }
 document.getElementById('palette-select').addEventListener('change',e=>updateAppSetting('palette',e.target.value));document.getElementById('theme-select').addEventListener('change',e=>updateAppSetting('theme',e.target.value));document.getElementById('bg-effect-select').addEventListener('change',e=>updateAppSetting('bgEffect',e.target.value));

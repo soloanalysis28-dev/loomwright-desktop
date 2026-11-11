@@ -81,12 +81,12 @@ local service and the installer.
 
 ## Download & Install
 
-Download the current v1.6.0.4 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
+Download the current v1.6.0.4.5 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.4.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.4/Loomwright-Setup-1.6.0.4.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.4.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.4/Loomwright-Setup-1.6.0.4.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.6.0.4.5.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.4.5/Loomwright-Setup-1.6.0.4.5.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.4.5.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.4.5/Loomwright-Setup-1.6.0.4.5.msi) | Windows Installer package (enterprise / scripted deployments) |
 
 **Manuscript import in the writing desk**
 
@@ -119,7 +119,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.6.0.4
+.\tools\build-installers.ps1 -Version 1.6.0.4.5
 ```
 
 Or step-by-step:
@@ -127,24 +127,24 @@ Or step-by-step:
 ```powershell
 # 1. Build application binary
 cd loomwright-window
-$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.4"
+$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.4.5"
 cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.6.0.4 /DFILE_VERSION=1.6.0.4 loomwright.nsi # → Loomwright-Setup-1.6.0.4.exe
+makensis /DVERSION=1.6.0.4.5 /DFILE_VERSION=1.6.0.4005 loomwright.nsi # → Loomwright-Setup-1.6.0.4.5.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3)
-candle "-dVersion=1.12.4" "-dDisplayVersion=1.6.0.4" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.4.msi
+candle "-dVersion=1.12.4005" "-dDisplayVersion=1.6.0.4.5" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.4.5.msi
 ```
 
-The app and installer display version is `1.6.0.4`. The Windows executable file
-metadata uses `1.6.0.4`; the MSI database uses `1.12.4`, packing the final
-display-version component into its build field because Windows Installer accepts
-only three numeric fields. Its major/minor pair follows the earlier MSI version
-line so this release upgrades prior installs; Apps & Features retains the full
-display version. Future four-part releases increment the MSI build field, and
+The app and installer display version is `1.6.0.4.5`. Windows executable file
+metadata uses `1.6.0.4005`; the MSI database uses `1.12.4005`, packing the final
+two display-version components into its build field because Windows Installer
+accepts only three numeric fields. Its major/minor pair follows the earlier MSI
+version line so this release upgrades prior installs; Apps & Features retains
+the full display version. Future releases increment the MSI build field, and
 the installer rejects genuine downgrades.
 
 To use Veritas, install Ollama and at least one model, then enable it under

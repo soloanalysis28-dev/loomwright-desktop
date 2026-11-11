@@ -1,13 +1,13 @@
 # Build loomwright.exe and both installers (.exe and .msi)
 param(
-    [string]$Version = "1.6.0.4",
+    [string]$Version = "1.6.0.4.5",
     [switch]$SkipCargo
 )
 
 $ErrorActionPreference = 'Stop'
 $versionParts = $Version.Split('.')
 if (($versionParts.Count -ne 4 -and $versionParts.Count -ne 5) -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
-    throw "Version must contain four or five numeric parts, for example 1.6.0.4."
+    throw "Version must contain four or five numeric parts, for example 1.6.0.4.5."
 }
 
 $major = [int]$versionParts[0]
@@ -27,7 +27,7 @@ if ($versionParts.Count -eq 5) {
     $FileVersion = "$major.$minor.$patch.$revision"
 }
 $msiMajor = $major
-$msiMinor = if ($versionParts.Count -eq 4) { $minor + 6 } else { $minor }
+$msiMinor = $minor + 6
 $MsiVersion = "$msiMajor.$msiMinor.$msiBuild"
 if ($major -gt 255 -or $msiMinor -gt 255 -or $patch -gt 65535 -or $micro -gt 999 -or $revision -gt 65535 -or $fileRevision -gt 65535 -or $msiBuild -gt 65535) {
     throw "Version $Version cannot be represented by a Windows Installer version."
