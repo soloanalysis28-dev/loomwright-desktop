@@ -42,6 +42,16 @@ fn windows_file_version(display_version: &str) -> String {
                 .expect("display version cannot be represented as a Windows file version");
             format!("{major}.{minor}.{patch}.{file_revision}")
         }
-        _ => panic!("display version must have four or five numeric parts"),
+        [major, minor, patch, revision, micro, submicro] => {
+            // Pack the sixth public component into the Windows four-field revision.
+            let file_revision = revision
+                .checked_mul(1000)
+                .and_then(|value| micro.checked_mul(10).and_then(|micro| value.checked_add(micro)))
+                .and_then(|value| value.checked_add(*submicro))
+                .filter(|value| *value <= u16::MAX as u32)
+                .expect("display version cannot be represented as a Windows file version");
+            format!("{major}.{minor}.{patch}.{file_revision}")
+        }
+        _ => panic!("display version must have four, five, or six numeric parts"),
     }
 }
