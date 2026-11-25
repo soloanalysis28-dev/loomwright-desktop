@@ -5,6 +5,7 @@ import {
   attachVeritasReferenceSections,
   buildVeritasStoryGraph,
   buildVeritasPrompt,
+  cleanVeritasResponse,
   findPromptReferencedChapters,
   getVeritasViewConversation,
   normalizeVeritasConversation,
@@ -181,4 +182,25 @@ test('includes current location even when chapter body context is omitted', () =
 
   assert.match(context, /Project "Project Cronus"/);
   assert.match(context, /Active chapter: "CRONUS CHAPTER 4"/);
+});
+
+
+test('keeps only the final answer after a Qwen-style thinking block', () => {
+  assert.equal(
+    cleanVeritasResponse('<think>Private reasoning about the manuscript.</think>\nHere is the useful answer.'),
+    'Here is the useful answer.'
+  );
+});
+
+test('removes Gemma-style reasoning and final-answer labels', () => {
+  assert.equal(
+    cleanVeritasResponse('Reasoning: I should inspect the scene.\nFinal answer: Strengthen the scene ending.'),
+    'Strengthen the scene ending.'
+  );
+});
+
+test('leaves ordinary answers unchanged and rejects reasoning-only output', () => {
+  assert.equal(cleanVeritasResponse('Use a sharper verb in this sentence.'), 'Use a sharper verb in this sentence.');
+  assert.equal(cleanVeritasResponse('<thinking>Only private reasoning.</thinking>'), '');
+  assert.equal(cleanVeritasResponse('Thinking: Only private reasoning.'), '');
 });

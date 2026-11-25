@@ -83,6 +83,23 @@ export function buildVeritasPrompt(conversation) {
   return `${prefix}${history.slice(-(PROMPT_LIMIT - prefix.length))}`;
 }
 
+export function cleanVeritasResponse(response) {
+  const original = String(response ?? '').trim();
+  if (!original) return '';
+  let visible = original
+    .replace(/<think(?:ing)?\b[^>]*>[\s\S]*?<\/think(?:ing)?>/gi, '')
+    .replace(/<analysis\b[^>]*>[\s\S]*?<\/analysis>/gi, '')
+    .trim();
+  const labelledAnswer = visible.match(/^\s*(?:thinking|reasoning)\s*:[\s\S]*?\n\s*(?:final\s+)?answer\s*:\s*([\s\S]+)$/i);
+  if (labelledAnswer) visible = labelledAnswer[1].trim();
+  else if (/^\s*(?:thinking|reasoning)\s*:/i.test(visible)) return '';
+  visible = visible
+    .replace(/^\s*(?:final\s+)?answer\s*:\s*/i, '')
+    .trim();
+  if (!visible && /<think(?:ing)?\b|<analysis\b/i.test(original)) return '';
+  return visible || original;
+}
+
 export function attachChapterMemories(context, memories) {
   const notes = (Array.isArray(memories) ? memories : [])
     .map(memory => typeof memory === 'string' ? memory.trim() : '')
