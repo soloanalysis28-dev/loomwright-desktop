@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (for example v1.6.0.7)'
+        description: 'Release tag (for example v1.6.0.8)'
         required: false
-        default: 'v1.6.0.7'
+        default: 'v1.6.0.8'
 
 permissions:
   contents: write
@@ -44,12 +44,12 @@ jobs:
           } elseif ($env:GITHUB_REF -like 'refs/tags/*') {
             $tag = $env:GITHUB_REF_NAME
           } else {
-            $tag = 'v1.6.0.7'
+            $tag = 'v1.6.0.8'
           }
 
           $version = $tag -replace '^v', ''
           if ($version -notmatch '^\d+\.\d+\.\d+\.\d+(\.\d+)?$') {
-            throw "Release tag must contain four or five numeric version parts, for example v1.6.0.7."
+            throw "Release tag must contain four or five numeric version parts, for example v1.6.0.8."
           }
 
           $parts = $version.Split('.')

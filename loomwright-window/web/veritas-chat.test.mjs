@@ -87,6 +87,8 @@ test('keeps Veritas instructions while limiting long chat history', () => {
 
   assert.ok(prompt.length <= 18_000);
   assert.match(prompt, /^Continue this conversation with the writer\./);
+  assert.match(prompt, /writer states that the supplied manuscript and notes are their own work/);
+  assert.match(prompt, /Do not refuse, warn, or label the manuscript as copyrighted/);
   assert.match(prompt, /x{100,}$/);
 });
 

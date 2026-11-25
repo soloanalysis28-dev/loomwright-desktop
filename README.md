@@ -81,20 +81,35 @@ local service and the installer.
 
 ## Download & Install
 
-Download the current v1.6.0.7 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
+Download the current Windows release from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest). The release page includes both installer formats and SHA-256 checksums:
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.7.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.7/Loomwright-Setup-1.6.0.7.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.7.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.7/Loomwright-Setup-1.6.0.7.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.6.0.8.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8/Loomwright-Setup-1.6.0.8.exe) | Standard Windows setup with desktop and Start-menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.8.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8/Loomwright-Setup-1.6.0.8.msi) | Windows Installer, enterprise, and scripted deployments |
+| **Checksums** | [`checksums.txt`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8/checksums.txt) | Verify downloaded installer integrity |
 
-**Manuscript import in the writing desk**
+Both installers are per-user packages and do not require administrator privileges. The EXE is the simplest choice for most Windows users; choose MSI for managed or scripted deployment.
 
-![Loomwright writing desk with manuscript import](docs/chapter-import.png)
+## Screenshots
 
-**Veritas memory and chapter links**
+### Writing desk and manuscript import
 
-![Veritas chat and chapter-specific saved memory](docs/veritas-memory.png)
+![Loomwright writing desk](docs/window.png)
+
+![Loomwright manuscript import](docs/chapter-import.png)
+
+### Veritas continuity memory
+
+![Veritas chapter memory and linked chapters](docs/veritas-memory.png)
+
+### Project library and finishing tools
+
+![Loomwright project home](docs/home.png)
+
+![Loomwright offline storage settings](docs/10-storage.png)
+
+![Loomwright about and release information](docs/11-about.png)
 
 Story memory is shared by Veritas across the project; chapter memory remains
 private to its chapter. Link up to five chapters from the Write sidebar so
@@ -119,7 +134,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.6.0.7
+.\tools\build-installers.ps1 -Version 1.6.0.8
 ```
 
 Or step-by-step:
@@ -127,20 +142,20 @@ Or step-by-step:
 ```powershell
 # 1. Build application binary
 cd loomwright-window
-$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.7"
+$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.8"
 cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.6.0.7 /DFILE_VERSION=1.6.0.7 loomwright.nsi # → Loomwright-Setup-1.6.0.7.exe
+makensis /DVERSION=1.6.0.8 /DFILE_VERSION=1.6.0.8 loomwright.nsi # → Loomwright-Setup-1.6.0.8.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3)
-candle "-dVersion=1.12.7000" "-dDisplayVersion=1.6.0.7" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.7.msi
+candle "-dVersion=1.12.7000" "-dDisplayVersion=1.6.0.8" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.8.msi
 ```
 
-The app and installer display version is `1.6.0.7`. Windows executable file
-metadata uses `1.6.0.7`; the MSI database uses `1.12.7000`, packing the final
+The app and installer display version is `1.6.0.8`. Windows executable file
+metadata uses `1.6.0.8`; the MSI database uses `1.12.7000`, packing the final
 display-version component into its build field so it upgrades prior installs
 cleanly because Windows Installer accepts only three numeric fields. Its
 major/minor pair follows the earlier MSI version line; Apps & Features retains
@@ -242,6 +257,12 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
   is untouched; the desktop script adjusts it at runtime.
 
 ## Changelog
+
+### 1.6.0.8
+- Fixed Veritas false copyright refusals for author-provided manuscripts.
+- Veritas now treats the writer's own manuscript as authorized input for editing, analysis, rewriting, and continuity help.
+- Veritas does not make copyright ownership or infringement determinations.
+- Added a complete screenshot gallery and direct EXE, MSI, and checksum links to this README and the GitHub release.
 
 ### 1.6.0.7
 - Veritas now defaults **Include this chapter as context** to on, always knows
