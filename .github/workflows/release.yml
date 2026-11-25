@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (for example v1.6.0.8.5)'
+        description: 'Release tag (for example v1.6.0.8.5.1)'
         required: false
-        default: 'v1.6.0.8.5'
+        default: 'v1.6.0.8.5.1'
 
 permissions:
   contents: write
@@ -44,16 +44,16 @@ jobs:
           } elseif ($env:GITHUB_REF -like 'refs/tags/*') {
             $tag = $env:GITHUB_REF_NAME
           } else {
-            $tag = 'v1.6.0.8.5'
+            $tag = 'v1.6.0.8.5.1'
           }
 
           $version = $tag -replace '^v', ''
-          if ($version -notmatch '^\d+\.\d+\.\d+\.\d+(\.\d+)?$') {
-            throw "Release tag must contain four or five numeric version parts, for example v1.6.0.8.5."
+          if ($version -notmatch '^\d+\.\d+\.\d+\.\d+(\.\d+){0,2}$') {
+            throw "Release tag must contain four, five, or six numeric version parts, for example v1.6.0.8.5.1."
           }
 
           $parts = $version.Split('.')
-          $fileRevision = if ($parts.Count -eq 5) { ([int]$parts[3] * 1000) + [int]$parts[4] } else { [int]$parts[3] }
+          $fileRevision = if ($parts.Count -eq 6) { ([int]$parts[3] * 1000) + ([int]$parts[4] * 10) + [int]$parts[5] } elseif ($parts.Count -eq 5) { ([int]$parts[3] * 1000) + [int]$parts[4] } else { [int]$parts[3] }
           $fileVersion = "$($parts[0]).$($parts[1]).$($parts[2]).$fileRevision"
           "version=$version" >> $env:GITHUB_OUTPUT
           "file_version=$fileVersion" >> $env:GITHUB_OUTPUT

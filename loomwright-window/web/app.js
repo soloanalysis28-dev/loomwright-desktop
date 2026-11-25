@@ -12,7 +12,7 @@ window.pdfjsLib=pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/build/pdf.worker.min.mjs',import.meta.url).href;
 const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
-const APP_VERSION='1.6.0.8.5';
+const APP_VERSION='1.6.0.8.5.1';
 const PROJECT_RECORD_VERSION=3;
 const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[],veritasViewConversations:{metrics:[],characters:[],web:[]},veritasCentralMemories:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';
@@ -2008,7 +2008,7 @@ function setupVeritas(){
       if(chapter)persistChapterVeritasSession(chapter,conversation);
       else if(activeView!=='write')persistVeritasViewConversation(activeView,conversation);
       if(activeView===veritasContextView)renderVeritasConversation();promptInput.value='';send.disabled=true;send.textContent='Thinking…';
-      const pending=appendVeritasMessage('assistant','Veritas is thinking…',messages);pending.setAttribute('aria-busy','true');
+      const pending=appendVeritasMessage('assistant','',messages);pending.classList.add('veritas-thinking');pending.setAttribute('aria-busy','true');const thinkingMark=document.createElement('span');thinkingMark.className='veritas-thinking-mark';thinkingMark.setAttribute('aria-hidden','true');thinkingMark.textContent='∞';const thinkingLabel=document.createElement('span');thinkingLabel.textContent='Veritas is thinking…';pending.append(thinkingMark,thinkingLabel);
     try{
       const selectedContext=contextCheckbox.checked?buildVeritasContext(activeView):'';
       const context=buildVeritasRequestContext(activeView,chapter,selectedContext,userPrompt);

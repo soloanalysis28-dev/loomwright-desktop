@@ -4,7 +4,7 @@
     <?define Version = "1.12.7000"?>
   <?endif?>
   <?ifndef DisplayVersion?>
-    <?define DisplayVersion = "1.6.0.8.5"?>
+    <?define DisplayVersion = "1.6.0.8.5.1"?>
   <?endif?>
 
   <Product Id="*"

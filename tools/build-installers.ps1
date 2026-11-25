@@ -6,18 +6,23 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $versionParts = $Version.Split('.')
-if (($versionParts.Count -ne 4 -and $versionParts.Count -ne 5) -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
-    throw "Version must contain four or five numeric parts, for example 1.6.0.7."
+if (($versionParts.Count -ne 4 -and $versionParts.Count -ne 5 -and $versionParts.Count -ne 6) -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
+    throw "Version must contain four, five, or six numeric parts, for example 1.6.0.7 or 1.6.0.8.5.1."
 }
 
 $major = [int]$versionParts[0]
 $minor = [int]$versionParts[1]
 $patch = [int]$versionParts[2]
 $revision = [int]$versionParts[3]
-$micro = if ($versionParts.Count -eq 5) { [int]$versionParts[4] } else { 0 }
+$micro = if ($versionParts.Count -ge 5) { [int]$versionParts[4] } else { 0 }
+$submicro = if ($versionParts.Count -eq 6) { [int]$versionParts[5] } else { 0 }
 # Windows file metadata has four fields; MSI's three numeric fields require packing
 # the last public version component into its build field.
-if ($versionParts.Count -eq 5) {
+if ($versionParts.Count -eq 6) {
+    $fileRevision = ($revision * 1000) + ($micro * 10) + $submicro
+    $msiBuild = ($patch * 10000) + $fileRevision
+    $FileVersion = "$major.$minor.$patch.$fileRevision"
+} elseif ($versionParts.Count -eq 5) {
     $fileRevision = ($revision * 1000) + $micro
     $msiBuild = ($patch * 10000) + $fileRevision
     $FileVersion = "$major.$minor.$patch.$fileRevision"
@@ -29,7 +34,7 @@ if ($versionParts.Count -eq 5) {
 $msiMajor = $major
 $msiMinor = $minor + 6
 $MsiVersion = "$msiMajor.$msiMinor.$msiBuild"
-if ($major -gt 255 -or $msiMinor -gt 255 -or $patch -gt 65535 -or $micro -gt 999 -or $revision -gt 65535 -or $fileRevision -gt 65535 -or $msiBuild -gt 65535) {
+if ($major -gt 255 -or $msiMinor -gt 255 -or $patch -gt 65535 -or $micro -gt 999 -or $submicro -gt 9 -or $revision -gt 65535 -or $fileRevision -gt 65535 -or $msiBuild -gt 65535) {
     throw "Version $Version cannot be represented by a Windows Installer version."
 }
 

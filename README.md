@@ -85,9 +85,9 @@ Download the current Windows release from [**GitHub Releases**](https://github.c
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.8.5.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8.5/Loomwright-Setup-1.6.0.8.5.exe) | Standard Windows setup with desktop and Start-menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.8.5.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8.5/Loomwright-Setup-1.6.0.8.5.msi) | Windows Installer, enterprise, and scripted deployments |
-| **Checksums** | [`checksums.txt`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8.5/checksums.txt) | Verify downloaded installer integrity |
+| **EXE** | [`Loomwright-Setup-1.6.0.8.5.1.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8.5.1/Loomwright-Setup-1.6.0.8.5.1.exe) | Standard Windows setup with desktop and Start-menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.8.5.1.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8.5.1/Loomwright-Setup-1.6.0.8.5.1.msi) | Windows Installer, enterprise, and scripted deployments |
+| **Checksums** | [`checksums.txt`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8.5.1/checksums.txt) | Verify downloaded installer integrity |
 
 Both installers are per-user packages and do not require administrator privileges. The EXE is the simplest choice for most Windows users; choose MSI for managed or scripted deployment.
 
@@ -134,7 +134,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.6.0.8.5
+.\tools\build-installers.ps1 -Version 1.6.0.8.5.1
 ```
 
 Or step-by-step:
@@ -142,20 +142,20 @@ Or step-by-step:
 ```powershell
 # 1. Build application binary
 cd loomwright-window
-$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.8.5"
+$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.8.5.1"
 cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.6.0.8.5 /DFILE_VERSION=1.6.0.8005 loomwright.nsi # → Loomwright-Setup-1.6.0.8.5.exe
+makensis /DVERSION=1.6.0.8.5.1 /DFILE_VERSION=1.6.0.8051 loomwright.nsi # → Loomwright-Setup-1.6.0.8.5.1.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3)
-candle "-dVersion=1.12.8005" "-dDisplayVersion=1.6.0.8.5" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.8.5.msi
+candle "-dVersion=1.12.8051" "-dDisplayVersion=1.6.0.8.5.1" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.8.5.1.msi
 ```
 
-The app and installer display version is `1.6.0.8.5`. Windows executable file
-metadata uses `1.6.0.8005`; the MSI database uses `1.12.8005`, packing the final
+The app and installer display version is `1.6.0.8.5.1`. Windows executable file
+metadata uses `1.6.0.8051`; the MSI database uses `1.12.8051`, packing the final
 display-version component into its build field so it upgrades prior installs
 cleanly because Windows Installer accepts only three numeric fields. Its
 major/minor pair follows the earlier MSI version line; Apps & Features retains
@@ -257,6 +257,10 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
   is untouched; the desktop script adjusts it at runtime.
 
 ## Changelog
+
+### 1.6.0.8.5.1
+- Added a subtle looping infinity animation to the Veritas processing state.
+- The animation respects reduced-motion accessibility preferences and does not expose model reasoning.
 
 ### 1.6.0.8.5
 - Veritas shows a simple processing state while the local model is working, then displays and saves only the final answer.
