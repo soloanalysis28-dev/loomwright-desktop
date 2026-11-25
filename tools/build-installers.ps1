@@ -1,13 +1,13 @@
 # Build loomwright.exe and both installers (.exe and .msi)
 param(
-    [string]$Version = "1.6.0.4.6",
+    [string]$Version = "1.6.0.7",
     [switch]$SkipCargo
 )
 
 $ErrorActionPreference = 'Stop'
 $versionParts = $Version.Split('.')
 if (($versionParts.Count -ne 4 -and $versionParts.Count -ne 5) -or $versionParts.Where({ $_ -notmatch '^\d+$' }).Count -gt 0) {
-    throw "Version must contain four or five numeric parts, for example 1.6.0.4.6."
+    throw "Version must contain four or five numeric parts, for example 1.6.0.7."
 }
 
 $major = [int]$versionParts[0]
@@ -23,7 +23,7 @@ if ($versionParts.Count -eq 5) {
     $FileVersion = "$major.$minor.$patch.$fileRevision"
 } else {
     $fileRevision = $revision
-    $msiBuild = ($patch * 1000) + $revision
+    $msiBuild = ($patch * 10000) + ($revision * 1000)
     $FileVersion = "$major.$minor.$patch.$revision"
 }
 $msiMajor = $major

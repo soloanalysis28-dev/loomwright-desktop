@@ -6,13 +6,13 @@ import { WRITING_DEFAULTS, BUNDLED_FONTS, normalizeWritingSettings } from './wri
 import { smartenInput } from './smart-typography.mjs';
 import { recognizeCharacters, getCharacterRecognitionConfig, SENSITIVITY_THRESHOLDS } from './character-recognition.mjs';
 import { splitDocumentHtml } from './chapter-splitting.mjs';
-import { attachVeritasReferenceSections, buildVeritasPrompt, buildVeritasStoryGraph, getVeritasViewConversation, normalizeVeritasConversation, serializeVeritasViewContext, VERITAS_MAX_LINKED_CHAPTERS } from './veritas-chat.mjs';
+import { attachVeritasReferenceSections, buildVeritasPrompt, buildVeritasStoryGraph, findPromptReferencedChapters, getVeritasViewConversation, normalizeVeritasConversation, serializeVeritasViewContext, VERITAS_MAX_LINKED_CHAPTERS } from './veritas-chat.mjs';
 const mammoth=window.mammoth;
 window.pdfjsLib=pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/build/pdf.worker.min.mjs',import.meta.url).href;
 const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
-const APP_VERSION='1.6.0.4.6';
+const APP_VERSION='1.6.0.7';
 const PROJECT_RECORD_VERSION=3;
 const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[],veritasViewConversations:{metrics:[],characters:[],web:[]},veritasCentralMemories:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';
@@ -1887,15 +1887,26 @@ function renderVeritasConversation(){
   document.querySelector('#veritas-sidebar-form .veritas-context span').textContent=isWriteView?'Include this chapter as context':'Include this view as context';
   renderVeritasMessages(document.getElementById('veritas-sidebar-messages'),veritasConversationForView(veritasContextView),isWriteView&&Boolean(activeVeritasSection()));
 }
-function buildVeritasRequestContext(view,chapter,selectedContext){
-  const linkedChapters=(chapter?.veritasLinkedChapterIds||[])
+function buildVeritasRequestContext(view,chapter,selectedContext,userPrompt=''){
+  const explicitIds=chapter?.veritasLinkedChapterIds||[];
+  const explicitChapters=explicitIds
     .map(id=>state.sections.find(section=>String(section.id)===String(id)))
-    .filter(Boolean)
+    .filter(Boolean);
+  const excludeIds=[chapter?.id,...explicitIds].filter(id=>id!==undefined&&id!==null);
+  const promptChapters=findPromptReferencedChapters(userPrompt,state.sections,excludeIds);
+  const linkedChapters=[...explicitChapters,...promptChapters]
+    .slice(0,VERITAS_MAX_LINKED_CHAPTERS)
     .map(section=>({title:section.title||'Untitled chapter',text:textOf(section.html||'')}));
+  const project=projects.find(item=>String(item.id)===String(activeProjectId));
+  const projectName=project?.name||'Untitled project';
+  const location=view==='write'&&chapter&&!selectedContext
+    ?`Current location: Project "${projectName}" · Active chapter: "${chapter.title||'Untitled chapter'}" (currently open in the editor)`
+    :'';
   return attachVeritasReferenceSections(selectedContext,{
+    location,
     centralMemories:(state.veritasCentralMemories||[]).map(memory=>memory.text),
     chapterMemories:view==='write'?(chapter?.veritasMemories||[]).map(memory=>memory.text):[],
-    linkedChapters:view==='write'?linkedChapters:[]
+    linkedChapters:view==='write'||promptChapters.length?linkedChapters:[]
   });
 }
 function setVeritasChatStatus(message,state=''){
@@ -2000,7 +2011,7 @@ function setupVeritas(){
       const pending=appendVeritasMessage('assistant','Veritas is thinking…',messages);pending.setAttribute('aria-busy','true');
     try{
       const selectedContext=contextCheckbox.checked?buildVeritasContext(activeView):'';
-      const context=buildVeritasRequestContext(activeView,chapter,selectedContext);
+      const context=buildVeritasRequestContext(activeView,chapter,selectedContext,userPrompt);
       const prompt=buildVeritasPrompt(conversation);
       const response=await fetch('/api/veritas/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model,prompt,context,view:activeView})});
       const data=await response.json();

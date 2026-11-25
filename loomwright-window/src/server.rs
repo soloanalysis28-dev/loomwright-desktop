@@ -177,11 +177,14 @@ fn route(
             Ok(response) => json_response("200 OK", serde_json::json!({ "response": response })),
             Err((status, error)) => json_response(&status, serde_json::json!({ "error": error })),
         },
-        ("GET", "/api/app-status") => (
-            "200 OK".into(),
-            "application/json".into(),
-            br#"{"name":"loomwright","version":"3.0.0"}"#.to_vec(),
-        ),
+        ("GET", "/api/app-status") => {
+            let version = option_env!("LOOMWRIGHT_DISPLAY_VERSION")
+                .unwrap_or(env!("CARGO_PKG_VERSION"));
+            json_response(
+                "200 OK",
+                serde_json::json!({ "name": "loomwright", "version": version }),
+            )
+        }
         ("GET", "/api/git/status") => (
             "200 OK".into(),
             "application/json".into(),

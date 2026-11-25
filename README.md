@@ -81,12 +81,12 @@ local service and the installer.
 
 ## Download & Install
 
-Download the current v1.6.0.4.6 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
+Download the current v1.6.0.7 installer from [**GitHub Releases**](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/latest):
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.4.6.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.4.6/Loomwright-Setup-1.6.0.4.6.exe) | Standard Windows setup with desktop & start menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.4.6.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.4.6/Loomwright-Setup-1.6.0.4.6.msi) | Windows Installer package (enterprise / scripted deployments) |
+| **EXE** | [`Loomwright-Setup-1.6.0.7.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.7/Loomwright-Setup-1.6.0.7.exe) | Standard Windows setup with desktop & start menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.7.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.7/Loomwright-Setup-1.6.0.7.msi) | Windows Installer package (enterprise / scripted deployments) |
 
 **Manuscript import in the writing desk**
 
@@ -119,7 +119,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.6.0.4.6
+.\tools\build-installers.ps1 -Version 1.6.0.7
 ```
 
 Or step-by-step:
@@ -127,23 +127,23 @@ Or step-by-step:
 ```powershell
 # 1. Build application binary
 cd loomwright-window
-$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.4.6"
+$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.7"
 cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.6.0.4.6 /DFILE_VERSION=1.6.0.4006 loomwright.nsi # → Loomwright-Setup-1.6.0.4.6.exe
+makensis /DVERSION=1.6.0.7 /DFILE_VERSION=1.6.0.7 loomwright.nsi # → Loomwright-Setup-1.6.0.7.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3)
-candle "-dVersion=1.12.4006" "-dDisplayVersion=1.6.0.4.6" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.4.6.msi
+candle "-dVersion=1.12.7000" "-dDisplayVersion=1.6.0.7" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.7.msi
 ```
 
-The app and installer display version is `1.6.0.4.6`. Windows executable file
-metadata uses `1.6.0.4006`; the MSI database uses `1.12.4006`, packing the final
-two display-version components into its build field because Windows Installer
-accepts only three numeric fields. Its major/minor pair follows the earlier MSI
-version line so this release upgrades prior installs; Apps & Features retains
+The app and installer display version is `1.6.0.7`. Windows executable file
+metadata uses `1.6.0.7`; the MSI database uses `1.12.7000`, packing the final
+display-version component into its build field so it upgrades prior installs
+cleanly because Windows Installer accepts only three numeric fields. Its
+major/minor pair follows the earlier MSI version line; Apps & Features retains
 the full display version. Future releases increment the MSI build field, and
 the installer rejects genuine downgrades.
 
@@ -242,6 +242,15 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
   is untouched; the desktop script adjusts it at runtime.
 
 ## Changelog
+
+### 1.6.0.7
+- Veritas now defaults **Include this chapter as context** to on, always knows
+  which project and chapter are currently open in the editor, and automatically
+  detects and attaches chapters referenced by title or number in your prompt
+  (for example, `"chapter 2"` or `"The Clock Plane"`).
+- Fixed `/api/app-status` to report the actual build version instead of a
+  hardcoded string, and resolved all Rust compiler dead-code warnings.
+- Updated screenshots and bumped both `.exe` and `.msi` installers to `1.6.0.7`.
 
 ### 1.6.0.2
 - Fixed the WiX build invocation so the MSI compiles with its four-part public

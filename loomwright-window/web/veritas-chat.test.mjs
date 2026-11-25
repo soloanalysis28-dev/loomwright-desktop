@@ -5,6 +5,7 @@ import {
   attachVeritasReferenceSections,
   buildVeritasStoryGraph,
   buildVeritasPrompt,
+  findPromptReferencedChapters,
   getVeritasViewConversation,
   normalizeVeritasConversation,
   serializeLinkedChapterContext,
@@ -152,4 +153,30 @@ test('keeps Metrics, Characters, and Story Web chats isolated per project', () =
   assert.deepEqual(getVeritasViewConversation(project, 'characters'), []);
   assert.deepEqual(getVeritasViewConversation(project, 'web'), []);
   assert.deepEqual(getVeritasViewConversation(project, 'write'), []);
+});
+
+test('identifies chapters referenced by title or number in the prompt', () => {
+  const chapters = [
+    { id: 1, title: 'CRONUS CHAPTER 1' },
+    { id: 2, title: 'The Clock Plane' },
+    { id: 3, title: 'CRONUS CHAPTER 3' },
+    { id: 4, title: 'CRONUS CHAPTER 4' }
+  ];
+
+  const referenced = findPromptReferencedChapters(
+    'Compare this with chapter 1, The Clock Plane, and chapter three.',
+    chapters,
+    [4]
+  );
+
+  assert.deepEqual(referenced.map(chapter => chapter.id), [2, 1, 3]);
+});
+
+test('includes current location even when chapter body context is omitted', () => {
+  const context = attachVeritasReferenceSections('', {
+    location: 'Current location: Project "Project Cronus" · Active chapter: "CRONUS CHAPTER 4"'
+  });
+
+  assert.match(context, /Project "Project Cronus"/);
+  assert.match(context, /Active chapter: "CRONUS CHAPTER 4"/);
 });

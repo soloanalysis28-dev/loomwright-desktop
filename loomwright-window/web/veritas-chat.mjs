@@ -105,8 +105,52 @@ export function serializeLinkedChapterContext(chapters) {
     .join('\n\n');
 }
 
+const NUMBER_WORDS = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
+  seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12
+};
+
+export function findPromptReferencedChapters(prompt, chapters, excludeIds = []) {
+  const text = typeof prompt === 'string' ? prompt.trim() : '';
+  const list = Array.isArray(chapters) ? chapters : [];
+  if (!text || !list.length) return [];
+
+  const excluded = new Set((Array.isArray(excludeIds) ? excludeIds : []).map(String));
+  const lowerPrompt = text.toLowerCase();
+  const matched = [];
+  const seen = new Set();
+  const addChapter = chapter => {
+    if (!chapter) return;
+    const id = String(chapter.id);
+    if (excluded.has(id) || seen.has(id)) return;
+    seen.add(id);
+    matched.push(chapter);
+  };
+
+  for (const chapter of list) {
+    const title = String(chapter?.title || '').trim().toLowerCase();
+    if (title.length >= 3 && lowerPrompt.includes(title)) addChapter(chapter);
+  }
+
+  const refPattern = /\b(?:chapter|ch\.?|section)\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/gi;
+  let match;
+  while ((match = refPattern.exec(lowerPrompt)) !== null) {
+    const raw = match[1].toLowerCase();
+    const num = /^\d+$/.test(raw) ? Number(raw) : NUMBER_WORDS[raw];
+    if (!Number.isInteger(num) || num < 1) continue;
+    const numPattern = new RegExp(`(?:^|\\b)${num}(?:\\b|$)`);
+    const byTitleNumber = list.find(chapter => numPattern.test(String(chapter?.title || '').toLowerCase()));
+    addChapter(byTitleNumber || list[num - 1]);
+  }
+
+  return matched.slice(0, VERITAS_MAX_LINKED_CHAPTERS);
+}
+
 export function attachVeritasReferenceSections(context, references = {}) {
   const sections = [];
+  if (typeof references.location === 'string' && references.location.trim()) {
+    sections.push(references.location.trim());
+  }
   const addNotes = (title, notes, maxLength) => {
     const text = (Array.isArray(notes) ? notes : [])
       .map(note => typeof note === 'string' ? note.trim() : '')
@@ -133,7 +177,7 @@ export function serializeVeritasViewContext(view, data) {
 
   if (view === 'write') {
     if (data.chapter) {
-      context = `${project}\nChapter: ${data.chapter.title || 'Untitled'}\n\n${data.editorText || ''}`;
+      context = `${project}\nActive Chapter: ${data.chapter.title || 'Untitled'} (currently open in the editor)\n\n${data.editorText || ''}`;
     } else {
       const chapters = (data.chapters || []).map((chapter, index) =>
         `${index + 1}. ${chapter.title || 'Untitled'} (${chapter.words} words)`).join('\n');
