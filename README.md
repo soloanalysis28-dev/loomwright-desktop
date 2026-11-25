@@ -85,9 +85,9 @@ Download the current Windows release from [**GitHub Releases**](https://github.c
 
 | Format | File | Recommended For |
 |---|---|---|
-| **EXE** | [`Loomwright-Setup-1.6.0.8.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8/Loomwright-Setup-1.6.0.8.exe) | Standard Windows setup with desktop and Start-menu shortcuts |
-| **MSI** | [`Loomwright-Setup-1.6.0.8.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8/Loomwright-Setup-1.6.0.8.msi) | Windows Installer, enterprise, and scripted deployments |
-| **Checksums** | [`checksums.txt`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.8/checksums.txt) | Verify downloaded installer integrity |
+| **EXE** | [`Loomwright-Setup-1.6.0.9.exe`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.9/Loomwright-Setup-1.6.0.9.exe) | Standard Windows setup with desktop and Start-menu shortcuts |
+| **MSI** | [`Loomwright-Setup-1.6.0.9.msi`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.9/Loomwright-Setup-1.6.0.9.msi) | Windows Installer, enterprise, and scripted deployments |
+| **Checksums** | [`checksums.txt`](https://github.com/soloanalysis28-dev/loomwright-desktop/releases/download/v1.6.0.9/checksums.txt) | Verify downloaded installer integrity |
 
 Both installers are per-user packages and do not require administrator privileges. The EXE is the simplest choice for most Windows users; choose MSI for managed or scripted deployment.
 
@@ -134,7 +134,7 @@ You can build the application and both installers locally using PowerShell:
 
 ```powershell
 # Build the binary, .exe (NSIS), and .msi (WiX)
-.\tools\build-installers.ps1 -Version 1.6.0.8
+.\tools\build-installers.ps1 -Version 1.6.0.9
 ```
 
 Or step-by-step:
@@ -142,20 +142,20 @@ Or step-by-step:
 ```powershell
 # 1. Build application binary
 cd loomwright-window
-$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.8"
+$env:LOOMWRIGHT_DISPLAY_VERSION = "1.6.0.9"
 cargo build --release          # → target\release\loomwright.exe
 
 # 2. Build NSIS (.exe) installer
 cd ..\installer
-makensis /DVERSION=1.6.0.8 /DFILE_VERSION=1.6.0.8 loomwright.nsi # → Loomwright-Setup-1.6.0.8.exe
+makensis /DVERSION=1.6.0.9 /DFILE_VERSION=1.6.0.9 loomwright.nsi # → Loomwright-Setup-1.6.0.9.exe
 
 # 3. Build WiX (.msi) installer (requires WiX Toolset v3)
-candle "-dVersion=1.12.7000" "-dDisplayVersion=1.6.0.8" loomwright.wxs -out loomwright.wixobj
-light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.8.msi
+candle "-dVersion=1.12.7000" "-dDisplayVersion=1.6.0.9" loomwright.wxs -out loomwright.wixobj
+light -sval loomwright.wixobj -out Loomwright-Setup-1.6.0.9.msi
 ```
 
-The app and installer display version is `1.6.0.8`. Windows executable file
-metadata uses `1.6.0.8`; the MSI database uses `1.12.7000`, packing the final
+The app and installer display version is `1.6.0.9`. Windows executable file
+metadata uses `1.6.0.9`; the MSI database uses `1.12.7000`, packing the final
 display-version component into its build field so it upgrades prior installs
 cleanly because Windows Installer accepts only three numeric fields. Its
 major/minor pair follows the earlier MSI version line; Apps & Features retains
@@ -257,6 +257,10 @@ The app has no telemetry, no analytics and no remote API. The page's CSP is
   is untouched; the desktop script adjusts it at runtime.
 
 ## Changelog
+
+### 1.6.0.9
+- Removed the Veritas launcher from the Write chapter-library landing view.
+- Veritas now appears from the writing workspace after a chapter is opened.
 
 ### 1.6.0.8
 - Fixed Veritas false copyright refusals for author-provided manuscripts.
