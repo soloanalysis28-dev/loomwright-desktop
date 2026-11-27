@@ -12,9 +12,12 @@ window.pdfjsLib=pdfjsLib;
 pdfjsLib.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/build/pdf.worker.min.mjs',import.meta.url).href;
 const PDF_CMAP_URL=new URL('./vendor/pdfjs/cmaps/',import.meta.url).href;
 const PDF_STANDARD_FONT_URL=new URL('./vendor/pdfjs/standard_fonts/',import.meta.url).href;
-const APP_VERSION='1.6.0.8.5.1';
+const APP_VERSION='1.6.0.9';
+const VERITAS_EDITION=new URLSearchParams(window.location.search).get('edition')==='veritas';
+const VERITAS_EDITION_KEY='loomwright_veritas_edition_v1';
+if(VERITAS_EDITION)document.documentElement.classList.add('veritas-edition');
 const PROJECT_RECORD_VERSION=3;
-const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webNodes:[],webLinks:[],templates:[],veritasViewConversations:{metrics:[],characters:[],web:[]},veritasCentralMemories:[]};
+const DEFAULT_STATE={sections:[],activeId:null,charNotes:{},charProfiles:{},charConfirmed:{},charReviewResolved:{},charStatus:{},finaliseChecklist:{},charIgnore:{},charMerge:{},webPositions:{},webRotation:0,webNodes:[],webLinks:[],templates:[],veritasViewConversations:{metrics:[],characters:[],web:[]},veritasCentralMemories:[]};
 const PROJECTS_STORAGE_KEY='loomwright_projects_v1',ACTIVE_PROJECT_KEY='loomwright_active_project_v1',APP_SETTINGS_KEY='loomwright_app_settings_v1',DELETED_PROJECTS_STORAGE_KEY='loomwright_deleted_projects_v1';
 const FEATURE_GUIDES_STORAGE_KEY='loomwright_feature_guides_v1';
 const ONLINE_SYNC_ENABLED=false; // Reserved for a later, explicit online-save feature; offline mode is the only active storage.
@@ -150,7 +153,7 @@ try{projectStore=JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY)||'null')}
 const initialActiveId=projectStore?.activeProjectId||localStorage.getItem(ACTIVE_PROJECT_KEY)||'';
 const initialActiveProject=projectStore?.projects?.find(p=>p.id===initialActiveId);
 let appSettings,appSettingsStoredAtBoot=false,appSettingsTouched=false;
-try{const savedAppSettings=JSON.parse(localStorage.getItem(APP_SETTINGS_KEY)||'null');appSettingsStoredAtBoot=!!(savedAppSettings&&typeof savedAppSettings==='object');appSettings=normalizeSettings(savedAppSettings||initialActiveProject?.data?.settings||legacyState?.settings)}catch(e){appSettings=normalizeSettings(null)}
+try{const savedAppSettings=JSON.parse(localStorage.getItem(APP_SETTINGS_KEY)||'null');appSettingsStoredAtBoot=!!(savedAppSettings&&typeof savedAppSettings==='object');appSettings=normalizeSettings(savedAppSettings||initialActiveProject?.data?.settings||legacyState?.settings);if(VERITAS_EDITION&&!localStorage.getItem(VERITAS_EDITION_KEY)){appSettings.veritasEnabled=true;localStorage.setItem(VERITAS_EDITION_KEY,'1')}}catch(e){appSettings=normalizeSettings(null)}
 let projects=projectRecords(projectStore?.projects).map(project=>({...project,data:normalizeProjectState(project.data)}));
 let activeProjectId=projects.some(project=>String(project.id)===String(initialActiveId))?initialActiveId:'';
 let deletedProjectIds=new Set();
@@ -1519,6 +1522,7 @@ function renderCharacters(){
 async function scanCharacters(){const button=document.getElementById('btn-scan-characters'),status=document.getElementById('character-scan-status'),progress=document.getElementById('character-scan-progress'),fill=document.getElementById('character-scan-progress-fill');if(!button||button.disabled)return;flushWriterSave();button.disabled=true;button.classList.add('is-scanning');if(progress)progress.hidden=false;if(fill)fill.style.width='8%';if(status)status.textContent=`Scanning ${state.sections.length} ${state.sections.length===1?'chapter':'chapters'} offline…`;await new Promise(resolve=>setTimeout(resolve,120));try{if(fill)fill.style.width='48%';await new Promise(resolve=>setTimeout(resolve,180));const characters=detectCharacters();completeFeatureGuide('characters');if(fill)fill.style.width='82%';renderCharacters();renderHome();renderWeb();renderMetrics();if(fill)fill.style.width='100%';if(status)status.textContent=`Scanned just now · ${characters.length} character${characters.length===1?'':'s'} found`;toast(`Manuscript scan complete: ${characters.length} characters found.`)}catch(error){console.error('Character scan failed:',error);if(status)status.textContent='Scan could not be completed.';toast('Character scan failed: '+error.message)}finally{button.disabled=false;button.classList.remove('is-scanning');setTimeout(()=>{if(progress)progress.hidden=true;if(fill)fill.style.width='0%'},500)}}
 let webViewport={x:0,y:0,scale:1,initialized:false},webSelectedNode='',webPendingOutput='';
 window.addEventListener('resize',()=>{if(document.getElementById('view-web').classList.contains('active')){webViewport.initialized=false;renderWeb()}});
+window.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('story-web-presenting')){document.body.classList.remove('story-web-presenting');webViewport.initialized=false;renderWeb()}});
 function renderWeb(){
   const svg=document.getElementById('webcanvas'),empty=document.getElementById('web-empty'),selection=document.getElementById('web-selection'),wrap=document.querySelector('.node-graph-wrap');
   if(!svg||!wrap)return;
@@ -1550,7 +1554,9 @@ function renderWeb(){
   const defs=document.createElementNS(ns,'defs'),pattern=document.createElementNS(ns,'pattern'),gridPath=document.createElementNS(ns,'path');
   pattern.setAttribute('id','web-grid');pattern.setAttribute('width','36');pattern.setAttribute('height','36');pattern.setAttribute('patternUnits','userSpaceOnUse');gridPath.setAttribute('d','M 36 0 L 0 0 0 36');gridPath.setAttribute('fill','none');gridPath.setAttribute('stroke','#2a302e');gridPath.setAttribute('stroke-width','1');pattern.appendChild(gridPath);defs.appendChild(pattern);svg.appendChild(defs);
   const background=document.createElementNS(ns,'rect');background.setAttribute('width','100%');background.setAttribute('height','100%');background.setAttribute('fill','#191d1c');background.setAttribute('fill-opacity','0');background.dataset.mapBackground='true';svg.appendChild(background);
-  const world=document.createElementNS(ns,'g');world.setAttribute('class','web-world');world.setAttribute('transform',`translate(${webViewport.x} ${webViewport.y}) scale(${webViewport.scale})`);svg.appendChild(world);
+  const rotation=((Number(state.webRotation)||0)%360+360)%360;
+  const mapTransform=()=>`translate(${width/2} ${height/2}) rotate(${rotation}) translate(${-width/2} ${-height/2}) translate(${webViewport.x} ${webViewport.y}) scale(${webViewport.scale})`;
+  const world=document.createElementNS(ns,'g');world.setAttribute('class','web-world');world.setAttribute('transform',mapTransform());svg.appendChild(world);
   const grid=document.createElementNS(ns,'rect');grid.setAttribute('x',-webViewport.x/webViewport.scale);grid.setAttribute('y',-webViewport.y/webViewport.scale);grid.setAttribute('width',width/webViewport.scale);grid.setAttribute('height',height/webViewport.scale);grid.setAttribute('fill','url(#web-grid)');grid.setAttribute('pointer-events','none');world.appendChild(grid);
   const edgeLayer=document.createElementNS(ns,'g');edgeLayer.setAttribute('class','web-edges');world.appendChild(edgeLayer);
   const edgePaths=[];
@@ -1565,7 +1571,7 @@ function renderWeb(){
     const from=visibleByKey.get(path.dataset.from),to=visibleByKey.get(path.dataset.to);if(!from||!to)return;
     const startX=from.x+from.width,startY=from.y+39,endX=to.x,endY=to.y+39,curve=Math.max(50,Math.abs(endX-startX)*.48);path.setAttribute('d',`M ${startX} ${startY} C ${startX+curve} ${startY}, ${endX-curve} ${endY}, ${endX} ${endY}`);
   });
-  const updateTransform=()=>{world.setAttribute('transform',`translate(${webViewport.x} ${webViewport.y}) scale(${webViewport.scale})`);document.getElementById('web-zoom-level').textContent=`${Math.round(webViewport.scale*100)}%`};
+  const updateTransform=()=>{world.setAttribute('transform',mapTransform());document.getElementById('web-zoom-level').textContent=`${Math.round(webViewport.scale*100)}%`;const rotationLabel=document.getElementById('web-rotation-level');if(rotationLabel)rotationLabel.textContent=`${rotation}°`;const close=document.getElementById('web-present-close');if(close)close.hidden=!document.body.classList.contains('story-web-presenting')};
   const selectNode=node=>{
     webSelectedNode=node.key;const remove=document.getElementById('web-remove-node');if(remove)remove.disabled=!node.custom;
     if(selection)selection.textContent=node.type==='character'?`${node.label} · ${node.detail} · Appears in ${[...node.character.sections].join(', ')}`:node.type==='chapter'?`${node.label} · ${node.detail}`:node.custom?`${node.label} · ${node.detail}`:`${node.label} · manuscript root`;
@@ -1598,6 +1604,9 @@ function renderWeb(){
   const zoomBy=factor=>{const centerX=width/2,centerY=height/2,worldX=(centerX-webViewport.x)/webViewport.scale,worldY=(centerY-webViewport.y)/webViewport.scale;webViewport.scale=Math.max(.35,Math.min(1.8,webViewport.scale*factor));webViewport.x=centerX-worldX*webViewport.scale;webViewport.y=centerY-worldY*webViewport.scale;updateTransform()};
   const fitMap=()=>{if(!visible.length||!mapVisible)return;const minX=Math.min(...visible.map(node=>node.x)),maxX=Math.max(...visible.map(node=>node.x+node.width)),minY=Math.min(...visible.map(node=>node.y)),maxY=Math.max(...visible.map(node=>node.y+node.height)),minScale=width<560&&visible.length<=4?.58:.35,scale=Math.max(minScale,Math.min(1.05,(width-48)/(maxX-minX+36),(height-60)/(maxY-minY+36)));webViewport.scale=scale;webViewport.x=(width-(minX+maxX)*scale)/2;webViewport.y=(height-(minY+maxY)*scale)/2;webViewport.initialized=true;updateTransform()};
   document.getElementById('web-zoom-out').onclick=()=>zoomBy(.85);document.getElementById('web-zoom-in').onclick=()=>zoomBy(1.18);document.getElementById('web-fit').onclick=fitMap;
+  document.getElementById('web-rotate').onclick=()=>{state.webRotation=(rotation+90)%360;save();webViewport.initialized=false;renderWeb()};
+  document.getElementById('web-present').onclick=()=>{document.body.classList.add('story-web-presenting');webViewport.initialized=false;renderWeb()};
+  document.getElementById('web-present-close').onclick=()=>{document.body.classList.remove('story-web-presenting');webViewport.initialized=false;renderWeb()};
   if(!webViewport.initialized&&mapVisible)fitMap();else updateTransform();
   document.getElementById('web-map-count').textContent=`${visible.length} nodes · ${uniqueLinks.length} links`;
   const addForm=document.getElementById('web-add-form');addForm.onsubmit=event=>{event.preventDefault();if(!requireActiveProject())return;const input=document.getElementById('web-add-label'),label=input.value.trim();if(!label)return;const id=newProjectId(),custom={id,type:document.getElementById('web-add-type').value,label:label.slice(0,80)};state.webNodes.push(custom);state.webPositions[`custom:${id}`]={x:1010+Math.floor((state.webNodes.length-1)/9)*260,y:120+((state.webNodes.length-1)%9)*96};input.value='';webViewport.initialized=false;save();completeFeatureGuide('web');renderWeb()};

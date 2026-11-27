@@ -155,7 +155,7 @@ main.has-veritas-sidebar{display:grid;grid-template-columns:minmax(0,1fr) 340px;
 @keyframes dot-appear{to{opacity:1}}
 .splash-name{font-size:2rem;letter-spacing:.02em;margin:0}
 .splash-name span{color:var(--accent)}
-.splash-caption{font: .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:9px 0 0}
+.splash-veritas{display:none;margin:3px 0 0;color:var(--accent);font:650 .92rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.08em;text-transform:uppercase}.veritas-edition .splash-veritas{display:block}.splash-caption{font: .84rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);margin:9px 0 0}
 .skip-intro{position:absolute;right:22px;bottom:18px;border:1px solid var(--line);border-radius:999px;background:var(--panel);padding:7px 12px;font: .75rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--sub);cursor:pointer}
 /* Home dashboard */
 .welcome-panel{position:relative;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(220px,.7fr);gap:24px;align-items:center;overflow:hidden;border:1px solid var(--line);border-radius:18px;padding:28px 34px;background:linear-gradient(112deg,var(--panel) 4%,var(--card) 100%);}
@@ -576,7 +576,7 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
 .chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:.7rem;color:var(--sub)}
 .legend-swatch{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
 .metric-table-wrap{overflow:auto;max-height:380px}.metric-table{border-collapse:collapse;width:100%;font:.71rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;white-space:nowrap}.metric-table th,.metric-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:center}.metric-table thead th{position:sticky;top:0;z-index:1;background:var(--panel);color:var(--sub);font-weight:600}.metric-table th:first-child{text-align:left}.metric-table tbody th{font-weight:650}.metric-table td{color:var(--sub);font-variant-numeric:tabular-nums}.metric-table tbody tr:hover{background:var(--card)}
-.node-graph-wrap{position:relative;height:min(72vh,720px);min-height:520px;border:1px solid #39413e;border-radius:6px;background:#191d1c;overflow:hidden;isolation:isolate}
+.node-graph-wrap{position:relative;height:min(72vh,720px);min-height:520px;border:1px solid #39413e;border-radius:6px;background:#191d1c;overflow:hidden;isolation:isolate}.story-web-presenting{overflow:hidden}.story-web-presenting #view-web .node-graph-wrap{position:fixed;inset:78px 4vw 4vw;z-index:3000;height:auto;min-height:0;border-radius:18px;box-shadow:0 24px 90px #0009}.story-web-presenting #view-web .web-map-toolbar{position:fixed;top:20px;left:4vw;right:4vw;z-index:3001;margin:0}.web-present-close{display:none}.story-web-presenting .web-present-close{display:grid}
 #webcanvas{width:100%;height:100%;min-height:0;border:0;background:transparent;touch-action:none;display:block;cursor:grab}
 #webcanvas.is-panning{cursor:grabbing}
 .web-map-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px;padding:7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--panel);font: .74rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
@@ -633,7 +633,8 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
   <div class="splash-content">
     <svg class="thread-mark" viewBox="0 0 80 80" aria-hidden="true"><path d="M15 39c9-23 31-29 45-18 10 8 5 19-8 22L28 49c-13 4-14 17-2 21 12 5 28-3 39-16M20 18c14 23 31 28 43 22M17 58c12-17 31-23 46-22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="61" cy="56" r="3.2" fill="currentColor"/></svg>
     <h1 class="splash-name">Loom<span>wright</span></h1>
-    <p class="splash-caption">Your story, in progress.</p>
+    <p class="splash-veritas">Veritas</p>
+    <p class="splash-caption">Your Story in Progress</p>
   </div>
   <button class="skip-intro" id="skip-intro" type="button">Skip intro</button>
 </div>
@@ -799,7 +800,7 @@ body:not(.nav-side-mounted) .write-workspace .writer-sticky-header{top:0}
       <div class="web-controls" aria-label="Filter story nodes"><label for="web-category">Show</label><select id="web-category" aria-label="Filter by node type"><option value="all">All nodes</option><option value="story">Story and chapters</option><option value="character">Characters</option><option value="place">Places</option><option value="event">Events</option><option value="object">Objects</option><option value="thread">Story threads</option></select><label for="web-status">Character status</label><select id="web-status" aria-label="Filter characters by status"><option value="all">All statuses</option><option value="alive">Alive</option><option value="dead">Dead</option><option value="injured">Injured</option><option value="missing">Missing</option><option value="presumed-dead">Presumed dead</option><option value="captured">Captured</option><option value="recovering">Recovering</option><option value="unknown">Unknown</option></select></div>
       <form id="web-add-form" class="web-controls" aria-label="Add a story node"><label for="web-add-type">Add</label><select id="web-add-type" aria-label="New node type"><option value="place">Place</option><option value="event">Event</option><option value="object">Object</option><option value="thread">Story thread</option></select><input id="web-add-label" type="text" maxlength="80" placeholder="Name a node" aria-label="Node name" required><button class="primary" type="submit">Add node</button><button class="ghost" id="web-remove-node" type="button" disabled>Remove selected</button></form>
       <div class="web-map-toolbar">
-        <div class="web-map-tools"><button id="web-zoom-out" type="button" aria-label="Zoom out" title="Zoom out">−</button><span class="web-map-scale" id="web-zoom-level">100%</span><button id="web-zoom-in" type="button" aria-label="Zoom in" title="Zoom in">+</button><button id="web-fit" type="button" aria-label="Fit map" title="Fit map to view">Fit</button></div>
+        <div class="web-map-tools"><button id="web-zoom-out" type="button" aria-label="Zoom out" title="Zoom out">−</button><span class="web-map-scale" id="web-zoom-level">100%</span><button id="web-zoom-in" type="button" aria-label="Zoom in" title="Zoom in">+</button><button id="web-fit" type="button" aria-label="Fit map" title="Fit map to view">Fit</button><button id="web-rotate" type="button" aria-label="Rotate story tree" title="Rotate story tree">↻</button><span class="web-map-scale" id="web-rotation-level">0°</span><button id="web-present" type="button" aria-label="Open larger Story Web presentation" title="Open larger Story Web presentation">Present</button><button id="web-present-close" class="web-present-close" type="button" aria-label="Close Story Web presentation" title="Close Story Web presentation" hidden>Close</button></div>
         <span id="web-map-count">0 nodes · 0 links</span>
       </div>
       <div class="node-graph-wrap"><svg id="webcanvas" role="img" aria-label="Scrollable story map with draggable nodes and connection ports"></svg></div>

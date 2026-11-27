@@ -27,7 +27,12 @@ fn main() {
         }
     };
 
-    let url = format!("http://127.0.0.1:{}/index.html", server.port);
+    let veritas_edition = std::env::args().any(|arg| arg == "--veritas");
+    let url = if veritas_edition {
+        format!("http://127.0.0.1:{}/index.html?edition=veritas", server.port)
+    } else {
+        format!("http://127.0.0.1:{}/index.html", server.port)
+    };
 
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()

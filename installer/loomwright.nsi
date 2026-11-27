@@ -1,16 +1,16 @@
 ; Loomwright 1.6 — per-user Windows installer (NSIS 3.11)
-; Build: makensis /DVERSION=1.6.0.8.5.1 /DFILE_VERSION=1.6.0.8051 loomwright.nsi
+; Build: makensis /DVERSION=1.6.0.9 /DFILE_VERSION=1.6.0.9 loomwright.nsi
 
 Unicode True
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
 !ifndef VERSION
-  !define VERSION "1.6.0.8.5.1"
+  !define VERSION "1.6.0.9"
 !endif
 
 !ifndef FILE_VERSION
-  !define FILE_VERSION "1.6.0.8051"
+  !define FILE_VERSION "1.6.0.9"
 !endif
 
 !define APPNAME "Loomwright"
@@ -86,13 +86,18 @@ Section "Loomwright (required)" SecMain
 
 SectionEnd
 
+Section "Loomwright with Veritas" SecVeritas
+  CreateShortcut "$SMPROGRAMS\Loomwright\Loomwright with Veritas.lnk" "$INSTDIR\${EXENAME}" "--veritas" "$INSTDIR\app.ico" 0
+SectionEnd
+
 Section "Desktop shortcut" SecDesktop
   CreateShortcut "$DESKTOP\Loomwright.lnk" "$INSTDIR\${EXENAME}" "" "$INSTDIR\app.ico" 0
 SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} "The Loomwright application and its documentation."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "Add a shortcut to the desktop."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecVeritas} "Add a Start menu shortcut that launches the Veritas edition with Veritas-enabled splash branding."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "Add a shortcut to the desktop for Base Loomwright."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Function .onInit
@@ -114,6 +119,7 @@ Section "Uninstall"
   RMDir "$INSTDIR"
 
   Delete "$SMPROGRAMS\Loomwright\Loomwright.lnk"
+  Delete "$SMPROGRAMS\Loomwright\Loomwright with Veritas.lnk"
   Delete "$SMPROGRAMS\Loomwright\Uninstall Loomwright.lnk"
   RMDir "$SMPROGRAMS\Loomwright"
   Delete "$DESKTOP\Loomwright.lnk"

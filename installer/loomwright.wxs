@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?ifndef Version?>
-    <?define Version = "1.12.7000"?>
+    <?define Version = "1.12.9000"?>
   <?endif?>
   <?ifndef DisplayVersion?>
-    <?define DisplayVersion = "1.6.0.8.5.1"?>
+    <?define DisplayVersion = "1.6.0.9"?>
   <?endif?>
 
   <Product Id="*"
@@ -72,6 +72,16 @@
                        Value="1"
                        KeyPath="yes" />
       </Component>
+      <Component Id="VeritasShortcut" Guid="A1B2C3D4-5678-4ABC-9DEF-1234567890AB">
+        <Shortcut Id="VeritasStartMenuShortcut"
+                  Name="Loomwright with Veritas"
+                  Description="Loomwright writing desk with Veritas"
+                  Target="[#LoomwrightExe]"
+                  Arguments="--veritas"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon.ico" />
+        <RegistryValue Root="HKCU" Key="Software\Loomwright" Name="VeritasShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="DesktopFolder">
@@ -97,6 +107,9 @@
       <ComponentRef Id="ReadmeFile" />
       <ComponentRef Id="ApplicationShortcut" />
       <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+    <Feature Id="VeritasFeature" Title="Loomwright with Veritas" Description="Add a Start menu shortcut that launches the Veritas edition." Level="1">
+      <ComponentRef Id="VeritasShortcut" />
     </Feature>
   </Product>
 </Wix>
